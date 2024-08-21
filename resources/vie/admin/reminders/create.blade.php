@@ -2,7 +2,7 @@
 @section('breadcrumb')
 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
     @if($type == "cpd")
-    <h4 class="mb-sm-0">CPDs</h4>
+    <h4 class="mb-sm-0">CPDs TEST</h4>
     @else
     <h4 class="mb-sm-0">Events</h4>
     @endif
@@ -25,7 +25,7 @@
 	@csrf
 	<input type="hidden" name="type" value="{{ $type }}">
 	<div class="card-header">
-		<h5>Create New Reminder</h5>
+		<h5>Create New Reminder </h5>
 	</div>
 	<div class="card-body row">
 		<div class="form-group mb-3">
@@ -70,7 +70,7 @@
 		</div>
 	</div>
 	<div class="card-footer text-end">
-		<button class="btn btn-info" type="submit">Send Reminder</button>
+		<button class="btn btn-info" type="submit">Send Reminder </button>
 	</div>
 </form>
 @endsection

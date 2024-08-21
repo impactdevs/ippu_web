@@ -186,27 +186,6 @@
         <a href="{{ url('profile') }}" class="btn btn-primary">Edit Profile</a>
     </div>
 </div> --}}
-<<<<<<< HEAD
-@endsection
-
-@section('customjs')
-    <script>
-        $(document).ready(function() {
-            $('#subscribe').on('click', function() {
-                makePayment();
-            });
-        });
-
-        function makePayment() {
-            $.get("{{ url('pay') }}", function(data, status) {
-                if(status=='success'){
-                    $('#paymentFrame').attr('src', data['link']);
-                    $('#paymentModal').modal('show');
-                }
-            });
-        }
-    </script>
-=======
 
     <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -222,5 +201,4 @@
         </div>
     </div>
     
->>>>>>> f27a0f114a0bd5ff509f9cad1e59d545aae2c794
 @endsection

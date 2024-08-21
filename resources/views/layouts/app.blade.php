@@ -1760,6 +1760,9 @@
 
 <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 
+
+
+
 <script src="{{ asset('assets/js/app.js') }}"></script>
 {{-- <script src="http://malsup.github.io/jquery.blockUI.js"> --}}
     <script type="text/javascript">

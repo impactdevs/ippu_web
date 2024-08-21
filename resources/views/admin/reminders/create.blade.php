@@ -21,7 +21,7 @@
 </div>
 @endsection
 @section('content')
-<form class="card" method="POST" action="{{ url('admin/send_reminder') }}">
+<form class="card" method="POST" id="reminderForm">
 	@csrf
 	<input type="hidden" name="type" value="{{ $type }}">
 	<div class="card-header">
@@ -73,4 +73,61 @@
 		<button class="btn btn-info" type="submit">Send Reminder</button>
 	</div>
 </form>
+@endsection
+
+
+@section('customjs')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#reminderForm').on('submit', function(e) {
+        e.preventDefault(); // Prevent default form submission
+
+        var formData = new FormData(this);
+
+        $.ajax({
+            url: '{{ url("admin/send_reminder") }}',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('X-CSRF-TOKEN', $('meta[name="csrf-token"]').attr('content'));
+                Swal.fire({
+                    title: 'Sending...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            },
+            success: function(response) {
+                Swal.close(); // Close the loading alert
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Reminder Sent',
+                    text: 'The reminder has been successfully sent!',
+                    confirmButtonColor: "#3a57e8"
+                }).then(function() {
+                    location.reload();
+                });
+            },
+            error: function(error) {
+				console.log("===================")
+				 console.log(error);
+				console.log("===================")
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed to Send Reminder',
+                    text: 'There was an issue sending the reminder. Please try again.',
+                    confirmButtonColor: "#3a57e8"
+                });
+            }
+        });
+    });
+});
+</script>
 @endsection

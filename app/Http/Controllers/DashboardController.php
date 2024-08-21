@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Str;
+use App\Jobs\SendReminderEmails;
 
 class DashboardController extends Controller
 {
@@ -66,18 +67,6 @@ class DashboardController extends Controller
         
     }
 
-<<<<<<< HEAD
-        public function redirect_url()
-    {
-        $response = request()->all();
-
-        dd($response);
-
-        return redirect()->back()->with('success', 'Member subscription has been activated!');
-    }
-
-    public function pay()
-=======
     public function redirect_url()
     {
         $payment_details = request()->all();
@@ -96,7 +85,6 @@ class DashboardController extends Controller
     }
 
        public function pay()
->>>>>>> f27a0f114a0bd5ff509f9cad1e59d545aae2c794
     {
         try {
             $client = new Client();
@@ -132,11 +120,7 @@ class DashboardController extends Controller
             $responseBody = json_decode($response->getBody(), true);
             //check if the request was successful
             if ($responseBody['status'] == 'success') {
-<<<<<<< HEAD
-                return response()->json(['success' => true, 'link' => $responseBody['data']['link']]);
-=======
                 return redirect()->to($responseBody['data']['link']);
->>>>>>> f27a0f114a0bd5ff509f9cad1e59d545aae2c794
             } else {
                 return response()->json(['success' => false, "Payment request failed!"]);
             }
@@ -271,25 +255,45 @@ class DashboardController extends Controller
         return view('admin.reminders.create',compact('type','cpds','events'));
     }
 
+    // public function send_reminder(Request $request)
+    // {
+    //     $users = [];
+    //     if ($request->type == "cpd") {
+    //         $users = User::whereHas('cpd_attendences',function($query) use($request){
+    //                         $query->where('status',$request->status);
+    //                     })->get();
+    //     }else{
+    //         $users = User::whereHas('event_attendences',function($query) use($request){
+    //                         $query->where('status',$request->status);
+    //                     })->get();
+    //     }
+
+    //     foreach ($users as $user) {
+    //         \Mail::to($user)->send(new \App\Mail\RemainderEmail($request,$user));
+    //     }
+
+
+    //     return redirect()->back()->with('success','Reminder has been sent!');
+    // }
+
     public function send_reminder(Request $request)
-    {
-        $users = [];
-        if ($request->type == "cpd") {
-            $users = User::whereHas('cpd_attendences',function($query) use($request){
-                            $query->where('status',$request->status);
-                        })->get();
-        }else{
-            $users = User::whereHas('event_attendences',function($query) use($request){
-                            $query->where('status',$request->status);
-                        })->get();
-        }
-
-        foreach ($users as $user) {
-            \Mail::to($user)->send(new \App\Mail\RemainderEmail($request,$user));
-        }
-
-        return redirect()->back()->with('success','Reminder has been sent!');
+{
+    try {
+        //dd('sending');
+        // Dispatch the job
+        SendReminderEmails::dispatch($request);
+        
+        // Return success response
+        return redirect()->back()->with('success', 'Reminder emails are being sent!');
+    } catch (\Exception $e) {
+        //dd($e);
+        // Log the error
+        \Log::error('Failed to dispatch reminder emails job: ' . $e->getMessage());
+        
+        // Return error response
+        return redirect()->back()->with('error', 'There was an issue sending the reminder emails. Please try again.');
     }
+}
 
     public function upload(Request $request): JsonResponse
     {

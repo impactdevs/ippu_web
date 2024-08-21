@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Communication;
 use AfricasTalking\SDK\AfricasTalking;
 use App\Models\Newsletter;
+use App\Jobs\SendNewsletter;
 
 class CommunicationsController extends Controller
 {
@@ -315,22 +316,52 @@ class CommunicationsController extends Controller
         }
     }
 
-       public function share_newsletter(Newsletter $newsletter)
-    {
-        // Check if the $newsletter is not null
-        if (!$newsletter) {
-            return redirect()->back()->with('error', 'Newsletter not found!');
-        }
+    //    public function share_newsletter(Newsletter $newsletter)
+    // {
+    //     // Check if the $newsletter is not null
+    //     if (!$newsletter) {
+    //         return redirect()->back()->with('error', 'Newsletter not found!');
+    //     }
 
-        $users = \App\Models\User::all();
+    //     $users = \App\Models\User::all();
 
-        $emails = $users->filter(function ($user) {
-            return $user->email_verified_at != null;
-        })->pluck('email')->toArray();
+    //     dd($users);
 
-        // Send the email with BCC
-        \Mail::to('nsengiyumvawilberforce@gmail.com')->bcc($emails)->send(new \App\Mail\Newsletter($newsletter->title, $newsletter->newsletter_file_url, $newsletter->description));
+    //     $emails = $users->filter(function ($user) {
+    //         return $user->email_verified_at != null;
+    //     })->pluck('email')->toArray();
 
+    //     // Send the email with BCC
+    //     \Mail::to('nsengiyumvawilberforce@gmail.com')->bcc($emails)->send(new \App\Mail\Newsletter($newsletter->title, $newsletter->newsletter_file_url, $newsletter->description));
+
+    //     return redirect()->back()->with('success', 'Newsletter has been shared!');
+    // }
+
+//     public function share_newsletter(Newsletter $newsletter)
+// {
+//     // Check if the $newsletter is not null
+//     if (!$newsletter) {
+//         return redirect()->back()->with('error', 'Newsletter not found!');
+//     }
+
+//     // Dispatch the SendNewsletter job
+//     SendNewsletter::dispatch($newsletter);
+
+//     return redirect()->back()->with('success', 'Newsletter has been shared!');
+// }
+
+public function share_newsletter(Newsletter $newsletter)
+{
+    // Dispatch the SendNewsletter job
+    try {
+        SendNewsletter::dispatch($newsletter);
         return redirect()->back()->with('success', 'Newsletter has been shared!');
+    } catch (\Exception $e) {
+        // Catch and log any exceptions
+        \Log::error('Failed to share newsletter: ' . $e->getMessage());
+        return redirect()->back()->with('error', 'Failed to share newsletter. Please try again.');
     }
+}
+
+
 }

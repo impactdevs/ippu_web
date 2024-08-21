@@ -11,6 +11,8 @@ class Job extends Model
 {
     use HasFactory;
 
+    protected $table = "jobs_ippu";
+
     protected static function boot()
     {
         parent::boot();
