@@ -13,6 +13,9 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Str;
 use Auth;
+use App\Mail\CertificateMail;
+use Illuminate\Support\Facades\Mail;
+use ZipArchive;
 
 class CpdsController extends Controller
 {
@@ -20,21 +23,21 @@ class CpdsController extends Controller
     {
         $cpds = Cpd::all();
 
-        return view('members.cpds.index',compact('cpds'));
+        return view('members.cpds.index', compact('cpds'));
     }
 
     public function upcoming()
     {
-        $cpds = Cpd::where('start_date','>=',date('Y-m-d'))->get();
+        $cpds = Cpd::where('start_date', '>=', date('Y-m-d'))->get();
 
-        return view('members.cpds.index',compact('cpds'));
+        return view('members.cpds.index', compact('cpds'));
     }
 
-    public function attend($id='')
+    public function attend($id = '')
     {
 
         $event = Cpd::find($id);
-        return view('members.cpds.confirmation',compact('event'));
+        return view('members.cpds.confirmation', compact('event'));
 
         // try{
         //     \DB::beginTransaction();
@@ -53,7 +56,7 @@ class CpdsController extends Controller
         // }
     }
 
-     public function redirect_url()
+    public function redirect_url()
     {
         $payment_details = request()->all();
         try {
@@ -65,7 +68,6 @@ class CpdsController extends Controller
         }
 
         return view('members.dashboard')->with('success', 'Payment was not successful!');
-
     }
 
     public function pay($id = '')
@@ -82,7 +84,7 @@ class CpdsController extends Controller
                     'tx_ref' => Str::uuid(),
                     'amount' => $cpd->normal_rate,
                     'currency' => 'UGX',
-                    'redirect_url' => url('redirect_url_cpds').'?cpd_id='.$cpd->id,
+                    'redirect_url' => url('redirect_url_cpds') . '?cpd_id=' . $cpd->id,
                     'meta' => [
                         'consumer_id' => auth()->user()->id,
                         "full_name" => auth()->user()->name,
@@ -111,7 +113,6 @@ class CpdsController extends Controller
             } else {
                 return redirect()->back()->with('error', 'Payment request failed!');
             }
-
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $responseBody = json_decode($e->getResponse()->getBody(), true);
@@ -124,7 +125,7 @@ class CpdsController extends Controller
 
     public function confirm_attendence(Request $request)
     {
-         try{
+        try {
             $attendence = new Attendence;
             $attendence->user_id = \Auth::user()->id;
             $attendence->cpd_id = $request->cpd_id;
@@ -135,25 +136,26 @@ class CpdsController extends Controller
                 $file = $request->file('payment_proof');
                 $extension = $file->getClientOriginalExtension();
 
-                $filename = time().rand(100,1000).'.'.$extension;
+                $filename = time() . rand(100, 1000) . '.' . $extension;
 
                 $storage = \Storage::disk('public')->putFileAs(
-                            'images/',
-                            $file,
-                            $filename);
+                    'images/',
+                    $file,
+                    $filename
+                );
 
                 if (!$storage) {
                     return response()->json(['message' => 'Unable to upload payment proof!']);
-                }else{  
+                } else {
                     $attendence->payment_proof = $filename;
                 }
             }
 
             $attendence->save();
 
-            return redirect()->back()->with('success','CPD has been recorded!');
-        }catch(\Throwable $e){
-            return redirect()->back()->with('error',$e->getMessage());
+            return redirect()->back()->with('success', 'CPD has been recorded!');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
@@ -161,24 +163,25 @@ class CpdsController extends Controller
     {
         $cpds = Cpd::whereHas('attended')->get();
 
-        return view('members.cpds.index',compact('cpds'));
+        return view('members.cpds.index', compact('cpds'));
     }
 
     public function details($id)
     {
         $event = Cpd::find($id);
 
-        return view('members.cpds.details',compact('event'));
+        return view('members.cpds.details', compact('event'));
     }
 
     public function certificate($event)
     {
         $event = Cpd::find($event);
 
-        return view('members.cpds.certificate',compact('event'));
+        return view('members.cpds.certificate', compact('event'));
     }
 
-    public function generate_certificate($event){
+    public function generate_certificate($event)
+    {
         $manager = new ImageManager(new Driver());
         //read the image from the public folder
         $image = $manager->read(public_path('images/cpd-certificate-template.jpg'));
@@ -214,8 +217,8 @@ class CpdsController extends Controller
             $font->lineHeight(1.6);
         });
 
-       //add event name
-        $image->text('"'.$event->topic.'"', 730, 690, function ($font) {
+        //add event name
+        $image->text('"' . $event->topic . '"', 730, 690, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#000000');
             $font->size(20);
@@ -229,11 +232,11 @@ class CpdsController extends Controller
         $endDate = Carbon::parse($event->end_date);
 
         if ($startDate->month === $endDate->month) {
-            $x=720;
+            $x = 720;
             // Dates are in the same month
             $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
         } else {
-            $x=780;
+            $x = 780;
             // Dates are in different months
             $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
         }
@@ -257,7 +260,7 @@ class CpdsController extends Controller
             $font->lineHeight(1.6);
         });
 
-        $image->text($event->hours."CPD HOURS", 1400, 945, function ($font) {
+        $image->text($event->hours . "CPD HOURS", 1400, 945, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#000000');
             $font->size(17);
@@ -274,4 +277,288 @@ class CpdsController extends Controller
         //download the image
         return response()->download(public_path('images/certificate-generated.png'))->deleteFileAfterSend(true);
     }
+
+
+    public function downloadCertificate($cpd_id, $user_id)
+    {
+        //dd("am here");
+        try {
+            $manager = new ImageManager(new Driver());
+
+            $event = Cpd::find($cpd_id);
+            $user = \App\Models\User::find($user_id);
+
+            // Load the certificate template
+            $image = $manager->read(public_path('images/cpd-certificate-template.jpg'));
+
+            // Add details to the certificate
+            $image->text($event->code, 173, 27, function ($font) {
+                $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                $font->size(20);
+                $font->color('#000000');
+                $font->align('center');
+            });
+
+            $image->text($user->name, 780, 550, function ($font) {
+                $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
+                $font->size(45);
+                $font->color('#1F45FC');
+                $font->align('center');
+            });
+
+            $image->text($event->topic, 730, 690, function ($font) {
+                $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                $font->size(20);
+                $font->color('#000000');
+                $font->align('center');
+            });
+
+            $startDate = Carbon::parse($event->start_date);
+            $endDate = Carbon::parse($event->end_date);
+
+            $x = ($startDate->month === $endDate->month) ? 720 : 780;
+            $formattedRange = ($startDate->month === $endDate->month)
+                ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
+                : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+
+            $image->text('on ', 600, 760, function ($font) {
+                $font->file(public_path('fonts/Roboto-Regular.ttf'));
+                $font->size(20);
+                $font->color('#000000');
+                $font->align('center');
+            });
+
+            $image->text($formattedRange, $x, 760, function ($font) {
+                $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                $font->size(20);
+                $font->color('#000000');
+                $font->align('center');
+            });
+
+            $image->text($event->hours . " CPD HOURS", 1400, 945, function ($font) {
+                $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                $font->size(17);
+                $font->color('#000000');
+                $font->align('center');
+            });
+
+            // Save the certificate to a temporary file
+            $path = public_path('certificates/' . $user->id . '_certificate.png');
+            $image->save($path);
+
+            // Return the certificate for download
+            return response()->download($path)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            // Handle any errors that occur during the certificate generation
+            return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());
+        }
+    }
+
+    public function emailCertificate($cpd_id, $user_id)
+    {
+        try {
+
+            $manager = new ImageManager(new Driver());
+
+            $event = Cpd::find($cpd_id);
+            // dd($event);
+            $user = \App\Models\User::find($user_id);
+
+            // Load the certificate template
+            $image = $manager->read(public_path('images/cpd-certificate-template.jpg'));
+
+            // Add details to the certificate
+            $image->text($event->code, 173, 27, function ($font) {
+                $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                $font->size(20);
+                $font->color('#000000');
+                $font->align('center');
+            });
+
+            $image->text($user->name, 780, 550, function ($font) {
+                $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
+                $font->size(45);
+                $font->color('#1F45FC');
+                $font->align('center');
+            });
+
+            $image->text($event->topic, 730, 690, function ($font) {
+                $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                $font->size(20);
+                $font->color('#000000');
+                $font->align('center');
+            });
+
+            $startDate = Carbon::parse($event->start_date);
+            $endDate = Carbon::parse($event->end_date);
+
+            $x = ($startDate->month === $endDate->month) ? 720 : 780;
+            $formattedRange = ($startDate->month === $endDate->month)
+                ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
+                : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+
+            $image->text('on ', 600, 760, function ($font) {
+                $font->file(public_path('fonts/Roboto-Regular.ttf'));
+                $font->size(20);
+                $font->color('#000000');
+                $font->align('center');
+            });
+
+            $image->text($formattedRange, $x, 760, function ($font) {
+                $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                $font->size(20);
+                $font->color('#000000');
+                $font->align('center');
+            });
+
+            $image->text($event->hours . " CPD HOURS", 1400, 945, function ($font) {
+                $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                $font->size(17);
+                $font->color('#000000');
+                $font->align('center');
+            });
+
+
+
+            // Save the certificate to a temporary file
+            $path = public_path('certificates/' . $user->id . '_certificate.png');
+            $image->save($path);
+
+            // Send the certificate via email
+            // Mail::to($user->email)->send(new CertificateMail($user, $event, $path));
+            // Send the certificate via email
+            Mail::to($user->email)->send(new CertificateMail($user, $event, $path, $formattedRange));
+
+
+            // Optionally, delete the file after sending the email
+            unlink($path);
+
+            return redirect()->back()->with('success', 'Certificate has been emailed successfully.');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            return redirect()->back()->with('error', 'An error occurred while emailing the certificate: ' . $e->getMessage());
+        }
+    }
+
+    public function bulkEmail(Request $request)
+    {
+        $userIds = $request->input('attendees', []);
+
+        foreach ($userIds as $userId) {
+            $user = \App\Models\User::find($userId);
+            if ($user) {
+                // Assuming $cpd_id is passed through a hidden input field or other means
+                $cpd_id = $request->input('cpd_id');
+                $cpd = Cpd::find($cpd_id);
+
+                // Generate and email certificate
+                $this->emailCertificate($cpd_id, $userId);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Certificates have been emailed successfully.');
+    }
+
+
+    public function downloadBulkCertificates(Request $request)
+    {
+        $userIds = $request->input('attendees', []);
+        $cpd_id = $request->input('cpd_id');
+    
+        $cpd = Cpd::find($cpd_id);
+    
+        if (!$cpd) {
+            return redirect()->back()->with('error', 'CPD not found.');
+        }
+    
+        // Create a unique name for the ZIP file
+        $zipFileName = 'certificates-' . now()->format('YmdHis') . '.zip';
+        $zipFilePath = public_path('certificates/' . $zipFileName);
+    
+        // Create a new ZIP file
+        $zip = new \ZipArchive;
+        if ($zip->open($zipFilePath, \ZipArchive::CREATE) !== true) {
+            return redirect()->back()->with('error', 'Could not create ZIP file.');
+        }
+    
+        // Ensure the certificates directory exists
+        $certificatesDir = public_path('certificates');
+        if (!is_dir($certificatesDir)) {
+            mkdir($certificatesDir, 0755, true);
+        }
+    
+        foreach ($userIds as $userId) {
+            $user = \App\Models\User::find($userId);
+            if ($user) {
+                $path = public_path('certificates/' . $user->id . '_certificate.png');
+    
+                // Generate the certificate
+                $manager = new ImageManager(new Driver());
+                $image = $manager->read(public_path('images/cpd-certificate-template.jpg'));
+    
+                $image->text($cpd->code, 173, 27, function ($font) {
+                    $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                    $font->size(20);
+                    $font->color('#000000');
+                    $font->align('center');
+                });
+    
+                $image->text($user->name, 780, 550, function ($font) {
+                    $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
+                    $font->size(45);
+                    $font->color('#1F45FC');
+                    $font->align('center');
+                });
+    
+                $image->text($cpd->topic, 730, 690, function ($font) {
+                    $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                    $font->size(20);
+                    $font->color('#000000');
+                    $font->align('center');
+                });
+    
+                $startDate = Carbon::parse($cpd->start_date);
+                $endDate = Carbon::parse($cpd->end_date);
+    
+                $x = ($startDate->month === $endDate->month) ? 720 : 780;
+                $formattedRange = ($startDate->month === $endDate->month)
+                    ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
+                    : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+    
+                $image->text('on ', 600, 760, function ($font) {
+                    $font->file(public_path('fonts/Roboto-Regular.ttf'));
+                    $font->size(20);
+                    $font->color('#000000');
+                    $font->align('center');
+                });
+    
+                $image->text($formattedRange, $x, 760, function ($font) {
+                    $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                    $font->size(20);
+                    $font->color('#000000');
+                    $font->align('center');
+                });
+    
+                $image->text($cpd->hours . " CPD HOURS", 1400, 945, function ($font) {
+                    $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                    $font->size(17);
+                    $font->color('#000000');
+                    $font->align('center');
+                });
+    
+                $image->save($path);
+    
+                // Add the certificate to the ZIP file
+                $zip->addFile($path, basename($path));
+            }
+        }
+    
+        $zip->close();
+    
+        return response()->download($zipFilePath)->deleteFileAfterSend(true);
+    }
+    
+           
+
 }

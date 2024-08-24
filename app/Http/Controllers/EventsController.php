@@ -300,7 +300,7 @@ class EventsController extends Controller
 
         $request->validate([
             'name' => 'required',
-            'email' => 'required',
+            'email' => 'required|email|unique:attendences,email',
         ]);
 
 

@@ -21,6 +21,8 @@ class EventsController extends Controller
 
         $events = $events->get();
 
+        //dd($events);
+
         return view('admin.events.index', compact('events'));
     }
 

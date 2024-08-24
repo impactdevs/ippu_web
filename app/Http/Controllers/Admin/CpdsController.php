@@ -10,6 +10,9 @@ use Dompdf\Options;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
 use BaconQrCode\Writer;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+use Carbon\Carbon;
 
 class CpdsController extends Controller
 {
@@ -19,12 +22,16 @@ class CpdsController extends Controller
     public function index(Request $request, ) {
 
         $cpds = Cpd::query();
+        //dd($cpds);
 
         if(!empty($request->search)) {
+            //dd("here in search");
             $cpds->where('code', 'like', '%' . $request->search . '%');
         }
 
         $cpds = $cpds->get();
+
+        //dd(count($cpds));
 
 
         return view('admin.cpds.index', compact('cpds'));
@@ -113,6 +120,7 @@ class CpdsController extends Controller
 
             return redirect('admin/cpds')->with('success', __('Cpd created successfully.'));
         } catch (\Throwable $e) {
+            //dd($e->getMessage());
             return redirect()->back()->withInput($request->input())->with('error', $e->getMessage());
         }
     }
@@ -125,7 +133,7 @@ class CpdsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(Cpd $cpd,) {
-
+          //dd($cpd->confirmed);
         return view('admin.cpds.show', compact('cpd'));
     }
 
@@ -375,5 +383,81 @@ public function generate_qr($type, $id)
         }
         header('Content-Type: application/json');
         echo json_encode($events);
+    }
+
+    public function downloadCertificate(Request $request, $cpd_id, $user_id)
+    {
+        //  dd("am here");
+        try {
+            $manager = new ImageManager(new Driver());
+    
+            $event = Cpd::find($cpd_id);
+            $user = \App\Models\User::find($user_id);
+    
+            // Load the certificate template
+            $image = $manager->make(public_path('images/cpd-certificate-template.jpg'));
+    
+            // Add details to the certificate
+            $image->text($event->code, 173, 27, function ($font) {
+                $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                $font->size(20);
+                $font->color('#000000');
+                $font->align('center');
+            });
+    
+            $image->text($user->name, 780, 550, function ($font) {
+                $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
+                $font->size(45);
+                $font->color('#1F45FC');
+                $font->align('center');
+            });
+    
+            $image->text($event->topic, 730, 690, function ($font) {
+                $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                $font->size(20);
+                $font->color('#000000');
+                $font->align('center');
+            });
+    
+            $startDate = Carbon::parse($event->start_date);
+            $endDate = Carbon::parse($event->end_date);
+    
+            $x = ($startDate->month === $endDate->month) ? 720 : 780;
+            $formattedRange = ($startDate->month === $endDate->month) 
+                ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
+                : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+    
+            $image->text('on ', 600, 760, function ($font) {
+                $font->file(public_path('fonts/Roboto-Regular.ttf'));
+                $font->size(20);
+                $font->color('#000000');
+                $font->align('center');
+            });
+    
+            $image->text($formattedRange, $x, 760, function ($font) {
+                $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                $font->size(20);
+                $font->color('#000000');
+                $font->align('center');
+            });
+    
+            $image->text($event->hours . " CPD HOURS", 1400, 945, function ($font) {
+                $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                $font->size(17);
+                $font->color('#000000');
+                $font->align('center');
+            });
+    
+            // Save the certificate to a temporary file
+            $path = public_path('certificates/'.$user->id.'_certificate.png');
+            $image->save($path);
+    
+            // Return the certificate for download
+            return response()->download($path)->deleteFileAfterSend(true);
+    
+        } catch (\Exception $e) {
+            // Handle any errors that occur during the certificate generation
+            return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());
+        }
     }
 }

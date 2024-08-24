@@ -121,6 +121,19 @@ Route::middleware(['auth','verified'])->group(function(){
 Route::get('get-newsletters', [CommunicationsController::class,'newsletter_view']);
 
 Route::prefix('admin')->middleware(['auth','verified'])->group(function(){
+
+    //new routes
+Route::post('cpds/bulk-email', [CpdsController::class, 'sendBulkEmail']);
+Route::get('cpds/attendence/{id}/{user_id}', [mCpdsController::class, 'emailCertificate']);
+Route::post('cpds/bulk-email', [mCpdsController::class, 'bulkEmail'])->name('cpds.bulkEmail');
+Route::post('/cpds/bulk-download', [mCpdsController::class, 'downloadBulkCertificates'])->name('cpds.bulkDownload');
+// Route::get('admin/cpds/attendence/{id}/download-certificate', [CpdsController::class, 'downloadCertificate']);
+Route::get('cpds/download_certificate/{cpd_id}/{user_id}', [mCpdsController::class, 'downloadCertificate'])->name('cpds.downloadCertificate');
+
+
+
+    //new routes
+
     Route::resource('reminders', \App\Http\Controllers\RemindersController::class);
     Route::POST('read_notification', [\App\Http\Controllers\RemindersController::class,'markReminder']);
     Route::resource('account_types', AccountTypesController::class);
