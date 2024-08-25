@@ -20,8 +20,8 @@ class Cpd extends Model
     public function attended()
     {
         // hasOne(RelatedModel, foreignKeyOnRelatedModel = event_id, localKey = id)
-        //return $this->hasOne(Attendence::class)->where('user_id',\Auth::user()->id);
-        return $this->hasOne(Attendence::class)->where('user_id','1403');
+        return $this->hasOne(Attendence::class)->where('user_id',\Auth::user()->id);
+        //return $this->hasOne(Attendence::class)->where('user_id','1403');
     }
 
     /**

@@ -122,17 +122,22 @@ Route::get('get-newsletters', [CommunicationsController::class,'newsletter_view'
 
 Route::prefix('admin')->middleware(['auth','verified'])->group(function(){
 
-    //new routes
+    //cpds
 Route::post('cpds/bulk-email', [CpdsController::class, 'sendBulkEmail']);
 Route::get('cpds/attendence/{id}/{user_id}', [mCpdsController::class, 'emailCertificate']);
 Route::post('cpds/bulk-email', [mCpdsController::class, 'bulkEmail'])->name('cpds.bulkEmail');
 Route::post('/cpds/bulk-download', [mCpdsController::class, 'downloadBulkCertificates'])->name('cpds.bulkDownload');
-// Route::get('admin/cpds/attendence/{id}/download-certificate', [CpdsController::class, 'downloadCertificate']);
 Route::get('cpds/download_certificate/{cpd_id}/{user_id}', [mCpdsController::class, 'downloadCertificate'])->name('cpds.downloadCertificate');
+//cpds
 
+ //events
+ Route::post('events/bulk-email', [mEventsController::class, 'sendBulkEmail']);
+Route::get('events/attendence/{id}/{user_id}', [mEventsController::class, 'emailCertificate']);
+Route::post('events/bulk-email', [mEventsController::class, 'bulkEmail'])->name('events.bulkEmail');
+Route::post('/events/bulk-download', [mEventsController::class, 'downloadBulkCertificates'])->name('events.bulkDownload');
+Route::get('events/download_certificate/{event_id}/{user_id}', [mEventsController::class, 'downloadCertificate'])->name('events.downloadCertificate');
 
-
-    //new routes
+ //events
 
     Route::resource('reminders', \App\Http\Controllers\RemindersController::class);
     Route::POST('read_notification', [\App\Http\Controllers\RemindersController::class,'markReminder']);

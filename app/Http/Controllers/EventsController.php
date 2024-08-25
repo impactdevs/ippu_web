@@ -20,6 +20,10 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Str;
 use Symfony\Component\Mailer\Exception\TransportException;
 use Auth;
+use App\Mail\CertificateMail;
+use Illuminate\Support\Facades\Mail;
+use ZipArchive;
+use App\Mail\EventCertificate;
 
 
 
@@ -555,5 +559,332 @@ class EventsController extends Controller
 
         return true; // Indicate if the device has already been attended
     }
+
+    //new
+    public function emailCertificate($event_id, $user_id)
+{
+    try {
+        $manager = new ImageManager(new Driver());
+        $event = Event::find($event_id);
+        $user = \App\Models\User::find($user_id);
+        $name = $user->name;
+        $membership_number = $user->membership_number;
+        $id = $user->id;
+
+        // Read the image from the public folder
+        $image = $manager->read(public_path('images/certificate-template.jpeg'));
+
+        $image->text('PRESENTED TO', 420, 250, function ($font) {
+            $font->file(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#405189');
+            $font->size(12);
+            $font->align('center');
+            $font->valign('middle');
+        });
+
+        $image->text($name, 420, 300, function ($font) {
+            $font->file(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#b01735');
+            $font->size(20);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
+
+        $image->text('FOR ATTENDING THE', 420, 340, function ($font) {
+            $font->file(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#405189');
+            $font->size(12);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
+
+        // Add event name
+        $image->text($event->name, 420, 370, function ($font) {
+            $font->file(public_path('fonts/Roboto-Regular.ttf'));
+            $font->color('#008000');
+            $font->size(22);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
+
+        $startDate = Carbon::parse($event->start_date);
+        $endDate = Carbon::parse($event->end_date);
+
+        if ($startDate->month === $endDate->month) {
+            $x = 420;
+            $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
+        } else {
+            $x = 480;
+            $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+        }
+
+        $image->text('Organized by the Institute of Procurement Professionals of Uganda on ' . $formattedRange, $x, 400, function ($font) {
+            $font->file(public_path('fonts/Roboto-Regular.ttf'));
+            $font->color('#405189');
+            $font->size(12);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
+
+        // Add membership number
+        $image->text('MembershipNumber: ' . $membership_number ?? "N/A", 450, 483, function ($font) {
+            $font->file(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#405189');
+            $font->size(12);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
+
+        $file_name = 'certificate-generated_' . $id . '.png';
+
+        // Save the image to the public folder
+        $image->save(public_path('images/' . $file_name));
+
+        // Send the certificate via email
+        $path = public_path('images/' . $file_name);
+        Mail::to($user->email)->send(new EventCertificate($name, $event, $path, $formattedRange));
+
+        // Optionally, delete the certificate after sending the email
+        unlink($path);
+
+        return redirect()->back()->with('success', 'Certificate generated and emailed successfully.');
+
+    } catch (\Exception $e) {
+        // Handle any errors that occur during the certificate generation
+        return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());
+    }
+}
+
+    public function bulkEmail(Request $request)
+    {
+        $userIds = $request->input('attendees', []);
+
+        foreach ($userIds as $userId) {
+            $user = \App\Models\User::find($userId);
+            if ($user) {
+                // Assuming $cpd_id is passed through a hidden input field or other means
+                $cpd_id = $request->input('cpd_id');
+                $cpd = Cpd::find($cpd_id);
+
+                // Generate and email certificate
+                $this->emailCertificate($cpd_id, $userId);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Certificates have been emailed successfully.');
+    }
+
+
+    public function downloadBulkCertificates(Request $request)
+    {
+        $userIds = $request->input('attendees', []);
+        $cpd_id = $request->input('cpd_id');
+    
+        $cpd = Cpd::find($cpd_id);
+    
+        if (!$cpd) {
+            return redirect()->back()->with('error', 'CPD not found.');
+        }
+    
+        // Create a unique name for the ZIP file
+        $zipFileName = 'certificates-' . now()->format('YmdHis') . '.zip';
+        $zipFilePath = public_path('certificates/' . $zipFileName);
+    
+        // Create a new ZIP file
+        $zip = new \ZipArchive;
+        if ($zip->open($zipFilePath, \ZipArchive::CREATE) !== true) {
+            return redirect()->back()->with('error', 'Could not create ZIP file.');
+        }
+    
+        // Ensure the certificates directory exists
+        $certificatesDir = public_path('certificates');
+        if (!is_dir($certificatesDir)) {
+            mkdir($certificatesDir, 0755, true);
+        }
+    
+        foreach ($userIds as $userId) {
+            $user = \App\Models\User::find($userId);
+            if ($user) {
+                $path = public_path('certificates/' . $user->id . '_certificate.png');
+    
+                // Generate the certificate
+                $manager = new ImageManager(new Driver());
+                $image = $manager->read(public_path('images/cpd-certificate-template.jpg'));
+    
+                $image->text($cpd->code, 173, 27, function ($font) {
+                    $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                    $font->size(20);
+                    $font->color('#000000');
+                    $font->align('center');
+                });
+    
+                $image->text($user->name, 780, 550, function ($font) {
+                    $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
+                    $font->size(45);
+                    $font->color('#1F45FC');
+                    $font->align('center');
+                });
+    
+                $image->text($cpd->topic, 730, 690, function ($font) {
+                    $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                    $font->size(20);
+                    $font->color('#000000');
+                    $font->align('center');
+                });
+    
+                $startDate = Carbon::parse($cpd->start_date);
+                $endDate = Carbon::parse($cpd->end_date);
+    
+                $x = ($startDate->month === $endDate->month) ? 720 : 780;
+                $formattedRange = ($startDate->month === $endDate->month)
+                    ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
+                    : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+    
+                $image->text('on ', 600, 760, function ($font) {
+                    $font->file(public_path('fonts/Roboto-Regular.ttf'));
+                    $font->size(20);
+                    $font->color('#000000');
+                    $font->align('center');
+                });
+    
+                $image->text($formattedRange, $x, 760, function ($font) {
+                    $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                    $font->size(20);
+                    $font->color('#000000');
+                    $font->align('center');
+                });
+    
+                $image->text($cpd->hours . " CPD HOURS", 1400, 945, function ($font) {
+                    $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                    $font->size(17);
+                    $font->color('#000000');
+                    $font->align('center');
+                });
+    
+                $image->save($path);
+    
+                // Add the certificate to the ZIP file
+                $zip->addFile($path, basename($path));
+            }
+        }
+    
+        $zip->close();
+    
+        return response()->download($zipFilePath)->deleteFileAfterSend(true);
+    }
+
+    public function downloadCertificate($event_id, $user_id)
+    {
+        // dd($cpd_id, $user_id);
+        try {
+            $manager = new ImageManager(new Driver());
+            $event = Event::find($event_id);
+            $user = \App\Models\User::find($user_id);
+            $name = $user->name;
+            $membership_number = $user->membership_number;
+            $id = $user->id;
+
+            //read the image from the public folder
+            $image = $manager->read(public_path('images/certificate-template.jpeg'));
+            $eventFound = Event::find($event);
+            // $user = User::find($user);
+    
+            $image->text('PRESENTED TO', 420, 250, function ($font) {
+                $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+                $font->color('#405189');
+                $font->size(12);
+                $font->align('center');
+                $font->valign('middle');
+            });
+
+          //dd($user->name);
+    
+            $image->text($name, 420, 300, function ($font) {
+                $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+                $font->color('#b01735');
+                $font->size(20);
+                $font->align('center');
+                $font->valign('middle');
+                $font->lineHeight(1.6);
+            });
+
+
+    
+            $image->text('FOR ATTENDING THE', 420, 340, function ($font) {
+                $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+                $font->color('#405189');
+                $font->size(12);
+                $font->align('center');
+                $font->valign('middle');
+                $font->lineHeight(1.6);
+            });
+    
+            //add event name
+            $image->text($event->name, 420, 370, function ($font) {
+                $font->filename(public_path('fonts/Roboto-Regular.ttf'));
+                $font->color('#008000');
+                $font->size(22);
+                $font->align('center');
+                $font->valign('middle');
+                $font->lineHeight(1.6);
+            });
+
+
+    
+            $startDate = Carbon::parse($event->start_date);
+            $endDate = Carbon::parse($event->end_date);
+    
+            if ($startDate->month === $endDate->month) {
+                $x=420;
+                // Dates are in the same month
+                $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
+            } else {
+                $x=480;
+                // Dates are in different months
+                $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+            }
+    
+    
+            $image->text('Organized by the Institute of Procurement Professionals of Uganda on '.$formattedRange, $x, 400, function ($font) {
+                $font->filename(public_path('fonts/Roboto-Regular.ttf'));
+                $font->color('#405189');
+                $font->size(12);
+                $font->align('center');
+                $font->valign('middle');
+                $font->lineHeight(1.6);
+            });
+    
+            //add membership number
+            $image->text('MembershipNumber: ' . $membership_number ?? "N/A", 450, 483, function ($font) {
+                $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+                $font->color('#405189');
+                $font->size(12);
+                $font->align('center');
+                $font->valign('middle');
+                $font->lineHeight(1.6);
+            });
+    
+            $image->toPng();
+            //let file name be certificate-generated_user_id.png
+            $file_name = 'certificate-generated_' . $id . '.png';
+    
+            //save the image to the public folder
+            $image->save(public_path('images/' . $file_name));
+    
+            //download the image
+            return response()->download(public_path('images/' . $file_name))->deleteFileAfterSend(true);
+
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            // Handle any errors that occur during the certificate generation
+            return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());
+        }
+    }
+    //new
 
 }
