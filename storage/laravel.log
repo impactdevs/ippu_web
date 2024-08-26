@@ -115,3 +115,114 @@ In Factory.php line 697:
 
 install [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--download-only] [--dev] [--no-suggest] [--no-dev] [--no-autoloader] [--no-progress] [--no-install] [--audit] [--audit-format AUDIT-FORMAT] [-v|vv|vvv|--verbose] [-o|--optimize-autoloader] [-a|--classmap-authoritative] [--apcu-autoloader] [--apcu-autoloader-prefix APCU-AUTOLOADER-PREFIX] [--ignore-platform-req IGNORE-PLATFORM-REQ] [--ignore-platform-reqs] [--] [<packages>...]
 
+fatal: detected dubious ownership in repository at '/var/www/staging.ippu.org'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /var/www/staging.ippu.org
+
+In Factory.php line 697:
+                                                                               
+  The HOME or COMPOSER_HOME environment variable must be set for composer to   
+  run correctly                                                                
+                                                                               
+
+install [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--download-only] [--dev] [--no-suggest] [--no-dev] [--no-autoloader] [--no-progress] [--no-install] [--audit] [--audit-format AUDIT-FORMAT] [-v|vv|vvv|--verbose] [-o|--optimize-autoloader] [-a|--classmap-authoritative] [--apcu-autoloader] [--apcu-autoloader-prefix APCU-AUTOLOADER-PREFIX] [--ignore-platform-req IGNORE-PLATFORM-REQ] [--ignore-platform-reqs] [--] [<packages>...]
+
+fatal: detected dubious ownership in repository at '/var/www/staging.ippu.org'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /var/www/staging.ippu.org
+
+In Factory.php line 697:
+                                                                               
+  The HOME or COMPOSER_HOME environment variable must be set for composer to   
+  run correctly                                                                
+                                                                               
+
+install [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--download-only] [--dev] [--no-suggest] [--no-dev] [--no-autoloader] [--no-progress] [--no-install] [--audit] [--audit-format AUDIT-FORMAT] [-v|vv|vvv|--verbose] [-o|--optimize-autoloader] [-a|--classmap-authoritative] [--apcu-autoloader] [--apcu-autoloader-prefix APCU-AUTOLOADER-PREFIX] [--ignore-platform-req IGNORE-PLATFORM-REQ] [--ignore-platform-reqs] [--] [<packages>...]
+
+fatal: detected dubious ownership in repository at '/var/www/staging.ippu.org'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /var/www/staging.ippu.org
+
+In Factory.php line 697:
+                                                                               
+  The HOME or COMPOSER_HOME environment variable must be set for composer to   
+  run correctly                                                                
+                                                                               
+
+install [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--download-only] [--dev] [--no-suggest] [--no-dev] [--no-autoloader] [--no-progress] [--no-install] [--audit] [--audit-format AUDIT-FORMAT] [-v|vv|vvv|--verbose] [-o|--optimize-autoloader] [-a|--classmap-authoritative] [--apcu-autoloader] [--apcu-autoloader-prefix APCU-AUTOLOADER-PREFIX] [--ignore-platform-req IGNORE-PLATFORM-REQ] [--ignore-platform-reqs] [--] [<packages>...]
+
+fatal: detected dubious ownership in repository at '/var/www/staging.ippu.org'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /var/www/staging.ippu.org
+
+In Factory.php line 697:
+                                                                               
+  The HOME or COMPOSER_HOME environment variable must be set for composer to   
+  run correctly                                                                
+                                                                               
+
+install [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--download-only] [--dev] [--no-suggest] [--no-dev] [--no-autoloader] [--no-progress] [--no-install] [--audit] [--audit-format AUDIT-FORMAT] [-v|vv|vvv|--verbose] [-o|--optimize-autoloader] [-a|--classmap-authoritative] [--apcu-autoloader] [--apcu-autoloader-prefix APCU-AUTOLOADER-PREFIX] [--ignore-platform-req IGNORE-PLATFORM-REQ] [--ignore-platform-reqs] [--] [<packages>...]
+
+fatal: detected dubious ownership in repository at '/var/www/staging.ippu.org'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /var/www/staging.ippu.org
+
+In Factory.php line 697:
+                                                                               
+  The HOME or COMPOSER_HOME environment variable must be set for composer to   
+  run correctly                                                                
+                                                                               
+
+install [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--download-only] [--dev] [--no-suggest] [--no-dev] [--no-autoloader] [--no-progress] [--no-install] [--audit] [--audit-format AUDIT-FORMAT] [-v|vv|vvv|--verbose] [-o|--optimize-autoloader] [-a|--classmap-authoritative] [--apcu-autoloader] [--apcu-autoloader-prefix APCU-AUTOLOADER-PREFIX] [--ignore-platform-req IGNORE-PLATFORM-REQ] [--ignore-platform-reqs] [--] [<packages>...]
+
+fatal: detected dubious ownership in repository at '/var/www/staging.ippu.org'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /var/www/staging.ippu.org
+
+In Factory.php line 697:
+                                                                               
+  The HOME or COMPOSER_HOME environment variable must be set for composer to   
+  run correctly                                                                
+                                                                               
+
+install [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--download-only] [--dev] [--no-suggest] [--no-dev] [--no-autoloader] [--no-progress] [--no-install] [--audit] [--audit-format AUDIT-FORMAT] [-v|vv|vvv|--verbose] [-o|--optimize-autoloader] [-a|--classmap-authoritative] [--apcu-autoloader] [--apcu-autoloader-prefix APCU-AUTOLOADER-PREFIX] [--ignore-platform-req IGNORE-PLATFORM-REQ] [--ignore-platform-reqs] [--] [<packages>...]
+
+From https://github.com/impactdevs/ippu_web
+ * branch            master     -> FETCH_HEAD
+   b3bd0b6..0e08f78  master     -> origin/master
+Merge made by the 'ort' strategy.
+ resources/views/auth/login.blade.php | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+Continue as root/super user [yes]? fatal: detected dubious ownership in repository at '/var/www/staging.ippu.org'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /var/www/staging.ippu.org
+
+In Factory.php line 697:
+                                                                               
+  The HOME or COMPOSER_HOME environment variable must be set for composer to   
+  run correctly                                                                
+                                                                               
+
+install [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--download-only] [--dev] [--no-suggest] [--no-dev] [--no-autoloader] [--no-progress] [--no-install] [--audit] [--audit-format AUDIT-FORMAT] [-v|vv|vvv|--verbose] [-o|--optimize-autoloader] [-a|--classmap-authoritative] [--apcu-autoloader] [--apcu-autoloader-prefix APCU-AUTOLOADER-PREFIX] [--ignore-platform-req IGNORE-PLATFORM-REQ] [--ignore-platform-reqs] [--] [<packages>...]
+
+fatal: detected dubious ownership in repository at '/var/www/staging.ippu.org'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /var/www/staging.ippu.org
+
+In Factory.php line 697:
+                                                                               
+  The HOME or COMPOSER_HOME environment variable must be set for composer to   
+  run correctly                                                                
+                                                                               
+
+install [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--download-only] [--dev] [--no-suggest] [--no-dev] [--no-autoloader] [--no-progress] [--no-install] [--audit] [--audit-format AUDIT-FORMAT] [-v|vv|vvv|--verbose] [-o|--optimize-autoloader] [-a|--classmap-authoritative] [--apcu-autoloader] [--apcu-autoloader-prefix APCU-AUTOLOADER-PREFIX] [--ignore-platform-req IGNORE-PLATFORM-REQ] [--ignore-platform-reqs] [--] [<packages>...]
+
