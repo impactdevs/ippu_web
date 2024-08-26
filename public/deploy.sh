@@ -2,12 +2,14 @@
 
 cd /var/www/staging.ippu.org || exit
 git pull origin master >> /var/www/staging.ippu.org/storage/laravel.log 2>&1
+# merge the changes from the master branch
+git merge origin/master >> /var/www/staging.ippu.org/storage/laravel.log 2>&1
 composer install --optimize-autoloader --no-dev >> /var/www/staging.ippu.org/storage/laravel.log 2>&1
 php artisan migrate --force >> /var/www/staging.ippu.org/storage/logs/laravel.log 2>&1
 php artisan config:cache >> /var/www/staging.ippu.org/storage/logs/laravel.log 2>&1
 # compile assets with npm
-echo "1PPU@2023" | sudo -S npm install >> /var/www/staging.ippu.org/storage/logs/laravel.log 2>&1
+npm install >> /var/www/staging.ippu.org/storage/logs/laravel.log 2>&1
 # build assets
-echo "1PPU@2023" | sudo -S  npm run build >> /var/www/staging.ippu.org/storage/logs/laravel.log 2>&1
+npm run build >> /var/www/staging.ippu.org/storage/logs/laravel.log 2>&1
 # log a  deployment success message
 echo "Deployment successful at $(date)" >> /var/www/staging.ippu.org/storage/logs/laravel.log
