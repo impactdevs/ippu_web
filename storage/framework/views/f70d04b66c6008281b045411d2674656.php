@@ -1295,6 +1295,9 @@
 
 <script src="<?php echo e(asset('assets/libs/sweetalert2/sweetalert2.min.js')); ?>"></script>
 
+
+
+
 <script src="<?php echo e(asset('assets/js/app.js')); ?>"></script>
 
     <script type="text/javascript">
