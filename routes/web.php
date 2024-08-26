@@ -220,12 +220,7 @@ Route::get('events/download_certificate/{event_id}/{user_id}', [mEventsControlle
     Route::resource('bills', BillsController::class);
     Route::get('bill/create/{cid}', [BillsController::class, 'create']);
 
-    // Route::get('debit-note', [DebitNoteController::class, 'index'])->name('debit.note');
-    // Route::get('custom-debit-note', [DebitNoteController::class, 'customCreate'])->name('bill.custom.debit.note');
-    // Route::post('custom-debit-note', [DebitNoteController::class, 'customStore'])->name('bill.custom.debit.note');
-    // Route::get('debit-note/bill', [DebitNoteController::class, 'getbill'])->name('bill.get');
-    // Route::get('bill/{id}/debit-note', [DebitNoteController::class, 'create'])->name('bill.debit.note');
-    // Route::post('bill/{id}/debit-note', [DebitNoteController::class, 'store'])->name('bill.debit.note');
+
     // Route::get('bill/{id}/debit-note/edit/{cn_id}', [DebitNoteController::class, 'edit'])->name('bill.edit.debit.note');
     // Route::post('bill/{id}/debit-note/edit/{cn_id}', [DebitNoteController::class, 'update'])->name('bill.edit.debit.note');
     // Route::delete('bill/{id}/debit-note/delete/{cn_id}', [DebitNoteController::class, 'destroy'])->name('bill.delete.debit.note');
