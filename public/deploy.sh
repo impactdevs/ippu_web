@@ -6,8 +6,8 @@ composer install --optimize-autoloader --no-dev >> /var/www/staging.ippu.org/sto
 php artisan migrate --force >> /var/www/staging.ippu.org/storage/logs/laravel.log 2>&1
 php artisan config:cache >> /var/www/staging.ippu.org/storage/logs/laravel.log 2>&1
 # compile assets with npm
-sudo npm install >> /var/www/staging.ippu.org/storage/logs/laravel.log 2>&1
+echo "1PPU@2023" | sudo -S npm install >> /var/www/staging.ippu.org/storage/logs/laravel.log 2>&1
 # build assets
-sudo npm run build >> /var/www/staging.ippu.org/storage/logs/laravel.log 2>&1
+echo "1PPU@2023" | sudo -S  npm run build >> /var/www/staging.ippu.org/storage/logs/laravel.log 2>&1
 # log a  deployment success message
 echo "Deployment successful at $(date)" >> /var/www/staging.ippu.org/storage/logs/laravel.log
