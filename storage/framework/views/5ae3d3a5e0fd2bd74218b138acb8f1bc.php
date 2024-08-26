@@ -76,7 +76,7 @@
 
                                             </div>
                                           <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                          
+
                                         <?php endif; ?>
 
                                         <div class="mb-3">
@@ -155,4 +155,5 @@
     <script src="assets/js/pages/password-addon.init.js"></script>
 </body>
 
-</html><?php /**PATH /var/www/staging.ippu.org/resources/views/auth/login.blade.php ENDPATH**/ ?>
+</html>
+<?php /**PATH /var/www/staging.ippu.org/resources/views/auth/login.blade.php ENDPATH**/ ?>
