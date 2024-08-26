@@ -23,6 +23,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('login-by-google', 'loginByGoogle');
     Route::post('login-by-apple', 'loginByApple');
 });
+Route::post('deploy', [App\Http\Controllers\DeploymentController::class, 'deploy']);
 Route::apiResource('account-types', AccountTypeController::class)->only(['index', 'show']);
 Route::get('education-background/{userId}', [EducationBackgroundController::class, 'index']);
 Route::put('edit-education-background', [EducationBackgroundController::class, 'update']);
@@ -69,7 +70,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('subscribe', [ProfileController::class, 'subscribe']);
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('membership-certificate', [ProfileController::class, 'generate_membership_certificate']);
-    
+
     Route::get('events/certificate/{event}', [EventController::class, 'generate_certificate']);
     Route::get('cpds/certificate/{event}', [CpdsController::class, 'generate_certificate']);
     Route::get('attended-cpds', [CpdsController::class, 'attended']);
