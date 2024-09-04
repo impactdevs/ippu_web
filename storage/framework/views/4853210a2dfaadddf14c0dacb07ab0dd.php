@@ -147,6 +147,13 @@
                         </div>
                     </div>
                     <div class="tab-pane" id="pill-justified-settings-1" role="tabpanel">
+                        <!-- Add New Attendee Button -->
+                        <div class="d-flex justify-content-end mb-3">
+                            <button id="addNewAttendeeBtn" class="btn btn-success btn-sm">
+                                Add New Attendee
+                            </button>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table table-striped dataTable">
                                 <thead>
@@ -177,10 +184,105 @@
                             </table>
                         </div>
                     </div>
+
                 </div>
             </div><!-- end card-body -->
         </div>
     </div>
 <?php $__env->stopSection(); ?>
+
+
+<?php $__env->startSection('customjs'); ?>
+<script>
+$('#addNewAttendeeBtn').on('click', function () {
+    Swal.fire({
+        title: 'Add New Attendee',
+        html: `
+            <form id="addAttendeeForm">
+                <div class="mb-3">
+                    <label for="attendeeName" class="form-label">Attendee Name</label>
+                    <input type="text" id="attendeeName" class="form-control" required placeholder="Attendee Name">
+                </div>
+                <div class="mb-3">
+                    <label for="attendeeEmail" class="form-label">Attendee Email</label>
+                    <input type="email" id="attendeeEmail" class="form-control" required placeholder="Attendee Email">
+                </div>
+                <div class="mb-3">
+                    <label for="membershipNumber" class="form-label">Membership Number (Optional)</label>
+                    <input type="text" id="membershipNumber" class="form-control" placeholder="Membership Number">
+                </div>
+            </form>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Register Attendee',
+        preConfirm: function () {
+            var name = $('#attendeeName').val();
+            var email = $('#attendeeEmail').val();
+            var membershipNumber = $('#membershipNumber').val();
+
+            if (!name || !email) {
+                Swal.showValidationMessage('Please enter both name and email');
+                return false;
+            }
+
+            return { name: name, email: email, membershipNumber: membershipNumber };
+        }
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            var data = result.value;
+            // Send the data to the server to register the attendee
+            registerAttendee(data.name, data.email, data.membershipNumber);
+        }
+    });
+});
+
+function registerAttendee(name, email, membershipNumber) {
+    // Use jQuery AJAX to send the data to the server
+    $.ajax({
+        url: '<?php echo e(route('events.attendence.store')); ?>', // Make sure this route is correct
+        type: 'POST',
+        data: {
+            event_id: <?php echo e($event->id); ?>,
+            name: name,
+            email: email,
+            membership_number: membershipNumber
+        },
+        headers: {
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include CSRF token for Laravel
+        },
+        beforeSend: function () {
+             //show swal loading
+            Swal.fire({
+                title: 'Registering Attendee...',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        },
+        success: function (response) {
+            console.log("====response=========");
+            console.log(response);
+            if (response.success) {
+                Swal.fire('Success', 'Attendee has been registered!', 'success').then(function () {
+                    location.reload(); // Reload the page to see the changes
+                });
+            } else {
+                Swal.fire('Error', response.message || 'There was an error registering the attendee.', 'error');
+            }
+        },
+        error: function () {
+            Swal.fire('Error', 'Failed to register attendee. Please try again later.', 'error');
+        }
+    });
+}
+</script>
+<?php $__env->stopSection(); ?>
+
+
+
+
+
 
 <?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Users/katendenicholas/Desktop/laravel/ippu_web/resources/views/admin/events/show.blade.php ENDPATH**/ ?>

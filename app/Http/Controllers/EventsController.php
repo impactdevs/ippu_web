@@ -33,21 +33,21 @@ class EventsController extends Controller
     {
         $events = Event::all();
 
-        return view('members.events.index',compact('events'));
+        return view('members.events.index', compact('events'));
     }
 
     public function upcoming()
     {
-        $events = Event::where('start_date','>=',date('Y-m-d'))->get();
+        $events = Event::where('start_date', '>=', date('Y-m-d'))->get();
 
-        return view('members.events.index',compact('events'));
+        return view('members.events.index', compact('events'));
     }
 
-    public function attend($id='')
+    public function attend($id = '')
     {
-       
+
         $event = Event::find($id);
-        return view('members.events.confirmation',compact('event'));
+        return view('members.events.confirmation', compact('event'));
     }
 
     public function redirect_url()
@@ -81,7 +81,7 @@ class EventsController extends Controller
                     'tx_ref' => Str::uuid(),
                     'amount' => $event->rate,
                     'currency' => 'UGX',
-                    'redirect_url' => url('redirect_url_events').'?event_id='.$event->id,
+                    'redirect_url' => url('redirect_url_events') . '?event_id=' . $event->id,
                     'meta' => [
                         'consumer_id' => auth()->user()->id,
                         "full_name" => auth()->user()->name,
@@ -110,7 +110,6 @@ class EventsController extends Controller
             } else {
                 return redirect()->back()->with('error', 'Payment request failed!');
             }
-
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $responseBody = json_decode($e->getResponse()->getBody(), true);
@@ -123,7 +122,7 @@ class EventsController extends Controller
 
     public function confirm_attendence(Request $request)
     {
-         try{
+        try {
             $attendence = new Attendence;
             $attendence->user_id = \Auth::user()->id;
             $attendence->event_id = $request->event_id;
@@ -131,9 +130,9 @@ class EventsController extends Controller
             $attendence->status = "Pending";
             $attendence->save();
 
-            return redirect()->back()->with('success','Attendence has been recorded!');
-        }catch(\Throwable $e){
-            return redirect()->back()->with('error',$e->getMessage());
+            return redirect()->back()->with('success', 'Attendence has been recorded!');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
@@ -141,22 +140,22 @@ class EventsController extends Controller
     {
         $events = Event::whereHas('attended')->get();
 
-        return view('members.events.index',compact('events'));
+        return view('members.events.index', compact('events'));
     }
 
     public function details($id)
     {
         $event = Event::find($id);
 
-        return view('members.events.details',compact('event'));
+        return view('members.events.details', compact('event'));
     }
 
     public function certificate($event)
     {
         $event = Event::find($event);
 
-        return view('members.events.certificate',compact('event'));
-        
+        return view('members.events.certificate', compact('event'));
+
         $options = new Options();
         $options->set('defaultFont', 'Courier');
         $options->set('isRemoteEnabled', true);
@@ -169,7 +168,7 @@ class EventsController extends Controller
 
         // Render the HTML as PDF
         $dompdf->render();
-        $dompdf->stream($event->name.'.pdf');
+        $dompdf->stream($event->name . '.pdf');
     }
 
     public function generate_certificate($event)
@@ -223,16 +222,16 @@ class EventsController extends Controller
         $endDate = Carbon::parse($event->end_date);
 
         if ($startDate->month === $endDate->month) {
-            $x=420;
+            $x = 420;
             // Dates are in the same month
             $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
         } else {
-            $x=480;
+            $x = 480;
             // Dates are in different months
             $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
         }
 
-        $image->text('Organized by the Institute of Procurement Professionals of Uganda on '.$formattedRange, $x, 400, function ($font) {
+        $image->text('Organized by the Institute of Procurement Professionals of Uganda on ' . $formattedRange, $x, 400, function ($font) {
             $font->filename(public_path('fonts/Roboto-Regular.ttf'));
             $font->color('#405189');
             $font->size(12);
@@ -241,11 +240,11 @@ class EventsController extends Controller
             $font->lineHeight(1.6);
         });
 
-                //add membership number
+        //add membership number
         $membership_number = $user->membership_number ?? 'N/A';
 
         //add membership number
-        $image->text('Membership Number: '.$membership_number, 450, 483, function ($font) {
+        $image->text('Membership Number: ' . $membership_number, 450, 483, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#405189');
             $font->size(12);
@@ -310,7 +309,7 @@ class EventsController extends Controller
 
         $user = \App\Models\User::where('email', $request->email)->first();
 
-    if (!$user) {
+        if (!$user) {
             $password = \Str::random(9);
 
             $user = new \App\Models\User;
@@ -333,19 +332,20 @@ class EventsController extends Controller
             $attendence->type = "CPD";
         }
         $attendence->status = "Attended";
+        $attendence->membership_number = $request->membership_number;
         $attendence->save();
 
         if ($request->type == "event") {
             //get the logged in user
             $event = Event::find($request->id);
-            if($event!=null){
+            if ($event != null) {
                 return $this->direct_event_attendance_certificate_parser($user, $request->id, "event");
             } else {
                 return redirect()->back()->with('error', 'Event not found');
             }
         } else {
             $event = Cpd::find($request->id);
-            if($event!=null){
+            if ($event != null) {
                 return $this->direct_cpd_attendance_certificate_parser($user, $request->id, "cpd");
             } else {
                 return redirect()->back()->with('error', 'CPD not found');
@@ -354,7 +354,7 @@ class EventsController extends Controller
     }
 
 
-        public function direct_event_attendance_certificate_parser(User $user, $event, $eventType)
+    public function direct_event_attendance_certificate_parser(User $user, $event, $eventType)
     {
         $manager = new ImageManager(new Driver());
         //read the image from the public folder
@@ -403,17 +403,17 @@ class EventsController extends Controller
         $endDate = Carbon::parse($event->end_date);
 
         if ($startDate->month === $endDate->month) {
-            $x=420;
+            $x = 420;
             // Dates are in the same month
             $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
         } else {
-            $x=480;
+            $x = 480;
             // Dates are in different months
             $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
         }
 
 
-        $image->text('Organized by the Institute of Procurement Professionals of Uganda on '.$formattedRange, $x, 400, function ($font) {
+        $image->text('Organized by the Institute of Procurement Professionals of Uganda on ' . $formattedRange, $x, 400, function ($font) {
             $font->filename(public_path('fonts/Roboto-Regular.ttf'));
             $font->color('#405189');
             $font->size(12);
@@ -455,40 +455,40 @@ class EventsController extends Controller
         $user = auth()->user();
 
         $image->text($eventFound->code, 173, 27, function ($font) {
-        $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-        $font->color('#000000');
-        $font->size(20);
-        $font->align('center');
-        $font->valign('middle');
-        $font->lineHeight(1.6);
+            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#000000');
+            $font->size(20);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
         });
 
         $image->text($user->name, 780, 550, function ($font) {
-        $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
-        $font->color('#1F45FC');
-        $font->size(45);
-        $font->align('center');
-        $font->valign('middle');
-        $font->lineHeight(1.6);
+            $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
+            $font->color('#1F45FC');
+            $font->size(45);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
         });
 
         $image->text('Attended a Continuing Professional Development(CPD) activity', 760, 620, function ($font) {
-        $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-        $font->color('#000000');
-        $font->size(20);
-        $font->align('center');
-        $font->valign('middle');
-        $font->lineHeight(1.6);
+            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
+            $font->color('#000000');
+            $font->size(20);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
         });
 
         //add event name
-        $image->text('"'.$eventFound->topic.'"', 730, 690, function ($font) {
-        $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-        $font->color('#000000');
-        $font->size(20);
-        $font->align('center');
-        $font->valign('middle');
-        $font->lineHeight(1.6);
+        $image->text('"' . $eventFound->topic . '"', 730, 690, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#000000');
+            $font->size(20);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
         });
 
 
@@ -496,13 +496,13 @@ class EventsController extends Controller
         $endDate = Carbon::parse($eventFound->end_date);
 
         if ($startDate->month === $endDate->month) {
-        $x=720;
-        // Dates are in the same month
-        $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
+            $x = 720;
+            // Dates are in the same month
+            $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
         } else {
-        $x=780;
-        // Dates are in different months
-        $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+            $x = 780;
+            // Dates are in different months
+            $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
         }
 
 
@@ -524,7 +524,7 @@ class EventsController extends Controller
             $font->lineHeight(1.6);
         });
 
-        $image->text($eventFound->hours."CPD HOURS", 1400, 945, function ($font) {
+        $image->text($eventFound->hours . "CPD HOURS", 1400, 945, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#000000');
             $font->size(17);
@@ -571,78 +571,26 @@ class EventsController extends Controller
         $membership_number = $user->membership_number;
         $id = $user->id;
 
-        // Read the image from the public folder
-        $image = $manager->read(public_path('images/certificate-template.jpeg'));
 
-        $image->text('PRESENTED TO', 420, 250, function ($font) {
-            $font->file(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#405189');
-            $font->size(12);
-            $font->align('center');
-            $font->valign('middle');
-        });
 
-        $image->text($name, 420, 300, function ($font) {
-            $font->file(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#b01735');
-            $font->size(20);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
+        $formattedRange = Carbon::parse($event->start_date)->format('jS F Y') . ' - ' . Carbon::parse($event->end_date)->format('jS F Y');
 
-        $image->text('FOR ATTENDING THE', 420, 340, function ($font) {
-            $font->file(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#405189');
-            $font->size(12);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        // Add event name
-        $image->text($event->name, 420, 370, function ($font) {
-            $font->file(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#008000');
-            $font->size(22);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $startDate = Carbon::parse($event->start_date);
-        $endDate = Carbon::parse($event->end_date);
-
-        if ($startDate->month === $endDate->month) {
-            $x = 420;
-            $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
-        } else {
-            $x = 480;
-            $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+        // Determine the template based on event type
+        $templatePath = $event->event_type == 'Annual' ? public_path('images/event_annual_certificate.jpeg') : public_path('images/certificate-template.jpeg');
+        if (!file_exists($templatePath)) {
+            throw new \Exception('Certificate template not found.');
         }
 
-        $image->text('Organized by the Institute of Procurement Professionals of Uganda on ' . $formattedRange, $x, 400, function ($font) {
-            $font->file(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#405189');
-            $font->size(12);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
+        $image = $manager->read($templatePath);
 
-        // Add membership number
-        $image->text('MembershipNumber: ' . $membership_number ?? "N/A", 450, 483, function ($font) {
-            $font->file(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#405189');
-            $font->size(12);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
+        // Customize certificate details based on event type
+        if ($event->event_type == 'Annual') {
+            $this->customizeAnnualCertificate($image, $event, $name, $membership_number);
+        } else {
+            $this->customizeRegularCertificate($image, $event, $name, $membership_number);
+        }
 
         $file_name = 'certificate-generated_' . $id . '.png';
-
-        // Save the image to the public folder
         $image->save(public_path('images/' . $file_name));
 
         // Send the certificate via email
@@ -653,12 +601,49 @@ class EventsController extends Controller
         unlink($path);
 
         return redirect()->back()->with('success', 'Certificate generated and emailed successfully.');
-
     } catch (\Exception $e) {
-        // Handle any errors that occur during the certificate generation
         return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());
     }
 }
+
+public function downloadCertificate($event_id, $user_id)
+{
+    try {
+        $manager = new ImageManager(new Driver());
+        $event = Event::find($event_id);
+        $user = \App\Models\User::find($user_id);
+        $name = $user->name;
+        $membership_number = $user->membership_number;
+        $id = $user->id;
+
+        // Determine the template based on event type
+        $templatePath = $event->event_type == 'Annual' ? public_path('images/event_annual_certificate.jpeg') : public_path('images/certificate-template.jpeg');
+        if (!file_exists($templatePath)) {
+            throw new \Exception('Certificate template not found.');
+        }
+
+        $image = $manager->read($templatePath);
+
+        // Customize certificate details based on event type
+        if ($event->event_type == 'Annual') {
+            $this->customizeAnnualCertificate($image, $event, $name, $membership_number);
+        } else {
+            $this->customizeRegularCertificate($image, $event, $name, $membership_number);
+        }
+
+        $file_name = 'certificate-generated_' . $id . '.png';
+        $image->save(public_path('images/' . $file_name));
+
+        // Download the generated certificate
+        return response()->download(public_path('images/' . $file_name))->deleteFileAfterSend(true);
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());
+    }
+}
+
+
+
+
 
     public function bulkEmail(Request $request)
     {
@@ -684,207 +669,265 @@ class EventsController extends Controller
     {
         $userIds = $request->input('attendees', []);
         $cpd_id = $request->input('cpd_id');
-    
+
         $cpd = Cpd::find($cpd_id);
-    
+
         if (!$cpd) {
             return redirect()->back()->with('error', 'CPD not found.');
         }
-    
+
         // Create a unique name for the ZIP file
         $zipFileName = 'certificates-' . now()->format('YmdHis') . '.zip';
         $zipFilePath = public_path('certificates/' . $zipFileName);
-    
+
         // Create a new ZIP file
         $zip = new \ZipArchive;
         if ($zip->open($zipFilePath, \ZipArchive::CREATE) !== true) {
             return redirect()->back()->with('error', 'Could not create ZIP file.');
         }
-    
+
         // Ensure the certificates directory exists
         $certificatesDir = public_path('certificates');
         if (!is_dir($certificatesDir)) {
             mkdir($certificatesDir, 0755, true);
         }
-    
+
         foreach ($userIds as $userId) {
             $user = \App\Models\User::find($userId);
             if ($user) {
                 $path = public_path('certificates/' . $user->id . '_certificate.png');
-    
+
                 // Generate the certificate
                 $manager = new ImageManager(new Driver());
                 $image = $manager->read(public_path('images/cpd-certificate-template.jpg'));
-    
+
                 $image->text($cpd->code, 173, 27, function ($font) {
                     $font->file(public_path('fonts/Roboto-Bold.ttf'));
                     $font->size(20);
                     $font->color('#000000');
                     $font->align('center');
                 });
-    
+
                 $image->text($user->name, 780, 550, function ($font) {
                     $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
                     $font->size(45);
                     $font->color('#1F45FC');
                     $font->align('center');
                 });
-    
+
                 $image->text($cpd->topic, 730, 690, function ($font) {
                     $font->file(public_path('fonts/Roboto-Bold.ttf'));
                     $font->size(20);
                     $font->color('#000000');
                     $font->align('center');
                 });
-    
+
                 $startDate = Carbon::parse($cpd->start_date);
                 $endDate = Carbon::parse($cpd->end_date);
-    
+
                 $x = ($startDate->month === $endDate->month) ? 720 : 780;
                 $formattedRange = ($startDate->month === $endDate->month)
                     ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
                     : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
-    
+
                 $image->text('on ', 600, 760, function ($font) {
                     $font->file(public_path('fonts/Roboto-Regular.ttf'));
                     $font->size(20);
                     $font->color('#000000');
                     $font->align('center');
                 });
-    
+
                 $image->text($formattedRange, $x, 760, function ($font) {
                     $font->file(public_path('fonts/Roboto-Bold.ttf'));
                     $font->size(20);
                     $font->color('#000000');
                     $font->align('center');
                 });
-    
+
                 $image->text($cpd->hours . " CPD HOURS", 1400, 945, function ($font) {
                     $font->file(public_path('fonts/Roboto-Bold.ttf'));
                     $font->size(17);
                     $font->color('#000000');
                     $font->align('center');
                 });
-    
+
                 $image->save($path);
-    
+
                 // Add the certificate to the ZIP file
                 $zip->addFile($path, basename($path));
             }
         }
-    
+
         $zip->close();
-    
+
         return response()->download($zipFilePath)->deleteFileAfterSend(true);
     }
 
-    public function downloadCertificate($event_id, $user_id)
-    {
-        // dd($cpd_id, $user_id);
-        try {
-            $manager = new ImageManager(new Driver());
-            $event = Event::find($event_id);
-            $user = \App\Models\User::find($user_id);
-            $name = $user->name;
-            $membership_number = $user->membership_number;
-            $id = $user->id;
-
-            //read the image from the public folder
-            $image = $manager->read(public_path('images/certificate-template.jpeg'));
-            $eventFound = Event::find($event);
-            // $user = User::find($user);
-    
-            $image->text('PRESENTED TO', 420, 250, function ($font) {
-                $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-                $font->color('#405189');
-                $font->size(12);
-                $font->align('center');
-                $font->valign('middle');
-            });
-
-          //dd($user->name);
-    
-            $image->text($name, 420, 300, function ($font) {
-                $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-                $font->color('#b01735');
-                $font->size(20);
-                $font->align('center');
-                $font->valign('middle');
-                $font->lineHeight(1.6);
-            });
 
 
-    
-            $image->text('FOR ATTENDING THE', 420, 340, function ($font) {
-                $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-                $font->color('#405189');
-                $font->size(12);
-                $font->align('center');
-                $font->valign('middle');
-                $font->lineHeight(1.6);
-            });
-    
-            //add event name
-            $image->text($event->name, 420, 370, function ($font) {
-                $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-                $font->color('#008000');
-                $font->size(22);
-                $font->align('center');
-                $font->valign('middle');
-                $font->lineHeight(1.6);
-            });
 
 
-    
-            $startDate = Carbon::parse($event->start_date);
-            $endDate = Carbon::parse($event->end_date);
-    
-            if ($startDate->month === $endDate->month) {
-                $x=420;
-                // Dates are in the same month
-                $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
-            } else {
-                $x=480;
-                // Dates are in different months
-                $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
-            }
-    
-    
-            $image->text('Organized by the Institute of Procurement Professionals of Uganda on '.$formattedRange, $x, 400, function ($font) {
-                $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-                $font->color('#405189');
-                $font->size(12);
-                $font->align('center');
-                $font->valign('middle');
-                $font->lineHeight(1.6);
-            });
-    
-            //add membership number
-            $image->text('MembershipNumber: ' . $membership_number ?? "N/A", 450, 483, function ($font) {
-                $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-                $font->color('#405189');
-                $font->size(12);
-                $font->align('center');
-                $font->valign('middle');
-                $font->lineHeight(1.6);
-            });
-    
-            $image->toPng();
-            //let file name be certificate-generated_user_id.png
-            $file_name = 'certificate-generated_' . $id . '.png';
-    
-            //save the image to the public folder
-            $image->save(public_path('images/' . $file_name));
-    
-            //download the image
-            return response()->download(public_path('images/' . $file_name))->deleteFileAfterSend(true);
 
-        } catch (\Exception $e) {
-            dd($e->getMessage());
-            // Handle any errors that occur during the certificate generation
-            return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());
-        }
-    }
+    // Helper method for customizing an annual event certificate
+private function customizeAnnualCertificate($image, $event, $name, $membership_number)
+{
+    // Additional information for Annual events
+    $place = $event->place ?? 'Not specified';
+    $theme = $event->theme ?? 'Not specified';
+    $annual_event_date = Carbon::parse($event->annual_event_date)->format('jS F Y');
+    $organizing_committee = $event->organizing_committee ?? 'Institute of Procurement Professionals of Uganda (IPPU)';
+
+    // Name Placement
+    $image->text($name, 640, 520, function ($font) {
+        $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+        $font->color('#b01735'); // Dark red color
+        $font->size(36); // Increased size for better visibility
+        $font->align('center');
+        $font->valign('middle');
+    });
+
+
+
+    // Event Name Placement
+    $image->text($event->name, 640, 640, function ($font) {
+        $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+        $font->color('#008000'); // Green color
+        $font->size(32); // Increased size
+        $font->align('center');
+        $font->valign('middle');
+    });
+
+    // Theme Text Placement
+    // Theme Text Placement (split into two lines)
+    $theme = wordwrap('THEME: ' . $theme, 50, "\n", true); // Adjust the 50 to fit the length you want per line
+
+    $image->text($theme, 640, 700, function ($font) {
+        $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+        $font->color('#405189'); // Blue color
+        $font->size(32);
+        $font->align('center');
+        $font->valign('middle');
+    });
+
+
+    // Organizer and Date Text Placement
+    $image->text('Organised by ' . $organizing_committee, 640, 790, function ($font) {
+        $font->filename(public_path('fonts/Roboto-Regular.ttf'));
+        $font->color('#405189'); // Blue color
+        $font->size(28);
+        $font->align('center');
+        $font->valign('middle');
+    });
+
+    // Date and Place Text Placement
+    $image->text('on ' . $annual_event_date . ' at ' . $place . '.', 640, 820, function ($font) {
+        $font->filename(public_path('fonts/Roboto-Regular.ttf'));
+        $font->color('#405189'); // Blue color
+        $font->size(25);
+        $font->align('center');
+        $font->valign('middle');
+    });
+
+    // CPD Points Text Placement
+    $image->text('This activity was awarded ' . $event->points . ' CPD Credit Points (Hours) of IPPU', 640, 870, function ($font) {
+        $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+        $font->color('#008000'); // Green color
+        $font->size(25);
+        $font->align('center');
+        $font->valign('middle');
+    });
+
+    // Membership Number Placement
+    $image->text(($membership_number ?? 'N/A'), 820, 912, function ($font) {
+        $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+        $font->color('#405189'); // Blue color
+        $font->size(25);
+        $font->align('center');
+        $font->valign('middle');
+    });
+}
+
+// Helper method for customizing a regular event certificate
+private function customizeRegularCertificate($image, $event, $name, $membership_number)
+{
+
+   $image->text('PRESENTED TO', 420, 250, function ($font) {
+       $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+       $font->color('#405189');
+       $font->size(12);
+       $font->align('center');
+       $font->valign('middle');
+   });
+
+   //dd($user->name);
+
+   $image->text($name, 420, 300, function ($font) {
+       $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+       $font->color('#b01735');
+       $font->size(20);
+       $font->align('center');
+       $font->valign('middle');
+       $font->lineHeight(1.6);
+   });
+
+
+
+   $image->text('FOR ATTENDING THE', 420, 340, function ($font) {
+       $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+       $font->color('#405189');
+       $font->size(12);
+       $font->align('center');
+       $font->valign('middle');
+       $font->lineHeight(1.6);
+   });
+
+   //add event name
+   $image->text($event->name, 420, 370, function ($font) {
+       $font->filename(public_path('fonts/Roboto-Regular.ttf'));
+       $font->color('#008000');
+       $font->size(22);
+       $font->align('center');
+       $font->valign('middle');
+       $font->lineHeight(1.6);
+   });
+
+
+
+   $startDate = Carbon::parse($event->start_date);
+   $endDate = Carbon::parse($event->end_date);
+
+   if ($startDate->month === $endDate->month) {
+       $x = 420;
+       // Dates are in the same month
+       $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
+   } else {
+       $x = 480;
+       // Dates are in different months
+       $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+   }
+
+
+   $image->text('Organized by the Institute of Procurement Professionals of Uganda on ' . $formattedRange, $x, 400, function ($font) {
+       $font->filename(public_path('fonts/Roboto-Regular.ttf'));
+       $font->color('#405189');
+       $font->size(12);
+       $font->align('center');
+       $font->valign('middle');
+       $font->lineHeight(1.6);
+   });
+
+   //add membership number
+   $image->text('MembershipNumber: ' . $membership_number ?? "N/A", 450, 483, function ($font) {
+       $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+       $font->color('#405189');
+       $font->size(12);
+       $font->align('center');
+       $font->valign('middle');
+       $font->lineHeight(1.6);
+   });
+   
+}
+
     //new
 
 }

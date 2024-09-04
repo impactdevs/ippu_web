@@ -23,6 +23,7 @@
                 <thead role="rowgroup">
                     <tr role="row">
                         <th role='columnheader'>Name</th>
+                        <th role='columnheader'>Event Type</th>
                         <th role='columnheader'>Start Date</th>
                         <th role='columnheader'>End Date</th>
                         <th role='columnheader'>Rate</th>
@@ -34,6 +35,7 @@
                     <?php $__currentLoopData = $events; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $event): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
                         <td data-label="Name"><?php echo e($event->name ?: "(blank)"); ?></td>
+                         <td data-label="Name"><?php echo e($event->event_type ?: "(blank)"); ?></td>
                         <td data-label="Start Date"><?php echo e($event->start_date ? (date('F j, Y, g:i a',strtotime($event->start_date))) : "(blank)"); ?></td>
                         <td data-label="End Date"><?php echo e($event->end_date ? (date('F j, Y, g:i a',strtotime($event->end_date))): "(blank)"); ?></td>
                         <td data-label="Rate"><?php echo e((($event->rate) ? number_format($event->rate) : '') ?: "Free"); ?></td>

@@ -54,20 +54,20 @@ Route::get('/', function () {
     return redirect('dashboard');
 });
 
-Route::get('upload_members_list', function() {
+Route::get('upload_members_list', function () {
     return view('members.upload');
 });
 
-Route::post('upload_members', [MembersController::class,'upload_members']);
-Route::get('invite_members',[MembersController::class,'send_invitation']);
+Route::post('upload_members', [MembersController::class, 'upload_members']);
+Route::get('invite_members', [MembersController::class, 'send_invitation']);
 
-Route::get('direct_attendence/{type}/{id}',[mEventsController::class,'direct_attendence']);
-Route::post('direct_attendence',[mEventsController::class,'record_direct_attendence']);
+Route::get('direct_attendence/{type}/{id}', [mEventsController::class, 'direct_attendence']);
+Route::post('direct_attendence', [mEventsController::class, 'record_direct_attendence']);
 
-Route::get('/dashboard', [DashboardController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('generate_qr/{type}/{id}', [CpdsController::class,'generate_qr']);
-Route::get('generate_form_qr', [FormBuildersController::class,'generate_form_qr']);
+Route::get('generate_qr/{type}/{id}', [CpdsController::class, 'generate_qr']);
+Route::get('generate_form_qr', [FormBuildersController::class, 'generate_form_qr']);
 
 Route::get('/form/{code}', [FormBuildersController::class, 'formView']);
 Route::post('/form_view_store', [FormBuildersController::class, 'formViewStore'])->name('form.view.store');
@@ -77,99 +77,103 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::post('update_profile', [ProfileController::class,'update_profile']);
+    Route::post('update_profile', [ProfileController::class, 'update_profile']);
 });
 
-Route::resource('communications', CommunicationsController::class)->middleware(['auth','verified']);
+Route::resource('communications', CommunicationsController::class)->middleware(['auth', 'verified']);
 
 
-Route::middleware(['auth','verified'])->group(function(){
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('education', EducationBackgroundController::class);
     Route::resource('experiences', WorkBackgroundController::class);
-    Route::get('all_events', [mEventsController::class,'index']);
-    Route::get('event_details/{id}', [mEventsController::class,'details']);
-    Route::get('upcoming_events', [mEventsController::class,'upcoming']);
-    Route::get('attend_event/{id}', [mEventsController::class,'attend']);
+    Route::get('all_events', [mEventsController::class, 'index']);
+    Route::get('event_details/{id}', [mEventsController::class, 'details']);
+    Route::get('upcoming_events', [mEventsController::class, 'upcoming']);
+    Route::get('attend_event/{id}', [mEventsController::class, 'attend']);
     Route::get('attend_event/{id}', [mEventsController::class, 'pay']);
-    Route::get('attended_events', [mEventsController::class,'attended']);
-    Route::get('all_cpds', [mCpdsController::class,'index']);
-    Route::get('upcoming_cpds', [mCpdsController::class,'upcoming']);
+    Route::get('attended_events', [mEventsController::class, 'attended']);
+    Route::get('all_cpds', [mCpdsController::class, 'index']);
+    Route::get('upcoming_cpds', [mCpdsController::class, 'upcoming']);
     Route::get('attend_cpd/{id}', [mCpdsController::class, 'pay']);
-    Route::POST('attend_cpd', [mCpdsController::class,'confirm_attendence']);
-    Route::get('attended_cpds', [mCpdsController::class,'attended']);
-    Route::get('subscribe',[DashboardController::class,'subscribe']);
+    Route::POST('attend_cpd', [mCpdsController::class, 'confirm_attendence']);
+    Route::get('attended_cpds', [mCpdsController::class, 'attended']);
+    Route::get('subscribe', [DashboardController::class, 'subscribe']);
     Route::get('pay', [DashboardController::class, 'pay']);
     Route::get('redirect_url', [DashboardController::class, 'redirect_url']);
     Route::get('redirect_url_events', [mEventsController::class, 'redirect_url']);
     Route::get('redirect_url_cpds', [mCpdsController::class, 'redirect_url']);
-    Route::get('cpd_details/{id}', [mCpdsController::class,'details']);
+    Route::get('cpd_details/{id}', [mCpdsController::class, 'details']);
     Route::resource('jobs', mJobsController::class);
-    Route::get('who-we-are', function() {
+    Route::get('who-we-are', function () {
         return view('members.general.who_we_are');
     });
-    Route::get('core-values', function() {
+    Route::get('core-values', function () {
         return view('members.general.core_values');
     });
 
-    Route::get('event_certificate/{event}',[mEventsController::class,'generate_certificate']);
-    Route::get('cpd_certificate/{event}',[mCpdsController::class,'generate_certificate']);
-    Route::get('membership_certificate',[ProfileController::class,'generate_membership_certificate']);
-    Route::post('email_membership_certificate',[ProfileController::class,'email_membership_certificate'])->name('email_membership_certificate');
-
+    Route::get('event_certificate/{event}', [mEventsController::class, 'generate_certificate']);
+    Route::get('cpd_certificate/{event}', [mCpdsController::class, 'generate_certificate']);
+    Route::get('membership_certificate', [ProfileController::class, 'generate_membership_certificate']);
+    Route::post('email_membership_certificate', [ProfileController::class, 'email_membership_certificate'])->name('email_membership_certificate');
 });
 
-Route::get('get-newsletters', [CommunicationsController::class,'newsletter_view']);
+Route::get('get-newsletters', [CommunicationsController::class, 'newsletter_view']);
 
-Route::prefix('admin')->middleware(['auth','verified'])->group(function(){
+Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
+
+// routes/web.php
+Route::get('users/all', [MembersController::class, 'getAllUsers']);
+Route::post("events/attendence/store", [EventsController::class, 'storeAttendance'])->name('events.attendence.store');
+
 
     //cpds
-Route::post('cpds/bulk-email', [CpdsController::class, 'sendBulkEmail']);
-Route::get('cpds/attendence/{id}/{user_id}', [mCpdsController::class, 'emailCertificate']);
-Route::post('cpds/bulk-email', [mCpdsController::class, 'bulkEmail'])->name('cpds.bulkEmail');
-Route::post('/cpds/bulk-download', [mCpdsController::class, 'downloadBulkCertificates'])->name('cpds.bulkDownload');
-Route::get('cpds/download_certificate/{cpd_id}/{user_id}', [mCpdsController::class, 'downloadCertificate'])->name('cpds.downloadCertificate');
-//cpds
+    Route::post('cpds/bulk-email', [CpdsController::class, 'sendBulkEmail']);
+    Route::get('cpds/attendence/{id}/{user_id}', [mCpdsController::class, 'emailCertificate']);
+    Route::post('cpds/bulk-email', [mCpdsController::class, 'bulkEmail'])->name('cpds.bulkEmail');
+    Route::post('/cpds/bulk-download', [mCpdsController::class, 'downloadBulkCertificates'])->name('cpds.bulkDownload');
+    Route::get('cpds/download_certificate/{cpd_id}/{user_id}', [mCpdsController::class, 'downloadCertificate'])->name('cpds.downloadCertificate');
+    //cpds
 
- //events
- Route::post('events/bulk-email', [mEventsController::class, 'sendBulkEmail']);
-Route::get('events/attendence/{id}/{user_id}', [mEventsController::class, 'emailCertificate']);
-Route::post('events/bulk-email', [mEventsController::class, 'bulkEmail'])->name('events.bulkEmail');
-Route::post('/events/bulk-download', [mEventsController::class, 'downloadBulkCertificates'])->name('events.bulkDownload');
-Route::get('events/download_certificate/{event_id}/{user_id}', [mEventsController::class, 'downloadCertificate'])->name('events.downloadCertificate');
+    //events
+    Route::post('events/bulk-email', [mEventsController::class, 'sendBulkEmail']);
+    Route::get('events/attendence/{id}/{user_id}', [mEventsController::class, 'emailCertificate']);
+    Route::post('events/bulk-email', [mEventsController::class, 'bulkEmail'])->name('events.bulkEmail');
+    Route::post('/events/bulk-download', [mEventsController::class, 'downloadBulkCertificates'])->name('events.bulkDownload');
+    Route::get('events/download_certificate/{event_id}/{user_id}', [mEventsController::class, 'downloadCertificate'])->name('events.downloadCertificate');
 
- //events
+    //events
 
     Route::resource('reminders', \App\Http\Controllers\RemindersController::class);
-    Route::POST('read_notification', [\App\Http\Controllers\RemindersController::class,'markReminder']);
+    Route::POST('read_notification', [\App\Http\Controllers\RemindersController::class, 'markReminder']);
     Route::resource('account_types', AccountTypesController::class);
-    Route::get('sms', [CommunicationsController::class,'sms_view']);
-    Route::post('sms', [CommunicationsController::class,'post_sms']);
-    Route::get('newsletter', [CommunicationsController::class,'newsletter_view']);
-    Route::post('newsletter', [CommunicationsController::class,'post_newsletter']);
-    Route::get('newsletter/{newsletter}', [CommunicationsController::class,'newsletter_details']);
-    Route::get('download_newsletter/{newsletter}', [CommunicationsController::class,'download_newsletter_file']);
-    Route::delete('delete_newsletter/{newsletter}', [CommunicationsController::class,'delete_newsletter']);
-    Route::put('update_newsletter/{newsletter}', [CommunicationsController::class,'update_newsletter'])->name('newsletters.update');
-    Route::post('send_newsletter/{newsletter}', [CommunicationsController::class,'share_newsletter']);
-    Route::get('change_account_type/{type}/{user}', [MembersController::class,'change_account_type']);
+    Route::get('sms', [CommunicationsController::class, 'sms_view']);
+    Route::post('sms', [CommunicationsController::class, 'post_sms']);
+    Route::get('newsletter', [CommunicationsController::class, 'newsletter_view']);
+    Route::post('newsletter', [CommunicationsController::class, 'post_newsletter']);
+    Route::get('newsletter/{newsletter}', [CommunicationsController::class, 'newsletter_details']);
+    Route::get('download_newsletter/{newsletter}', [CommunicationsController::class, 'download_newsletter_file']);
+    Route::delete('delete_newsletter/{newsletter}', [CommunicationsController::class, 'delete_newsletter']);
+    Route::put('update_newsletter/{newsletter}', [CommunicationsController::class, 'update_newsletter'])->name('newsletters.update');
+    Route::post('send_newsletter/{newsletter}', [CommunicationsController::class, 'share_newsletter']);
+    Route::get('change_account_type/{type}/{user}', [MembersController::class, 'change_account_type']);
     Route::resource('events', EventsController::class);
     Route::resource('cpds', CpdsController::class);
     Route::resource('jobs', JobsController::class);
     Route::resource('leads', LeadsController::class);
-    Route::POST('leads_order',[LeadsController::class,'order']);
-    Route::get('leads_list', [LeadsController::class,'lead_list']);
-    Route::get('leads/{id}/labels', [LeadsController::class,'labels']);
+    Route::POST('leads_order', [LeadsController::class, 'order']);
+    Route::get('leads_list', [LeadsController::class, 'lead_list']);
+    Route::get('leads/{id}/labels', [LeadsController::class, 'labels']);
     Route::post('leads_labels_store/{id}', [LeadsController::class, 'labelStore']);
     Route::resource('deals', DealsController::class);
-    Route::get('deals_list', [DealsController::class,'deal_list']);
-    Route::POST('deals_order', [DealsController::class,'order']);
-    Route::post('deals_change_pipeline', [DealsController::class,'changePipeline']);
+    Route::get('deals_list', [DealsController::class, 'deal_list']);
+    Route::POST('deals_order', [DealsController::class, 'order']);
+    Route::post('deals_change_pipeline', [DealsController::class, 'changePipeline']);
     Route::resource('pipelines', PipelinesController::class);
     Route::resource('stages', StagesController::class);
     Route::get('transactions', [FlutterwaveWebhookController::class, 'index']);
-    Route::POST('stages_order',[StagesController::class,'order']);
+    Route::POST('stages_order', [StagesController::class, 'order']);
     Route::resource('lead_stages', LeadStagesController::class);
-    Route::POST('lead_stages_order',[LeadStagesController::class,'order']);
+    Route::POST('lead_stages_order', [LeadStagesController::class, 'order']);
     Route::get('leads/{id}/sources', [LeadsController::class, 'sourceEdit']);
     Route::put('leads/{id}/sources', [LeadsController::class, 'sourceUpdate']);
     Route::resource('sources', SourcesController::class);
@@ -184,17 +188,17 @@ Route::get('events/download_certificate/{event_id}/{user_id}', [mEventsControlle
     Route::post('form_builder/{id}/field', [FormBuildersController::class, 'fieldStore']);
     Route::get('/form_response/{id}', [FormBuildersController::class, 'viewResponse'])->name('form.response');
     Route::get('/response/{id}', [FormBuildersController::class, 'responseDetail'])->name('response.detail');
-    Route::get('members', [MembersController::class,'index']);
-    Route::get('members/{id}', [MembersController::class,'show']);
-    Route::delete('delete-member/{member}', [MembersController::class,'delete'])->name('delete-member');
-    Route::get('change_member_status/{member}', [MembersController::class,'change_member_status']);
-    Route::get('update_member_details/{member_id}',[MembersController::class,'update_member_details']);
-    Route::post('update_member_details',[MembersController::class,'post_member_details']);
-    Route::POST('change_member_status', [MembersController::class,'update_member_status']);
+    Route::get('members', [MembersController::class, 'index']);
+    Route::get('members/{id}', [MembersController::class, 'show']);
+    Route::delete('delete-member/{member}', [MembersController::class, 'delete'])->name('delete-member');
+    Route::get('change_member_status/{member}', [MembersController::class, 'change_member_status']);
+    Route::get('update_member_details/{member_id}', [MembersController::class, 'update_member_details']);
+    Route::post('update_member_details', [MembersController::class, 'post_member_details']);
+    Route::POST('change_member_status', [MembersController::class, 'update_member_status']);
     Route::resource('customers', CustomersController::class);
     Route::resource('vendors', VendorsController::class);
     Route::resource('proposals', ProposalsController::class);
-    Route::get('proposals/create/{id}', [ProposalsController::class,'create']);
+    Route::get('proposals/create/{id}', [ProposalsController::class, 'create']);
     Route::get('proposal/pdf/{id}', [ProposalsController::class, 'proposal'])->name('proposal.pdf');
     Route::get('proposal/items', [ProposalController::class, 'items']);
     Route::post('proposal/product/destroy', [ProposalController::class, 'productDestroy']);
@@ -209,7 +213,7 @@ Route::get('events/download_certificate/{event_id}/{user_id}', [mEventsControlle
     Route::post('proposals/product', [ProposalsController::class, 'product']);
     Route::get('customer/proposal/{id}/', [ProposalsController::class, 'invoiceLink']);
     Route::resource('invoices', InvoicesController::class);
-    Route::get('invoices/create/{id}', [InvoicesController::class,'create']);
+    Route::get('invoices/create/{id}', [InvoicesController::class, 'create']);
     Route::post('invoices/product', [InvoicesController::class, 'product']);
     Route::post('invoices/customer', [InvoicesController::class, 'customer']);
     Route::get('invoice/index', [InvoicesController::class, 'index'])->name('invoice.index');
@@ -246,16 +250,16 @@ Route::get('events/download_certificate/{event_id}/{user_id}', [mEventsControlle
 
 
 
-    Route::get('events/attendence/{attendence_id}/{status}', [EventsController::class,'attendence']);
-    Route::get('cpds/attendence/{attendence_id}/{status}', [CpdsController::class,'attendence']);
-    Route::get('view_payment_proof/{name}', [CpdsController::class,'payment_proof']);
+    Route::get('events/attendence/{attendence_id}/{status}', [EventsController::class, 'attendence']);
+    Route::get('cpds/attendence/{attendence_id}/{status}', [CpdsController::class, 'attendence']);
+    Route::get('view_payment_proof/{name}', [CpdsController::class, 'payment_proof']);
     Route::get('invoice/pdf/{id}', [InvoicesController::class, 'invoice'])->name('invoice.pdf');
 
-    Route::get('approve_membership/{id}', [DashboardController::class,'approve']);
+    Route::get('approve_membership/{id}', [DashboardController::class, 'approve']);
 
-    Route::get('deny_membership/{id}', [DashboardController::class,'deny']);
-    Route::get('review_membership/{id}',[DashboardController::class,'review']);
-    Route::post('review_membership', [DashboardController::class,'post_review']);
+    Route::get('deny_membership/{id}', [DashboardController::class, 'deny']);
+    Route::get('review_membership/{id}', [DashboardController::class, 'review']);
+    Route::post('review_membership', [DashboardController::class, 'post_review']);
 
     Route::get('invoice/{id}/sent', [InvoicesController::class, 'sent']);
     Route::get('invoice/{id}/payment', [InvoicesController::class, 'payment']);
@@ -267,29 +271,29 @@ Route::get('events/download_certificate/{event_id}/{user_id}', [mEventsControlle
     Route::get('invoices/items', [InvoicesController::class, 'items']);
     Route::get('leads/{id}/show_convert', [LeadsController::class, 'showConvertToDeal']);
 
-    Route::get('audit-trail', function() {
+    Route::get('audit-trail', function () {
         $activityLogs = \Spatie\Activitylog\Models\Activity::all();
 
         return view('admin.audit.index', compact('activityLogs'));
     });
 
-    Route::get('members_report',[ReportsController::class,'members']);
-    Route::get('points_report',[ReportsController::class,'points']);
-    Route::get('cpds_report',[ReportsController::class,'cpds']);
-    Route::get('events_report',[ReportsController::class,'events']);
-    Route::get('payments_report',[ReportsController::class,'payments']);
-    Route::get('account_types_report', [ReportsController::class,'account_types']);
+    Route::get('members_report', [ReportsController::class, 'members']);
+    Route::get('points_report', [ReportsController::class, 'points']);
+    Route::get('cpds_report', [ReportsController::class, 'cpds']);
+    Route::get('events_report', [ReportsController::class, 'events']);
+    Route::get('payments_report', [ReportsController::class, 'payments']);
+    Route::get('account_types_report', [ReportsController::class, 'account_types']);
 
-    Route::get('create_reminder/{type}', [DashboardController::class,'create_reminder']);
-    Route::post('ckeditor/upload', [DashboardController::class,'upload'])->name('ckeditor.upload');
-    Route::post('send_reminder', [DashboardController::class,'send_reminder']);
-    Route::get('users',[UsersController::class,'users']);
-    Route::get('edit_user/{user}',[UsersController::class,'edit']);
-    Route::POST('assign_permission',[UsersController::class,'assign_permission']);
+    Route::get('create_reminder/{type}', [DashboardController::class, 'create_reminder']);
+    Route::post('ckeditor/upload', [DashboardController::class, 'upload'])->name('ckeditor.upload');
+    Route::post('send_reminder', [DashboardController::class, 'send_reminder']);
+    Route::get('users', [UsersController::class, 'users']);
+    Route::get('edit_user/{user}', [UsersController::class, 'edit']);
+    Route::POST('assign_permission', [UsersController::class, 'assign_permission']);
 
-    Route::get('calender', [CpdsController::class,'calender']);
-    Route::post('calender', [CpdsController::class,'getcalender']);
+    Route::get('calender', [CpdsController::class, 'calender']);
+    Route::post('calender', [CpdsController::class, 'getcalender']);
 
-    Route::get('new_member_details/{id}', [MembersController::class,'new']);
+    Route::get('new_member_details/{id}', [MembersController::class, 'new']);
 });
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

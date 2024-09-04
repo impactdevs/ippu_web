@@ -3,8 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\AccountType;
+use App\Models\Attendence;
 use App\Models\Event;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class EventsController extends Controller
 {
@@ -43,51 +48,118 @@ class EventsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, ) {
+    // public function store(Request $request, ) {
 
-        $request->validate([]);
+    //     $request->validate([]);
 
+    //     try {
+
+    //         $event = new Event();
+
+    //         if ($request->hasFile('attachment_name')) {
+    //             $file =  $request->file('attachment_name');
+    //             $extension = $file->extension();
+
+    //             $filename = time().rand(100,1000).'.'.$extension;
+
+    //             $storage = \Storage::disk('public')->putFileAs(
+    //                 'attachments/',
+    //                 $file,
+    //                 $filename
+    //             );
+
+    //             if (!$storage) {
+    //                 return redirect()->back()->with('error','Unable to upload Attachment');
+    //             }
+
+    //             $event->attachment_name = $filename;
+    //         }
+
+    //         if ($request->hasFile('banner_name')) {
+    //             $file =  $request->file('banner_name');
+    //             $extension = $file->extension();
+
+    //             $filename = time().rand(100,1000).'.'.$extension;
+
+    //             $storage = \Storage::disk('public')->putFileAs(
+    //                 'banners/',
+    //                 $file,
+    //                 $filename
+    //             );
+
+    //             if (!$storage) {
+    //                 return redirect()->back()->with('error','Unable to upload Attachment');
+    //             }
+
+    //             $event->banner_name = $filename;
+    //         }
+    //         $event->name = $request->name;
+    //         $event->start_date = $request->start_date;
+    //         $event->end_date = $request->end_date;
+    //         $event->details = $request->details;
+    //         $event->points = $request->points;
+    //         $event->rate = str_replace(',', '', $request->rate);
+    //         $event->member_rate = str_replace(',', '', $request->member_rate);
+    //         $event->save();
+
+    //         activity()->performedOn($event)->log('created event:'.$event->name);
+
+    //         return redirect()->route('events.index', [])->with('success', __('Event created successfully.'));
+    //     } catch (\Throwable $e) {
+    //         return redirect()->route('events.create', [])->withInput($request->input())->withErrors(['error' => $e->getMessage()]);
+    //     }
+    // }
+
+    public function store(Request $request) {
+        // Validate the incoming request data
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'rate' => 'required|numeric',
+            'member_rate' => 'required|numeric',
+            'points' => 'required|integer',
+            'event_type' => 'required|string|in:Normal,Annual', // Ensuring event_type is either 'Normal' or 'Annual'
+            'theme' => 'nullable|string|max:255', // Only required if event_type is 'Annual'
+            'organizing_committee' => 'nullable|string|max:255',
+            'annual_event_date' => 'nullable|date',
+            'place' => 'nullable|string|max:255',
+            'attachment_name' => 'nullable|file|mimes:jpeg,png,jpg,pdf,doc,docx', // File validation
+            'banner_name' => 'nullable|file|mimes:jpeg,png,jpg'
+        ]);
+    
         try {
-
             $event = new Event();
-
+    
+            // Handle attachment upload
             if ($request->hasFile('attachment_name')) {
-                $file =  $request->file('attachment_name');
+                $file = $request->file('attachment_name');
                 $extension = $file->extension();
-
-                $filename = time().rand(100,1000).'.'.$extension;
-
-                $storage = \Storage::disk('public')->putFileAs(
-                    'attachments/',
-                    $file,
-                    $filename
-                );
-
+                $filename = time().rand(100, 1000).'.'.$extension;
+                $storage = \Storage::disk('public')->putFileAs('attachments/', $file, $filename);
+    
                 if (!$storage) {
-                    return redirect()->back()->with('error','Unable to upload Attachment');
+                    return redirect()->back()->with('error', 'Unable to upload Attachment');
                 }
-
+    
                 $event->attachment_name = $filename;
             }
-
+    
+            // Handle banner upload
             if ($request->hasFile('banner_name')) {
-                $file =  $request->file('banner_name');
+                $file = $request->file('banner_name');
                 $extension = $file->extension();
-
-                $filename = time().rand(100,1000).'.'.$extension;
-
-                $storage = \Storage::disk('public')->putFileAs(
-                    'banners/',
-                    $file,
-                    $filename
-                );
-
+                $filename = time().rand(100, 1000).'.'.$extension;
+                $storage = \Storage::disk('public')->putFileAs('banners/', $file, $filename);
+    
                 if (!$storage) {
-                    return redirect()->back()->with('error','Unable to upload Attachment');
+                    return redirect()->back()->with('error', 'Unable to upload Banner');
                 }
-
+    
                 $event->banner_name = $filename;
             }
+    
+            // Assign event details
             $event->name = $request->name;
             $event->start_date = $request->start_date;
             $event->end_date = $request->end_date;
@@ -95,15 +167,22 @@ class EventsController extends Controller
             $event->points = $request->points;
             $event->rate = str_replace(',', '', $request->rate);
             $event->member_rate = str_replace(',', '', $request->member_rate);
+            $event->event_type = $request->event_type;
+            $event->theme = $request->event_type === 'Annual' ? $request->theme : null; // Only set theme for Annual events
+            $event->organizing_committee = $request->organizing_committee;
+            $event->annual_event_date = $request->event_type === 'Annual' ? $request->annual_event_date : null; // Only set date for Annual events
+            $event->place = $request->place;
+    
             $event->save();
-
+    
             activity()->performedOn($event)->log('created event:'.$event->name);
-
-            return redirect()->route('events.index', [])->with('success', __('Event created successfully.'));
+    
+            return redirect()->route('events.index')->with('success', __('Event created successfully.'));
         } catch (\Throwable $e) {
-            return redirect()->route('events.create', [])->withInput($request->input())->withErrors(['error' => $e->getMessage()]);
+            return redirect()->route('events.create')->withInput($request->input())->withErrors(['error' => $e->getMessage()]);
         }
     }
+    
 
     /**
      * Display the specified resource.
@@ -271,4 +350,57 @@ class EventsController extends Controller
             return redirect()->back()->with('error',$e->getMessage());
         }
     }
+
+
+    // In your controller method
+public function storeAttendance(Request $request)
+{
+    // dd($request->all());
+    $validated = $request->validate([
+        'event_id' => 'required|exists:events,id',
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'membership_number' => 'nullable'
+    ]);
+
+    // check if the user already exists in the user table
+    $user = User::where('email', $validated['email'])->first();
+
+    if (!$user) {
+        $password = Str::random(9);
+        $password = Hash::make($password);
+        $account_type_id = AccountType::first()->id;
+        // create a new user
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            //'membership_number' => $validated['membership_number'],
+            'account_type_id' => $account_type_id,
+            'password' => $password,
+
+        ]);
+
+         Attendence::create([
+            'user_id' => $user->id,
+            'event_id' => $validated['event_id'],
+            'status'=>"Attended",
+            'membership_number' => $validated['membership_number']
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Attendee registered successfully.', 'password' => $password]);
+    }
+    else{
+
+        Attendence::create([
+            'user_id' => $user->id,
+            'event_id' => $validated['event_id'],
+            'status'=>"Attended",
+            'membership_number' => $validated['membership_number']
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Attendee registered successfully.']);
+
+    }
+    
+}
 }

@@ -10,7 +10,31 @@ use App\Notifications\PushNotification;
 
 class Event extends Model
 {
+
+
     use HasFactory,softDeletes;
+
+    protected $fillable = [
+        'name',
+        'description',
+        'start_date',
+        'end_date',
+        'details',
+        'points',
+        'rate',
+        'member_rate',
+        'is_active',
+        'image',
+        'created_by',
+        'updated_by',
+        'deleted_by',
+        'date',
+        'event_type',
+        'place',
+        'theme',
+        'annual_event_date',
+        'organizing_committee',
+    ];
 
     /**
      * Event has one Attended.

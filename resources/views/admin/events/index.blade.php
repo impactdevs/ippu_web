@@ -24,6 +24,7 @@
                 <thead role="rowgroup">
                     <tr role="row">
                         <th role='columnheader'>Name</th>
+                        <th role='columnheader'>Event Type</th>
                         <th role='columnheader'>Start Date</th>
                         <th role='columnheader'>End Date</th>
                         <th role='columnheader'>Rate</th>
@@ -35,6 +36,7 @@
                     @foreach($events as $event)
                     <tr>
                         <td data-label="Name">{{ $event->name ?: "(blank)" }}</td>
+                         <td data-label="Name">{{ $event->event_type ?: "(blank)" }}</td>
                         <td data-label="Start Date">{{ $event->start_date ? (date('F j, Y, g:i a',strtotime($event->start_date))) : "(blank)" }}</td>
                         <td data-label="End Date">{{ $event->end_date ? (date('F j, Y, g:i a',strtotime($event->end_date))): "(blank)" }}</td>
                         <td data-label="Rate">{{ (($event->rate) ? number_format($event->rate) : '') ?: "Free" }}</td>
