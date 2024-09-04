@@ -18,6 +18,16 @@ class MembersController extends Controller
         return view('admin.members.index',compact('members','account_types'));
     }
 
+    // UserController.php
+public function getAllUsers()
+{
+    $users = User::select('id', 'name')
+    ->where('user_type', 'Member')
+    ->get();
+    return response()->json($users);
+}
+
+
     public function show($id)
     {
         $member = User::find($id);

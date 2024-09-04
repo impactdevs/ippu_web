@@ -72,6 +72,7 @@ class CpdsController extends Controller
 
     public function pay($id = '')
     {
+        //  dd("pay");
         try {
             $client = new Client();
             $cpd = Cpd::find($id);
@@ -106,6 +107,8 @@ class CpdsController extends Controller
                 ],
             ]);
 
+            // dd($response);
+
             $responseBody = json_decode($response->getBody(), true);
             //check if the request was successful
             if ($responseBody['status'] == 'success') {
@@ -114,6 +117,7 @@ class CpdsController extends Controller
                 return redirect()->back()->with('error', 'Payment request failed!');
             }
         } catch (RequestException $e) {
+            dd($e);
             if ($e->hasResponse()) {
                 $responseBody = json_decode($e->getResponse()->getBody(), true);
                 return redirect()->back()->with('error', $responseBody['message']);

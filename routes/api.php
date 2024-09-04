@@ -24,7 +24,6 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('login-by-apple', 'loginByApple');
 });
 Route::post('deploy', [App\Http\Controllers\DeploymentController::class, 'deploy']);
-
 Route::apiResource('account-types', AccountTypeController::class)->only(['index', 'show']);
 Route::get('education-background/{userId}', [EducationBackgroundController::class, 'index']);
 Route::put('edit-education-background', [EducationBackgroundController::class, 'update']);

@@ -9,6 +9,8 @@ class Attendence extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['event_id', 'user_id', 'cpd_id', 'status', 'membership_number'];
+
     public static $status = [
         'Pending',
         'Confirmed',
