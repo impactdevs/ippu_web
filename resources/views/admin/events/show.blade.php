@@ -293,8 +293,7 @@ function registerAttendee(name, email, membershipNumber) {
             });
         },
         success: function (response) {
-            console.log("====response=========");
-            console.log(response);
+
             if (response.success) {
                 Swal.fire('Success', 'Attendee has been registered!', 'success').then(function () {
                     location.reload(); // Reload the page to see the changes
