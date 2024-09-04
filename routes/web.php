@@ -224,6 +224,14 @@ Route::post("events/attendence/store", [EventsController::class, 'storeAttendanc
     Route::resource('bills', BillsController::class);
     Route::get('bill/create/{cid}', [BillsController::class, 'create']);
 
+
+    // Route::get('bill/{id}/debit-note/edit/{cn_id}', [DebitNoteController::class, 'edit'])->name('bill.edit.debit.note');
+    // Route::post('bill/{id}/debit-note/edit/{cn_id}', [DebitNoteController::class, 'update'])->name('bill.edit.debit.note');
+    // Route::delete('bill/{id}/debit-note/delete/{cn_id}', [DebitNoteController::class, 'destroy'])->name('bill.delete.debit.note');
+    //  Route::get('bill/{id}/duplicate', [BillController::class, 'duplicate'])->name('bill.duplicate');
+    // Route::get('bill/{id}/shipping/print', [BillController::class, 'shippingDisplay'])->name('bill.shipping.print');
+    // Route::get('bill/index', [BillController::class, 'index'])->name('bill.index');
+    // Route::post('bill/product/destroy', [BillController::class, 'productDestroy'])->name('bill.product.destroy');
     Route::post('bill/product', [BillsController::class, 'product'])->name('bill.product');
     Route::post('bill/vender', [BillsController::class, 'vender']);
     // Route::get('bill/{id}/sent', [BillController::class, 'sent'])->name('bill.sent');
