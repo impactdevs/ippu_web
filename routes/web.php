@@ -124,6 +124,8 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
 // routes/web.php
 Route::get('users/all', [MembersController::class, 'getAllUsers']);
 Route::post("events/attendence/store", [EventsController::class, 'storeAttendance'])->name('events.attendence.store');
+Route::post("cpds/attendence/store", [CpdsController::class, 'storeAttendance'])->name('cpds.attendence.store');
+
 
 
     //cpds

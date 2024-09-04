@@ -3,16 +3,21 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\AccountType;
+use App\Models\Attendence;
 use App\Models\Cpd;use Dompdf\Dompdf;
-use Illuminate\Support\Facades\View;
-use Dompdf\Options;
-use BaconQrCode\Renderer\ImageRenderer;
+use App\Models\User;
 use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Writer;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 use Carbon\Carbon;
+use Dompdf\Options;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Str;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class CpdsController extends Controller
 {
@@ -460,4 +465,56 @@ public function generate_qr($type, $id)
             return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());
         }
     }
+
+        // In your controller method
+public function storeAttendance(Request $request)
+{
+    // dd($request->all());
+    $validated = $request->validate([
+        'event_id' => 'required|exists:cpds,id',
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'membership_number' => 'nullable'
+    ]);
+
+    // check if the user already exists in the user table
+    $user = User::where('email', $validated['email'])->first();
+
+    if (!$user) {
+        $password = Str::random(9);
+        $password = Hash::make($password);
+        $account_type_id = AccountType::first()->id;
+        // create a new user
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            //'membership_number' => $validated['membership_number'],
+            'account_type_id' => $account_type_id,
+            'password' => $password,
+
+        ]);
+
+         Attendence::create([
+            'user_id' => $user->id,
+            'event_id' => $validated['event_id'],
+            'status'=>"Attended",
+            'membership_number' => $validated['membership_number']
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Attendee registered successfully.', 'password' => $password]);
+    }
+    else{
+
+        Attendence::create([
+            'user_id' => $user->id,
+            'event_id' => $validated['event_id'],
+            'status'=>"Attended",
+            'membership_number' => $validated['membership_number']
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Attendee registered successfully.']);
+
+    }
+    
+}
 }
