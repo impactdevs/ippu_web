@@ -301,10 +301,12 @@ class EventsController extends Controller
         // if ($this->device_attended()) {
         //     return redirect()->back()->with('error', 'You have already registered');
         // }
+        //dd($request->all());
 
         $request->validate([
             'name' => 'required',
-            'email' => 'required|email|unique:attendences,email',
+            // 'email' => 'required|email|unique:users,email',
+            'email' => 'required|email',
         ]);
 
 
@@ -340,14 +342,14 @@ class EventsController extends Controller
             //get the logged in user
             $event = Event::find($request->id);
             if ($event != null) {
-                return $this->direct_event_attendance_certificate_parser($user, $request->id, "event");
+                return $this->direct_event_attendance_certificate_parser($user, $event, "event");
             } else {
                 return redirect()->back()->with('error', 'Event not found');
             }
         } else {
             $event = Cpd::find($request->id);
             if ($event != null) {
-                return $this->direct_cpd_attendance_certificate_parser($user, $request->id, "cpd");
+                return $this->direct_cpd_attendance_certificate_parser($user, $event, "cpd");
             } else {
                 return redirect()->back()->with('error', 'CPD not found');
             }
@@ -361,7 +363,8 @@ class EventsController extends Controller
         //read the image from the public folder
         $image = $manager->read(public_path('images/certificate-template.jpeg'));
         $eventFound = Event::find($event);
-        $user = User::find($user);
+        //$user = User::find($user);
+        //dd($event);
 
         $image->text('PRESENTED TO', 420, 250, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
@@ -450,7 +453,7 @@ class EventsController extends Controller
         //read the image from the public folder
         $image = $manager->read(public_path('images/cpd-certificate-template.jpg'));
 
-        $eventFound = Cpd::find($event);
+        $eventFound = $event;
 
 
         $user = auth()->user();
@@ -675,13 +678,11 @@ private function customizeAnnualCertificate($image, $event, $name, $membership_n
     $organizing_committee = $event->organizing_committee ?? 'Institute of Procurement Professionals of Uganda (IPPU)';
 
     // Name Placement
-    $image->text($name, 1400, 1150, function ($font) {
+    $image->text($name, 1800, 1150, function ($font) {
         // $font->filename(public_path('fonts/Roboto-Bold.ttf'));
         $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
         $font->color('#b01735'); // Dark red color
-        $font->size(70); // Increased size for better visibility
-        //use italics
-        //$font->italics(true);
+        $font->size(100); // Increased size for better visibility
         $font->align('center');
         $font->valign('middle');
     });
