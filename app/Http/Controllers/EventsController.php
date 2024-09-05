@@ -298,9 +298,9 @@ class EventsController extends Controller
 
     public function record_direct_attendence(Request $request)
     {
-        if ($this->device_attended()) {
-            return redirect()->back()->with('error', 'You have already registered');
-        }
+        // if ($this->device_attended()) {
+        //     return redirect()->back()->with('error', 'You have already registered');
+        // }
 
         $request->validate([
             'name' => 'required',
@@ -822,14 +822,14 @@ private function customizeRegularCertificate($image, $event, $name, $membership_
        $font->valign('middle');
        $font->lineHeight(1.6);
    });
-   
+
 }
 
 
 public function downloadBulkCertificates(Request $request)
 {
     $event_id = $request->input('event_id');
-    
+
     // Find the event
     $event = Event::find($event_id);
     if (!$event) {
@@ -868,7 +868,7 @@ public function downloadBulkCertificates(Request $request)
                 $file_name = 'certificate_generated_' . $user->id . '.png';
                 $file_path = public_path('certificates/' . $file_name);
 
-                $this->downloadCertificate($event_id, $userId); 
+                $this->downloadCertificate($event_id, $userId);
 
                 // Add the certificate to the ZIP file
                 if (file_exists($file_path)) {
