@@ -11,7 +11,7 @@ class Job extends Model
 {
     use HasFactory;
 
-    protected $table = "jobs_ippu";
+    protected $table = "ippu_jobs";
 
     protected static function boot()
     {
