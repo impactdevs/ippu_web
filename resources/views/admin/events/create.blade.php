@@ -84,7 +84,7 @@
                     </div>
 
                     <div class="mb-3 col-lg-4">
-                        <label for="points" class="form-label">CPD Points</label>
+                        <label for="points" class="form-label">Event Points</label>
                         <input type="number" name="points" id="points" class="form-control" value="{{@old('points')}}" />
                         @if($errors->has('points'))
                         <div class='error small text-danger'>{{$errors->first('points')}}</div>

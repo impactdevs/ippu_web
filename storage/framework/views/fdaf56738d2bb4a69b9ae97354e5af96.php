@@ -168,22 +168,14 @@
                         </div>
 
                     <div class="table-responsive">
-                        <form id="bulk-actions-form" method="POST" action="<?php echo e(url('admin/cpds/bulk-email')); ?>">
-                            <?php echo csrf_field(); ?>
-                            <input type="hidden" name="cpd_id" value="<?php echo e($cpd->id); ?>">
-                            <div class="mb-3">
-                                <button type="submit" name="action" value="download" class="btn btn-danger">Download Bulk
-                                    Certificates</button>
-                            </div>
-                        </form>
-
+                        
                         <form action="<?php echo e(route('cpds.bulkDownload')); ?>" method="POST">
                             <?php echo csrf_field(); ?>
                             <input type="hidden" name="cpd_id" value="<?php echo e($cpd->id); ?>">
                             <input type="hidden" name="attendees[]" value="user1">
                             <input type="hidden" name="attendees[]" value="user2">
                             <!-- Add more hidden inputs for other user IDs as needed -->
-                            <button type="submit">Download Certificates</button>
+                            <button type="submit" class="btn btn-primary mb-3">Download Bulk Certificates</button>
                         </form>
 
                         <table class="table table-striped dataTable">

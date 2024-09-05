@@ -169,22 +169,14 @@
                         </div>
 
                     <div class="table-responsive">
-                        <form id="bulk-actions-form" method="POST" action="{{ url('admin/cpds/bulk-email') }}">
-                            @csrf
-                            <input type="hidden" name="cpd_id" value="{{ $cpd->id }}">
-                            <div class="mb-3">
-                                <button type="submit" name="action" value="download" class="btn btn-danger">Download Bulk
-                                    Certificates</button>
-                            </div>
-                        </form>
-
+                        
                         <form action="{{ route('cpds.bulkDownload') }}" method="POST">
                             @csrf
                             <input type="hidden" name="cpd_id" value="{{ $cpd->id }}">
                             <input type="hidden" name="attendees[]" value="user1">
                             <input type="hidden" name="attendees[]" value="user2">
                             <!-- Add more hidden inputs for other user IDs as needed -->
-                            <button type="submit">Download Certificates</button>
+                            <button type="submit" class="btn btn-primary mb-3">Download Bulk Certificates</button>
                         </form>
 
                         <table class="table table-striped dataTable">
