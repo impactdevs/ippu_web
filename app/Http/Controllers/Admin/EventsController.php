@@ -116,8 +116,8 @@ class EventsController extends Controller
             'name' => 'required|string|max:255',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'rate' => 'required|numeric',
-            'member_rate' => 'required|numeric',
+            'rate' => 'required',
+            'member_rate' => 'required',
             'points' => 'required|integer',
             'event_type' => 'required|string|in:Normal,Annual', // Ensuring event_type is either 'Normal' or 'Annual'
             'theme' => 'nullable|string|max:255', // Only required if event_type is 'Annual'
