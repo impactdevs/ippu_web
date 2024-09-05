@@ -2,28 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Event;
+use App\Mail\CertificateMail;
+use App\Mail\EventCertificate;
 use App\Models\Attendence;
-use Dompdf\Dompdf;
-use Illuminate\Support\Facades\View;
-use Dompdf\Options;
-use Illuminate\Support\Facades\Hash;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
-use App\Models\User;
-use Carbon\Carbon;
 use App\Models\Cpd;
-use Illuminate\Support\Facades\Session;
+use App\Models\Event;
+use App\Models\User;
+use Auth;
+use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Str;
-use Symfony\Component\Mailer\Exception\TransportException;
-use Auth;
-use App\Mail\CertificateMail;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Str;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
+use Symfony\Component\Mailer\Exception\TransportException;
 use ZipArchive;
-use App\Mail\EventCertificate;
 
 
 
@@ -664,111 +665,7 @@ public function downloadCertificate($event_id, $user_id)
         return redirect()->back()->with('success', 'Certificates have been emailed successfully.');
     }
 
-
-    public function downloadBulkCertificates(Request $request)
-    {
-        $userIds = $request->input('attendees', []);
-        $cpd_id = $request->input('cpd_id');
-
-        $cpd = Cpd::find($cpd_id);
-
-        if (!$cpd) {
-            return redirect()->back()->with('error', 'CPD not found.');
-        }
-
-        // Create a unique name for the ZIP file
-        $zipFileName = 'certificates-' . now()->format('YmdHis') . '.zip';
-        $zipFilePath = public_path('certificates/' . $zipFileName);
-
-        // Create a new ZIP file
-        $zip = new \ZipArchive;
-        if ($zip->open($zipFilePath, \ZipArchive::CREATE) !== true) {
-            return redirect()->back()->with('error', 'Could not create ZIP file.');
-        }
-
-        // Ensure the certificates directory exists
-        $certificatesDir = public_path('certificates');
-        if (!is_dir($certificatesDir)) {
-            mkdir($certificatesDir, 0755, true);
-        }
-
-        foreach ($userIds as $userId) {
-            $user = \App\Models\User::find($userId);
-            if ($user) {
-                $path = public_path('certificates/' . $user->id . '_certificate.png');
-
-                // Generate the certificate
-                $manager = new ImageManager(new Driver());
-                $image = $manager->read(public_path('images/cpd-certificate-template.jpg'));
-
-                $image->text($cpd->code, 173, 27, function ($font) {
-                    $font->file(public_path('fonts/Roboto-Bold.ttf'));
-                    $font->size(20);
-                    $font->color('#000000');
-                    $font->align('center');
-                });
-
-                $image->text($user->name, 780, 550, function ($font) {
-                    $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
-                    $font->size(45);
-                    $font->color('#1F45FC');
-                    $font->align('center');
-                });
-
-                $image->text($cpd->topic, 730, 690, function ($font) {
-                    $font->file(public_path('fonts/Roboto-Bold.ttf'));
-                    $font->size(20);
-                    $font->color('#000000');
-                    $font->align('center');
-                });
-
-                $startDate = Carbon::parse($cpd->start_date);
-                $endDate = Carbon::parse($cpd->end_date);
-
-                $x = ($startDate->month === $endDate->month) ? 720 : 780;
-                $formattedRange = ($startDate->month === $endDate->month)
-                    ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
-                    : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
-
-                $image->text('on ', 600, 760, function ($font) {
-                    $font->file(public_path('fonts/Roboto-Regular.ttf'));
-                    $font->size(20);
-                    $font->color('#000000');
-                    $font->align('center');
-                });
-
-                $image->text($formattedRange, $x, 760, function ($font) {
-                    $font->file(public_path('fonts/Roboto-Bold.ttf'));
-                    $font->size(20);
-                    $font->color('#000000');
-                    $font->align('center');
-                });
-
-                $image->text($cpd->hours . " CPD HOURS", 1400, 945, function ($font) {
-                    $font->file(public_path('fonts/Roboto-Bold.ttf'));
-                    $font->size(17);
-                    $font->color('#000000');
-                    $font->align('center');
-                });
-
-                $image->save($path);
-
-                // Add the certificate to the ZIP file
-                $zip->addFile($path, basename($path));
-            }
-        }
-
-        $zip->close();
-
-        return response()->download($zipFilePath)->deleteFileAfterSend(true);
-    }
-
-
-
-
-
-
-    // Helper method for customizing an annual event certificate
+// Helper method for customizing an annual event certificate
 private function customizeAnnualCertificate($image, $event, $name, $membership_number)
 {
     // Additional information for Annual events
@@ -927,6 +824,79 @@ private function customizeRegularCertificate($image, $event, $name, $membership_
    });
    
 }
+
+
+public function downloadBulkCertificates(Request $request)
+{
+    $event_id = $request->input('event_id');
+    
+    // Find the event
+    $event = Event::find($event_id);
+    if (!$event) {
+        return redirect()->back()->with('error', 'Event not found.');
+    }
+
+    // Get all users who attended the event
+    $userIds = \App\Models\Attendence::where('event_id', $event_id)
+        ->where('status', 'Attended')
+        ->pluck('user_id')->toArray();
+
+    // Create a unique name for the ZIP file
+    $zipFileName = 'bulk_events_certificates_' . $event_id . '.zip';
+    $zipFilePath = public_path('certificates/' . $zipFileName);
+
+    // Ensure the directory for storing certificates exists
+    if (!file_exists(public_path('certificates'))) {
+        mkdir(public_path('certificates'), 0777, true);
+    }
+
+    // Create a new ZIP file
+    $zip = new \ZipArchive;
+    if ($zip->open($zipFilePath, \ZipArchive::CREATE) !== true) {
+        return redirect()->back()->with('error', 'Could not create ZIP file.');
+    }
+
+    // Array to store paths of generated certificates for cleanup
+    $certificatePaths = [];
+
+    // Generate a certificate for each user and add it to the ZIP
+    foreach ($userIds as $userId) {
+        $user = \App\Models\User::find($userId);
+        if ($user) {
+            try {
+                // Generate the certificate for the user
+                $file_name = 'certificate_generated_' . $user->id . '.png';
+                $file_path = public_path('certificates/' . $file_name);
+
+                $this->downloadCertificate($event_id, $userId); 
+
+                // Add the certificate to the ZIP file
+                if (file_exists($file_path)) {
+                    $zip->addFile($file_path, $user->name . '_certificate.png');
+                    $certificatePaths[] = $file_path; // Track the path for cleanup
+                } else {
+                    Log::error('Certificate file not found for user: ' . $user->name);
+                }
+            } catch (\Exception $e) {
+                Log::error('Error generating certificate for user: ' . $user->name . ' - ' . $e->getMessage());
+            }
+        }
+    }
+
+    // Close the ZIP file once all certificates are added
+    $zip->close();
+
+    // Cleanup: Delete the individual certificate files after they are added to the ZIP
+    foreach ($certificatePaths as $path) {
+        if (file_exists($path)) {
+            unlink($path);
+        }
+    }
+
+    // Return the ZIP file for download, and delete it after sending
+    return response()->download($zipFilePath)->deleteFileAfterSend(true);
+}
+
 
     //new
 

@@ -147,6 +147,15 @@
                         </div>
                     </div>
                     <div class="tab-pane" id="pill-justified-settings-1" role="tabpanel">
+
+                         <form action="<?php echo e(route('events.bulkDownload')); ?>" method="POST">
+                            <?php echo csrf_field(); ?>
+                            <input type="hidden" name="event_id" value="<?php echo e($event->id); ?>">
+                            <input type="hidden" name="attendees[]" value="user1">
+                            <input type="hidden" name="attendees[]" value="user2">
+                            <!-- Add more hidden inputs for other user IDs as needed -->
+                            <button type="submit" class="btn btn-primary mb-3">Download Bulk Certificates</button>
+                        </form>
                         <!-- Add New Attendee Button -->
                         <div class="d-flex justify-content-end mb-3">
                             <button id="addNewAttendeeBtn" class="btn btn-success btn-sm">

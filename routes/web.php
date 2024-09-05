@@ -138,6 +138,7 @@ Route::post("cpds/attendence/store", [CpdsController::class, 'storeAttendance'])
 
     //events
     Route::post('events/bulk-email', [mEventsController::class, 'sendBulkEmail']);
+    Route::post('/events/bulk-download', [mEventsController::class, 'downloadBulkCertificates'])->name('events.bulkDownload');
     Route::get('events/attendence/{id}/{user_id}', [mEventsController::class, 'emailCertificate']);
     Route::post('events/bulk-email', [mEventsController::class, 'bulkEmail'])->name('events.bulkEmail');
     Route::post('/events/bulk-download', [mEventsController::class, 'downloadBulkCertificates'])->name('events.bulkDownload');

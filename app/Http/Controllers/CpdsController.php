@@ -467,8 +467,7 @@ class CpdsController extends Controller
 
     public function downloadBulkCertificates(Request $request)
     {
-        // Get the list of user IDs from the request or retrieve all attendees who attended the CPD
-        //$userIds = $request->input('attendees', []);
+
         $cpd_id = $request->input('cpd_id');
     
         // Find the CPD event
@@ -542,32 +541,4 @@ class CpdsController extends Controller
     }
     
 
-//     $zip = new ZipArchive;
-// $zipFileName = 'sample.zip';
-// $zipFilePath = public_path($zipFileName);
-
-// if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
-//     $filesToZip = [
-//         public_path('file1.txt'),
-//         public_path('file2.txt'),
-//     ];
-
-//     foreach ($filesToZip as $file) {
-//         if (file_exists($file)) {
-//             $zip->addFile($file, basename($file));
-//         } else {
-//             \Log::error('File not found: ' . $file);
-//         }
-//     }
-
-//     $zip->close();
-
-//     if (file_exists($zipFilePath)) {
-//         return response()->download($zipFilePath)->deleteFileAfterSend(true);
-//     } else {
-//         return response()->json(['error' => 'Failed to create the zip file.'], 500);
-//     }
-// } else {
-//     return response()->json(['error' => 'Failed to create the zip file.'], 500);
-// }
 }
