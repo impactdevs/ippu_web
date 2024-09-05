@@ -25,16 +25,21 @@
                     <?php echo csrf_field(); ?>
 
                     <!-- Event Type Selection -->
-                    <div class="mb-3 col-lg-12">
-                        <label for="event_type" class="form-label">Event Type:</label>
-                        <select id="event_type" name="event_type" class="form-control">
-                            <option value="Normal" selected>Normal</option>
-                            <option value="Annual">Annual</option>
-                        </select>
-                        <?php if($errors->has('event_type')): ?>
-                        <div class='error small text-danger'><?php echo e($errors->first('event_type')); ?></div>
-                        <?php endif; ?>
-                    </div>
+                    <!-- Event Type Selection -->
+<div class="mb-3 col-lg-12">
+    <label for="event_type" class="form-label">Event Type:</label>
+    <div>
+        <input type="radio" id="normal_event" name="event_type" value="Normal" <?php echo e(old('event_type', 'Normal') == 'Normal' ? 'checked' : ''); ?>>
+        <label for="normal_event">Normal</label>
+
+        <input type="radio" id="annual_event" name="event_type" value="Annual" <?php echo e(old('event_type') == 'Annual' ? 'checked' : ''); ?>>
+        <label for="annual_event">Annual</label>
+    </div>
+    <?php if($errors->has('event_type')): ?>
+        <div class='error small text-danger'><?php echo e($errors->first('event_type')); ?></div>
+    <?php endif; ?>
+</div>
+
 
                     <!-- Common Fields (Visible by Default) -->
                     <div class="mb-3">
@@ -156,14 +161,29 @@
     </div>
 </div>
 
+
 <?php $__env->startSection('customjs'); ?>
 <script>
     // Show/Hide fields based on event type selection
-    document.getElementById('event_type').addEventListener('change', function() {
-        var eventType = this.value;
+    document.querySelectorAll('input[name="event_type"]').forEach((elem) => {
+        elem.addEventListener('change', function() {
+            var eventType = this.value;
+            var annualFields = document.getElementById('annual_event_fields');
+
+            if (eventType === 'Annual') {
+                annualFields.style.display = 'block';
+            } else {
+                annualFields.style.display = 'none';
+            }
+        });
+    });
+
+    // Initial check on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        var initialEventType = document.querySelector('input[name="event_type"]:checked').value;
         var annualFields = document.getElementById('annual_event_fields');
 
-        if (eventType === 'Annual') {
+        if (initialEventType === 'Annual') {
             annualFields.style.display = 'block';
         } else {
             annualFields.style.display = 'none';
@@ -171,6 +191,7 @@
     });
 </script>
 <?php $__env->stopSection(); ?>
+
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Users/katendenicholas/Desktop/laravel/ippu_web/resources/views/admin/events/create.blade.php ENDPATH**/ ?>
