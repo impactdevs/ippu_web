@@ -477,6 +477,7 @@ public function storeAttendance(Request $request)
         'membership_number' => 'nullable'
     ]);
 
+     //dd($validated);
     // check if the user already exists in the user table
     $user = User::where('email', $validated['email'])->first();
 
@@ -496,7 +497,7 @@ public function storeAttendance(Request $request)
 
          Attendence::create([
             'user_id' => $user->id,
-            'event_id' => $validated['event_id'],
+            'cpd_id' => $validated['event_id'],
             'status'=>"Attended",
             'membership_number' => $validated['membership_number']
         ]);
@@ -507,7 +508,7 @@ public function storeAttendance(Request $request)
 
         Attendence::create([
             'user_id' => $user->id,
-            'event_id' => $validated['event_id'],
+            'cpd_id' => $validated['event_id'],
             'status'=>"Attended",
             'membership_number' => $validated['membership_number']
         ]);
