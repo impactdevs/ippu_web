@@ -364,12 +364,11 @@ class EventsController extends Controller
         'email' => 'required|email',
     ]);
 
-    // Find user by email or create a new user
     $user = \App\Models\User::where('email', $request->email)->first();
 
     if (!$user) {
         $password = \Str::random(9);
-
+    
         $user = new \App\Models\User;
         $user->name = $request->name;
         $user->email = $request->email;
@@ -377,28 +376,44 @@ class EventsController extends Controller
         $user->account_type_id = \App\Models\AccountType::first()->id;
         $user->save();
     }
-
+    
     // Log in the user
     \Auth::login($user);
-
-    // Record attendance
-    $attendence = new Attendence;
-    $attendence->user_id = \Auth::user()->id;
-
-    if ($request->type == "event") {
-        $attendence->event_id = $request->id;
-        $attendence->type = "Event";
-    } else {
-        $attendence->cpd_id = $request->id;
-        $attendence->type = "CPD";
+    
+    // Check if the user is already registered for this event or CPD
+    $existingAttendance = Attendence::where('user_id', $user->id)
+        ->where(function($query) use ($request) {
+            if ($request->type == "event") {
+                $query->where('event_id', $request->id);
+            } else {
+                $query->where('cpd_id', $request->id);
+            }
+        })
+        ->first();
+    
+    if ($existingAttendance) {
+        return redirect()->route('thank.you.page')->with('error', 'You have already registered for this event.');
     }
-
-    $attendence->status = "Attended";
-    $attendence->membership_number = $request->membership_number;
-    $attendence->save();
-
+    
+    // Record attendance
+    $attendance = new Attendence;
+    $attendance->user_id = \Auth::user()->id;
+    
+    if ($request->type == "event") {
+        $attendance->event_id = $request->id;
+        $attendance->type = "Event";
+    } else {
+        $attendance->cpd_id = $request->id;
+        $attendance->type = "CPD";
+    }
+    
+    $attendance->status = "Attended";
+    $attendance->membership_number = $request->membership_number;
+    $attendance->save();
+    
     // Redirect to the "Thank You" page after successful registration
     return redirect()->route('thank.you.page')->with('success', 'Thank you for registering. Your attendance has been recorded.');
+    
 }
 
 

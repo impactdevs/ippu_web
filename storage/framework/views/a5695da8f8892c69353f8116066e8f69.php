@@ -37,11 +37,13 @@
                                 <div class="text-center">
                                     <img src="https://ippu.or.ug/wp-content/uploads/2020/03/cropped-Logo-192x192.png" alt="" width="10%" height="10%">
                                 </div>
+                                <?php if(session('success')): ?>
                                 <h3 class="mt-4 fw-semibold">Thank You for Registering!</h3>
                                 <p class="text-muted mb-2 fs-14">Your attendance has been successfully recorded.</p>
+                                <?php endif; ?>
                                 
                                 <?php if(session('error')): ?>
-                                    <div class="alert alert-danger alert-dismissible bg-danger text-white border-0 fade show" role="alert">
+                                    <div class="alert alert-danger mt-3 alert-dismissible bg-danger text-white border-0 fade show" role="alert">
                                         <i class="uil uil-exclamation-octagon me-2"></i>
                                         <?php echo e(session('error')); ?>
 
