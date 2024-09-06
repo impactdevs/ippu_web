@@ -757,11 +757,11 @@ private function customizeAnnualCertificate($image, $event, $name, $membership_n
     $organizing_committee = $event->organizing_committee ?? 'Institute of Procurement Professionals of Uganda (IPPU)';
 
     // Name Placement
-    $image->text($name, 1800, 1150, function ($font) {
+    $image->text($name, 800, 500, function ($font) {
         // $font->filename(public_path('fonts/Roboto-Bold.ttf'));
         $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
         $font->color('#b01735'); // Dark red color
-        $font->size(100); // Increased size for better visibility
+        $font->size(50); // Increased size for better visibility
         $font->align('center');
         $font->valign('middle');
     });
@@ -769,10 +769,10 @@ private function customizeAnnualCertificate($image, $event, $name, $membership_n
 
 
     // Event Name Placement
-    $image->text($event->name, 1650, 1350, function ($font) {
+    $image->text($event->name, 800, 620, function ($font) {
         $font->filename(public_path('fonts/Roboto-Bold.ttf'));
         $font->color('#008000'); // Green color
-        $font->size(60); // Increased size
+        $font->size(30); // Increased size
         $font->align('center');
         $font->valign('middle');
     });
@@ -781,38 +781,38 @@ private function customizeAnnualCertificate($image, $event, $name, $membership_n
     // Theme Text Placement (split into two lines)
     $theme = wordwrap('THEME: ' . $theme, 50, "\n", true); // Adjust the 50 to fit the length you want per line
 
-    $image->text($theme, 1700, 1500, function ($font) {
+    $image->text($theme, 800, 680, function ($font) {
         $font->filename(public_path('fonts/Roboto-Bold.ttf'));
         $font->color('#405189'); // Blue color
-        $font->size(60);
+        $font->size(30);
         $font->align('center');
         $font->valign('middle');
     });
 
 
     // Organizer and Date Text Placement
-    $image->text('Organised by ' . $organizing_committee, 1700, 1650, function ($font) {
+    $image->text('Organised by ' . $organizing_committee, 800, 740, function ($font) {
         $font->filename(public_path('fonts/Roboto-Regular.ttf'));
         $font->color('#405189'); // Blue color
-        $font->size(50);
+        $font->size(30);
         $font->align('center');
         $font->valign('middle');
     });
 
     // Date and Place Text Placement
-    $image->text('on ' . $annual_event_date . ' at ' . $place . '.', 1700, 1720, function ($font) {
+    $image->text('on ' . $annual_event_date . ' at ' . $place . '.', 800, 780, function ($font) {
         $font->filename(public_path('fonts/Roboto-Regular.ttf'));
         $font->color('#405189'); // Blue color
-        $font->size(45);
+        $font->size(30);
         $font->align('center');
         $font->valign('middle');
     });
 
     // CPD Points Text Placement
-    $image->text('This activity was awarded ' . $event->points . ' CPD Credit Points (Hours) of IPPU', 1700, 1800, function ($font) {
+    $image->text('This activity was awarded ' . $event->points . ' CPD Credit Points (Hours) of IPPU', 800, 830, function ($font) {
         $font->filename(public_path('fonts/Roboto-Bold.ttf'));
         $font->color('#008000'); // Green color
-        $font->size(45);
+        $font->size(30);
         $font->align('center');
         $font->valign('middle');
     });
