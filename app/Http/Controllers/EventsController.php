@@ -369,7 +369,7 @@ class EventsController extends Controller
 
     if (!$user) {
         $password = \Str::random(9);
-    
+
         $user = new \App\Models\User;
         $user->name = $request->name;
         $user->email = $request->email;
@@ -377,10 +377,10 @@ class EventsController extends Controller
         $user->account_type_id = \App\Models\AccountType::first()->id;
         $user->save();
     }
-    
+
     // Log in the user
     \Auth::login($user);
-    
+
     // Check if the user is already registered for this event or CPD
     $existingAttendance = Attendence::where('user_id', $user->id)
         ->where(function($query) use ($request) {
@@ -391,15 +391,15 @@ class EventsController extends Controller
             }
         })
         ->first();
-    
+
     if ($existingAttendance) {
         return redirect()->route('thank.you.page')->with('error', 'You have already registered for this event.');
     }
-    
+
     // Record attendance
     $attendance = new Attendence;
     $attendance->user_id = \Auth::user()->id;
-    
+
     if ($request->type == "event") {
         $attendance->event_id = $request->id;
         $attendance->type = "Event";
@@ -407,7 +407,7 @@ class EventsController extends Controller
         $attendance->cpd_id = $request->id;
         $attendance->type = "CPD";
     }
-    
+
     $attendance->status = "Attended";
     $attendance->membership_number = $request->membership_number;
     $attendance->save();
@@ -429,10 +429,10 @@ class EventsController extends Controller
             return redirect()->back()->with('error', 'CPD not found');
         }
     }
-    
+
     // Redirect to the "Thank You" page after successful registration
     return redirect()->route('thank.you.page')->with('success', 'Thank you for registering. Your attendance has been recorded.');
-    
+
 }
 
 
@@ -760,7 +760,7 @@ private function customizeAnnualCertificate($image, $event, $name, $membership_n
     // Name Placement
     $image->text($name, 800, 500, function ($font) {
         // $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-        $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
+        $font->file(public_path('fonts/Roboto-Bold.ttf'));
         $font->color('#b01735'); // Dark red color
         $font->size(50); // Increased size for better visibility
         $font->align('center');
@@ -929,7 +929,7 @@ public function updateEmail(Request $request)
     ]);
     $user_details =  Attendence::find($request->attendence_id);
     $user = User::find($user_details->user_id);
-    
+
     if ($user) {
         $user->email = $request->email;
         $user->save();

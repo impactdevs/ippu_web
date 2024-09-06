@@ -153,7 +153,7 @@ private function customizeAnnualCertificate($image, $event, $name, $membership_n
     // Name Placement
     $image->text($name, 800, 500, function ($font) {
         // $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-        $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
+        $font->file(public_path('fonts/Roboto-Bold.ttf'));
         $font->color('#b01735'); // Dark red color
         $font->size(50); // Increased size for better visibility
         $font->align('center');
