@@ -338,22 +338,22 @@ class EventsController extends Controller
     //     $attendence->membership_number = $request->membership_number;
     //     $attendence->save();
 
-    //     if ($request->type == "event") {
-    //         //get the logged in user
-    //         $event = Event::find($request->id);
-    //         if ($event != null) {
-    //             return $this->direct_event_attendance_certificate_parser($user, $event, "event");
-    //         } else {
-    //             return redirect()->back()->with('error', 'Event not found');
-    //         }
-    //     } else {
-    //         $event = Cpd::find($request->id);
-    //         if ($event != null) {
-    //             return $this->direct_cpd_attendance_certificate_parser($user, $event, "cpd");
-    //         } else {
-    //             return redirect()->back()->with('error', 'CPD not found');
-    //         }
-    //     }
+        // if ($request->type == "event") {
+        //     //get the logged in user
+        //     $event = Event::find($request->id);
+        //     if ($event != null) {
+        //         return $this->direct_event_attendance_certificate_parser($user, $event, "event");
+        //     } else {
+        //         return redirect()->back()->with('error', 'Event not found');
+        //     }
+        // } else {
+        //     $event = Cpd::find($request->id);
+        //     if ($event != null) {
+        //         return $this->direct_cpd_attendance_certificate_parser($user, $event, "cpd");
+        //     } else {
+        //         return redirect()->back()->with('error', 'CPD not found');
+        //     }
+        // }
     // }
 
     public function record_direct_attendence(Request $request)
@@ -410,6 +410,23 @@ class EventsController extends Controller
     $attendance->status = "Attended";
     $attendance->membership_number = $request->membership_number;
     $attendance->save();
+
+    if ($request->type == "event") {
+        //get the logged in user
+        $event = Event::find($request->id);
+        if ($event != null) {
+            return $this->direct_event_attendance_certificate_parser($user, $event, "event");
+        } else {
+            return redirect()->back()->with('error', 'Event not found');
+        }
+    } else {
+        $event = Cpd::find($request->id);
+        if ($event != null) {
+            return $this->direct_cpd_attendance_certificate_parser($user, $event, "cpd");
+        } else {
+            return redirect()->back()->with('error', 'CPD not found');
+        }
+    }
     
     // Redirect to the "Thank You" page after successful registration
     return redirect()->route('thank.you.page')->with('success', 'Thank you for registering. Your attendance has been recorded.');
