@@ -800,13 +800,13 @@ private function customizeAnnualCertificate($image, $event, $name, $membership_n
     });
 
     // Membership Number Placement
-    $image->text(($membership_number ?? 'N/A'), 1900, 2000, function ($font) {
-        $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-        $font->color('#405189'); // Blue color
-        $font->size(45);
-        $font->align('center');
-        $font->valign('middle');
-    });
+    // $image->text(($membership_number ?? 'N/A'), 1900, 2000, function ($font) {
+    //     $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+    //     $font->color('#405189'); // Blue color
+    //     $font->size(45);
+    //     $font->align('center');
+    //     $font->valign('middle');
+    // });
 }
 
 // Helper method for customizing a regular event certificate
