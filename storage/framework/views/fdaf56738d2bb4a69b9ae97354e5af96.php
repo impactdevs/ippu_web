@@ -76,7 +76,8 @@
                             </div>
                             <a href="<?php echo e(asset('storage/attachments/' . $cpd->resource)); ?>" class="btn btn-warning btn-sm"
                                 download>Download Resource</a>
-                            <a href="<?php echo e(url('generate_qr/cpd/' . $cpd->id)); ?>" class="btn btn-danger btn-sm ms-4">Generate QR
+                            <a href="<?php echo e(url('generate_qr/cpd/' . $cpd->id)); ?>" class="btn btn-danger btn-sm ms-4">Generate
+                                QR
                                 Code</a>
                         </div>
                         <div class="col-md-5">
@@ -129,7 +130,7 @@
                 </div>
 
                 <div class="tab-pane" id="pill-justified-messages-1" role="tabpanel">
-                
+
                     <div class="table-responsive">
                         <table class="table table-striped dataTable">
                             <thead>
@@ -160,15 +161,15 @@
                 </div>
 
                 <div class="tab-pane" id="pill-justified-settings-1" role="tabpanel">
-                 <!-- Add New Attendee Button -->
-                        <div class="d-flex justify-content-end mb-3">
-                            <button id="addNewAttendeeBtn" class="btn btn-success btn-sm">
-                                Add New Attendee
-                            </button>
-                        </div>
+                    <!-- Add New Attendee Button -->
+                    <div class="d-flex justify-content-end mb-3">
+                        <button id="addNewAttendeeBtn" class="btn btn-success btn-sm">
+                            Add New Attendee
+                        </button>
+                    </div>
 
                     <div class="table-responsive">
-                        
+
                         <form action="<?php echo e(route('cpds.bulkDownload')); ?>" method="POST">
                             <?php echo csrf_field(); ?>
                             <input type="hidden" name="cpd_id" value="<?php echo e($cpd->id); ?>">
@@ -208,11 +209,13 @@
                                                 Download Certificate
                                             </a>
 
-                                                                              <!-- Edit Email Button -->
-    <button class="btn btn-sm btn-info mb-2 edit-email-btn" data-id="<?php echo e($attendence->id); ?>"
-            data-email="<?php echo e($attendence?->user?->email); ?>">
-        Edit Email
-    </button>
+                                            <!-- Edit Email Button -->
+                                            <button class="btn btn-sm btn-info mb-2 edit-email-btn"
+                                                data-id="<?php echo e($attendence->id); ?>"
+                                                data-email="<?php echo e($attendence?->user?->email); ?>"
+                                                data-name="<?php echo e($attendence?->user?->name); ?>">
+                                                Edit Details
+                                            </button>
                                         </td>
                                     </tr>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -242,16 +245,17 @@
 
 
 <?php $__env->startSection('customjs'); ?>
-<script>
-$('#addNewAttendeeBtn').on('click', function () {
-    Swal.fire({
-        title: 'Add New Attendee',
-        html: `
+    <script>
+        $('#addNewAttendeeBtn').on('click', function() {
+            Swal.fire({
+                title: 'Add New Attendee',
+                html: `
             <form id="addAttendeeForm">
                 <div class="mb-3">
                     <label for="attendeeName" class="form-label">Attendee Name</label>
                     <input type="text" id="attendeeName" class="form-control" required placeholder="Attendee Name">
                 </div>
+
                 <div class="mb-3">
                     <label for="attendeeEmail" class="form-label">Attendee Email</label>
                     <input type="email" id="attendeeEmail" class="form-control" required placeholder="Attendee Email">
@@ -262,144 +266,165 @@ $('#addNewAttendeeBtn').on('click', function () {
                 </div>
             </form>
         `,
-        showCancelButton: true,
-        confirmButtonText: 'Register Attendee',
-        preConfirm: function () {
-            var name = $('#attendeeName').val();
-            var email = $('#attendeeEmail').val();
-            var membershipNumber = $('#membershipNumber').val();
+                showCancelButton: true,
+                confirmButtonText: 'Register Attendee',
+                preConfirm: function() {
+                    var name = $('#attendeeName').val();
+                    var email = $('#attendeeEmail').val();
+                    var membershipNumber = $('#membershipNumber').val();
 
-            if (!name || !email) {
-                Swal.showValidationMessage('Please enter both name and email');
-                return false;
-            }
+                    if (!name || !email) {
+                        Swal.showValidationMessage('Please enter both name and email');
+                        return false;
+                    }
 
-            return { name: name, email: email, membershipNumber: membershipNumber };
-        }
-    }).then(function (result) {
-        if (result.isConfirmed) {
-            var data = result.value;
-            // Send the data to the server to register the attendee
-            registerAttendee(data.name, data.email, data.membershipNumber);
-        }
-    });
-});
-
-function registerAttendee(name, email, membershipNumber) {
-    // Use jQuery AJAX to send the data to the server
-    $.ajax({
-        url: '<?php echo e(route('cpds.attendence.store')); ?>', // Make sure this route is correct
-        type: 'POST',
-        data: {
-            event_id: <?php echo e($cpd->id); ?>,
-            name: name,
-            email: email,
-            membership_number: membershipNumber
-        },
-        headers: {
-            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include CSRF token for Laravel
-        },
-        beforeSend: function () {
-             //show swal loading
-            Swal.fire({
-                title: 'Registering Attendee...',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                didOpen: () => {
-                    Swal.showLoading();
+                    return {
+                        name: name,
+                        email: email,
+                        membershipNumber: membershipNumber
+                    };
+                }
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    var data = result.value;
+                    // Send the data to the server to register the attendee
+                    registerAttendee(data.name, data.email, data.membershipNumber);
                 }
             });
-        },
-        success: function (response) {
+        });
 
-            if (response.success) {
-                Swal.fire('Success', 'Attendee has been registered!', 'success').then(function () {
-                    location.reload(); // Reload the page to see the changes
-                });
-            } else {
-                Swal.fire('Error', response.message || 'There was an error registering the attendee.', 'error');
-            }
-        },
-        error: function () {
-            Swal.fire('Error', 'Failed to register attendee. Please try again later.', 'error');
-        }
-    });
-}
-</script>
+        function registerAttendee(name, email, membershipNumber) {
+            // Use jQuery AJAX to send the data to the server
+            $.ajax({
+                url: '<?php echo e(route('cpds.attendence.store')); ?>', // Make sure this route is correct
+                type: 'POST',
+                data: {
+                    event_id: <?php echo e($cpd->id); ?>,
+                    name: name,
+                    email: email,
+                    membership_number: membershipNumber
+                },
+                headers: {
+                    'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include CSRF token for Laravel
+                },
+                beforeSend: function() {
+                    //show swal loading
+                    Swal.fire({
+                        title: 'Registering Attendee...',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                },
+                success: function(response) {
 
-<script>
-$(document).on('click', '.edit-email-btn', function () {
-    var attendenceId = $(this).data('id');
-    var currentEmail = $(this).data('email');
-
-    Swal.fire({
-        title: 'Edit Attendee Email',
-        html: `
-            <form id="editEmailForm">
-                <div class="mb-3">
-                    <label for="attendeeEmail" class="form-label">New Email</label>
-                    <input type="email" id="attendeeEmail" class="form-control" required placeholder="New Email" value="${currentEmail}">
-                </div>
-            </form>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Update Email',
-        preConfirm: function () {
-            var newEmail = $('#attendeeEmail').val();
-
-            if (!newEmail) {
-                Swal.showValidationMessage('Please enter a new email');
-                return false;
-            }
-
-            return { newEmail: newEmail };
-        }
-    }).then(function (result) {
-        if (result.isConfirmed) {
-            var data = result.value;
-            // Send the data to the server to update the email
-            updateAttendeeEmail(attendenceId, data.newEmail);
-        }
-    });
-});
-
-function updateAttendeeEmail(attendenceId, newEmail) {
-    // Use jQuery AJAX to send the data to the server
-    $.ajax({
-        url: '<?php echo e(route('cpds.attendence.updateEmail')); ?>', // Make sure this route is correct
-        type: 'POST',
-        data: {
-            attendence_id: attendenceId,
-            email: newEmail
-        },
-        headers: {
-            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include CSRF token for Laravel
-        },
-        beforeSend: function () {
-            Swal.fire({
-                title: 'Updating Email...',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                didOpen: () => {
-                    Swal.showLoading();
+                    if (response.success) {
+                        Swal.fire('Success', 'Attendee has been registered!', 'success').then(function() {
+                            location.reload(); // Reload the page to see the changes
+                        });
+                    } else {
+                        Swal.fire('Error', response.message || 'There was an error registering the attendee.',
+                            'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Failed to register attendee. Please try again later.', 'error');
                 }
             });
-        },
-        success: function (response) {
-            if (response.success) {
-                Swal.fire('Success', 'Email has been updated!', 'success').then(function () {
-                    location.reload(); // Reload the page to see the changes
-                });
-            } else {
-                Swal.fire('Error', response.message || 'There was an error updating the email.', 'error');
-            }
-        },
-        error: function () {
-            Swal.fire('Error', 'Failed to update email. Please try again later.', 'error');
         }
+    </script>
+
+ <script>
+    $(document).on('click', '.edit-email-btn', function() {
+        var attendenceId = $(this).data('id');
+        var currentEmail = $(this).data('email');
+        var currentName = $(this).data('name');
+
+        Swal.fire({
+            title: 'Edit Attendee Details',
+            html: `
+                <form id="editEmailForm">
+                   <div class="mb-3">
+                        <label for="attendeeName" class="form-label">Attendee Name</label>
+                        <input type="text" id="attendeeName" class="form-control" required placeholder="New Name" value="${currentName}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="attendeeEmail" class="form-label">New Email</label>
+                        <input type="email" id="attendeeEmail" class="form-control" required placeholder="New Email" value="${currentEmail}">
+                    </div>
+                </form>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Update Details',
+            preConfirm: function() {
+                var newEmail = $('#attendeeEmail').val();
+                var newName = $('#attendeeName').val();
+
+                if (!newEmail) {
+                    Swal.showValidationMessage('Please enter a new email');
+                    return false;
+                }
+
+                if (!newName) {
+                    Swal.showValidationMessage('Please enter a name');
+                    return false;
+                }
+                
+                return {
+                    newEmail: newEmail,
+                    newName: newName // Correctly returning newName here
+                };
+            }
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                var data = result.value;
+                // Send the data to the server to update the email and name
+                updateAttendeeEmail(attendenceId, data.newEmail, data.newName);
+            }
+        });
     });
-}
+
+    function updateAttendeeEmail(attendenceId, newEmail, newName) {
+        // Use jQuery AJAX to send the data to the server
+        $.ajax({
+            url: '<?php echo e(route('cpds.attendence.updateEmail')); ?>', // Make sure this route is correct
+            type: 'POST',
+            data: {
+                attendence_id: attendenceId,
+                email: newEmail,
+                name: newName
+            },
+            headers: {
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include CSRF token for Laravel
+            },
+            beforeSend: function() {
+                Swal.fire({
+                    title: 'Updating Details...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            },
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire('Success', 'Info has been updated!', 'success').then(function() {
+                        location.reload(); // Reload the page to see the changes
+                    });
+                } else {
+                    Swal.fire('Error', response.message || 'There was an error updating the email.', 'error');
+                }
+            },
+            error: function() {
+                Swal.fire('Error', 'Failed to update email. Please try again later.', 'error');
+            }
+        });
+    }
 </script>
 
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Users/katendenicholas/Desktop/laravel/ippu_web/resources/views/admin/cpds/show.blade.php ENDPATH**/ ?>

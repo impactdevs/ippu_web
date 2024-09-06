@@ -926,12 +926,14 @@ public function updateEmail(Request $request)
     $request->validate([
         'attendence_id' => 'required|exists:attendences,id',
         'email' => 'required|email',
+        'name'=>'required'
     ]);
     $user_details =  Attendence::find($request->attendence_id);
     $user = User::find($user_details->user_id);
 
     if ($user) {
         $user->email = $request->email;
+        $user->name = $request->name;
         $user->save();
 
         return response()->json(['success' => true]);

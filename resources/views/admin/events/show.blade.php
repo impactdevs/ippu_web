@@ -188,8 +188,10 @@
                                                 <!-- Edit Email Button -->
                                                 <button class="btn btn-sm btn-info mb-2 edit-email-btn"
                                                     data-id="{{ $attendence->id }}"
-                                                    data-email="{{ $attendence?->user?->email }}">
-                                                    Edit Email
+                                                    data-email="{{ $attendence?->user?->email }}"
+                                                    data-name="{{ $attendence?->user?->name }}">
+                                                    
+                                                    Edit Details
                                                 </button>
                                             </td>
                                         </tr>
@@ -297,80 +299,93 @@
         }
     </script>
 
-    <script>
-        $(document).on('click', '.edit-email-btn', function() {
-            var attendenceId = $(this).data('id');
-            var currentEmail = $(this).data('email');
+<script>
+    $(document).on('click', '.edit-email-btn', function() {
+        var attendenceId = $(this).data('id');
+        var currentEmail = $(this).data('email');
+        var currentName = $(this).data('name'); // Retrieve the current name
 
-            Swal.fire({
-                title: 'Edit Attendee Email',
-                html: `
+        Swal.fire({
+            title: 'Edit Attendee Details',
+            html: `
             <form id="editEmailForm">
+                <div class="mb-3">
+                    <label for="attendeeName" class="form-label">Attendee Name</label>
+                    <input type="text" id="attendeeName" class="form-control" required placeholder="New Name" value="${currentName}">
+                </div>
                 <div class="mb-3">
                     <label for="attendeeEmail" class="form-label">New Email</label>
                     <input type="email" id="attendeeEmail" class="form-control" required placeholder="New Email" value="${currentEmail}">
                 </div>
             </form>
         `,
-                showCancelButton: true,
-                confirmButtonText: 'Update Email',
-                preConfirm: function() {
-                    var newEmail = $('#attendeeEmail').val();
+            showCancelButton: true,
+            confirmButtonText: 'Update Details',
+            preConfirm: function() {
+                var newEmail = $('#attendeeEmail').val();
+                var newName = $('#attendeeName').val(); // Get the new name
 
-                    if (!newEmail) {
-                        Swal.showValidationMessage('Please enter a new email');
-                        return false;
-                    }
+                if (!newEmail) {
+                    Swal.showValidationMessage('Please enter a new email');
+                    return false;
+                }
 
-                    return {
-                        newEmail: newEmail
-                    };
+                if (!newName) {
+                    Swal.showValidationMessage('Please enter a new name');
+                    return false;
                 }
-            }).then(function(result) {
-                if (result.isConfirmed) {
-                    var data = result.value;
-                    // Send the data to the server to update the email
-                    updateAttendeeEmail(attendenceId, data.newEmail);
-                }
-            });
+
+                return {
+                    newEmail: newEmail,
+                    newName: newName
+                };
+            }
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                var data = result.value;
+                // Send the data to the server to update the email and name
+                updateAttendeeDetails(attendenceId, data.newEmail, data.newName);
+            }
         });
+    });
 
-        function updateAttendeeEmail(attendenceId, newEmail) {
-            // Use jQuery AJAX to send the data to the server
-            $.ajax({
-                url: '{{ route('events.attendence.updateEmail') }}', // Make sure this route is correct
-                type: 'POST',
-                data: {
-                    attendence_id: attendenceId,
-                    email: newEmail
-                },
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // Include CSRF token for Laravel
-                },
-                beforeSend: function() {
-                    Swal.fire({
-                        title: 'Updating Email...',
-                        allowOutsideClick: false,
-                        allowEscapeKey: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                },
-                success: function(response) {
-                    if (response.success) {
-                        Swal.fire('Success', 'Email has been updated!', 'success').then(function() {
-                            location.reload(); // Reload the page to see the changes
-                        });
-                    } else {
-                        Swal.fire('Error', response.message || 'There was an error updating the email.',
-                            'error');
+    function updateAttendeeDetails(attendenceId, newEmail, newName) {
+        // Use jQuery AJAX to send the data to the server
+        $.ajax({
+            url: '{{ route('events.attendence.updateEmail') }}', // Ensure this route is correct
+            type: 'POST',
+            data: {
+                attendence_id: attendenceId,
+                email: newEmail,
+                name: newName // Send the name along with the email
+            },
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}' // Include CSRF token for Laravel
+            },
+            beforeSend: function() {
+                Swal.fire({
+                    title: 'Updating Details...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
                     }
-                },
-                error: function() {
-                    Swal.fire('Error', 'Failed to update email. Please try again later.', 'error');
+                });
+            },
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire('Success', 'Details have been updated!', 'success').then(function() {
+                        location.reload(); // Reload the page to see the changes
+                    });
+                } else {
+                    Swal.fire('Error', response.message || 'There was an error updating the details.', 'error');
                 }
-            });
-        }
-    </script>
+            },
+            error: function() {
+                Swal.fire('Error', 'Failed to update details. Please try again later.', 'error');
+            }
+        });
+    }
+</script>
+
 @endsection

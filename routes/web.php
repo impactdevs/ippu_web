@@ -137,7 +137,7 @@ Route::post("cpds/attendence/store", [CpdsController::class, 'storeAttendance'])
 
 
     //cpds
-    Route::post('cpds/attendence/update-email', [mEventsController::class, 'updateEmail'])->name('cpds.attendence.updateEmail');
+    Route::post('cpds/attendence/update-email', [mCpdsController::class, 'updateEmail'])->name('cpds.attendence.updateEmail');
     Route::post('cpds/bulk-email', [CpdsController::class, 'sendBulkEmail']);
     Route::get('cpds/attendence/{id}/{user_id}', [mCpdsController::class, 'emailCertificate']);
     Route::post('cpds/bulk-email', [mCpdsController::class, 'bulkEmail'])->name('cpds.bulkEmail');
