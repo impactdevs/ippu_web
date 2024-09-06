@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Cpd;
+use App\Jobs\DownloadBulkCPDCertificatesJob;
+use App\Mail\CertificateMail;
 use App\Models\Attendence;
+use App\Models\Cpd;
+use Auth;
 use Carbon\Carbon;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
-use Symfony\Component\Mailer\Exception\TransportException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Str;
-use Auth;
-use App\Mail\CertificateMail;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
+use Symfony\Component\Mailer\Exception\TransportException;
 use ZipArchive;
 
 class CpdsController extends Controller
@@ -467,78 +468,14 @@ class CpdsController extends Controller
 
     public function downloadBulkCertificates(Request $request)
     {
-
         $cpd_id = $request->input('cpd_id');
     
-        // Find the CPD event
-        $cpd = Cpd::find($cpd_id);
+        // Queue the job for downloading bulk CPD certificates
+        DownloadBulkCPDCertificatesJob::dispatch($cpd_id);
     
-        if (!$cpd) {
-            return redirect()->back()->with('error', 'CPD event not found.');
-        }
-    
-        // If no user IDs are provided, default to all users who attended the CPD
-        
-            $userIds = \App\Models\Attendence::where('cpd_id', $cpd_id)
-                ->where('status', 'Attended')
-                ->pluck('user_id')->toArray();
-        
-    
-        // Create a unique name for the ZIP file
-        $zipFileName = 'bulk_certificates_' . $cpd->code . '.zip';
-        $zipFilePath = public_path('certificates/' . $zipFileName);
-    
-        // Ensure the directory exists for storing certificates
-        if (!file_exists(public_path('certificates'))) {
-            mkdir(public_path('certificates'), 0777, true);
-        }
-    
-        // Create a new ZIP file
-        $zip = new \ZipArchive;
-        if ($zip->open($zipFilePath, \ZipArchive::CREATE) !== true) {
-            return redirect()->back()->with('error', 'Could not create ZIP file.');
-        }
-    
-        // Array to store paths of generated certificates for cleanup
-        $certificatePaths = [];
-    
-        // Generate a certificate for each user and add it to the ZIP
-        foreach ($userIds as $userId) {
-            $user = \App\Models\User::find($userId);
-            if ($user) {
-                try {
-                    // Generate the certificate for the user
-                    $this->downloadCertificate($cpd_id, $userId);
-    
-                    // Path to the generated certificate
-                    $certificatePath = public_path('certificates/' . $user->id . '_certificate.png');
-    
-                    // Add the certificate to the ZIP file
-                    if (file_exists($certificatePath)) {
-                        $zip->addFile($certificatePath, $user->name . '_certificate.png');
-                        $certificatePaths[] = $certificatePath; // Track the path for cleanup
-                    } else {
-                        \Log::error('Certificate file not found for user: ' . $user->name);
-                    }
-                } catch (\Exception $e) {
-                    \Log::error('Error generating certificate for user: ' . $user->name . ' - ' . $e->getMessage());
-                }
-            }
-        }
-    
-        // Close the ZIP file once all certificates are added
-        $zip->close();
-    
-        // Cleanup: Delete the individual certificate files after they are added to the ZIP
-        foreach ($certificatePaths as $path) {
-            if (file_exists($path)) {
-                unlink($path);
-            }
-        }
-    
-        // Return the ZIP file for download, and delete it after sending
-        return response()->download($zipFilePath)->deleteFileAfterSend(true);
+        return redirect()->back()->with('success', 'The bulk download process for CPD certificates has been queued. You will be notified when it is ready.');
     }
+    
     
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\DownloadBulkCertificatesJob;
 use App\Mail\CertificateMail;
 use App\Mail\EventCertificate;
 use App\Models\Attendence;
@@ -909,76 +910,17 @@ private function customizeRegularCertificate($image, $event, $name, $membership_
 }
 
 
+
 public function downloadBulkCertificates(Request $request)
 {
     $event_id = $request->input('event_id');
 
-    // Find the event
-    $event = Event::find($event_id);
-    if (!$event) {
-        return redirect()->back()->with('error', 'Event not found.');
-    }
+    // Queue the job for downloading bulk certificates
+    DownloadBulkCertificatesJob::dispatch($event_id);
 
-    // Get all users who attended the event
-    $userIds = \App\Models\Attendence::where('event_id', $event_id)
-        ->where('status', 'Attended')
-        ->pluck('user_id')->toArray();
-
-    // Create a unique name for the ZIP file
-    $zipFileName = 'bulk_events_certificates_' . $event_id . '.zip';
-    $zipFilePath = public_path('certificates/' . $zipFileName);
-
-    // Ensure the directory for storing certificates exists
-    if (!file_exists(public_path('certificates'))) {
-        mkdir(public_path('certificates'), 0777, true);
-    }
-
-    // Create a new ZIP file
-    $zip = new \ZipArchive;
-    if ($zip->open($zipFilePath, \ZipArchive::CREATE) !== true) {
-        return redirect()->back()->with('error', 'Could not create ZIP file.');
-    }
-
-    // Array to store paths of generated certificates for cleanup
-    $certificatePaths = [];
-
-    // Generate a certificate for each user and add it to the ZIP
-    foreach ($userIds as $userId) {
-        $user = \App\Models\User::find($userId);
-        if ($user) {
-            try {
-                // Generate the certificate for the user
-                $file_name = 'certificate_generated_' . $user->id . '.png';
-                $file_path = public_path('certificates/' . $file_name);
-
-                $this->downloadCertificate($event_id, $userId);
-
-                // Add the certificate to the ZIP file
-                if (file_exists($file_path)) {
-                    $zip->addFile($file_path, $user->name . '_certificate.png');
-                    $certificatePaths[] = $file_path; // Track the path for cleanup
-                } else {
-                    Log::error('Certificate file not found for user: ' . $user->name);
-                }
-            } catch (\Exception $e) {
-                Log::error('Error generating certificate for user: ' . $user->name . ' - ' . $e->getMessage());
-            }
-        }
-    }
-
-    // Close the ZIP file once all certificates are added
-    $zip->close();
-
-    // Cleanup: Delete the individual certificate files after they are added to the ZIP
-    foreach ($certificatePaths as $path) {
-        if (file_exists($path)) {
-            unlink($path);
-        }
-    }
-
-    // Return the ZIP file for download, and delete it after sending
-    return response()->download($zipFilePath)->deleteFileAfterSend(true);
+    return redirect()->back()->with('success', 'The bulk download process has been queued. You will be notified when it is ready.');
 }
+
 
 
     //new
