@@ -66,10 +66,7 @@
                                         <input type="text" class="form-control" name="email" placeholder="Email Address" required>
                                     </div>
 
-                                    <div class="form-group mb-3 text-start">
-                                        <label>MemberShip Number</label>
-                                        <input type="text" class="form-control" name="membership_number" placeholder="Membership Number" >
-                                    </div>
+
                                     <div class="">
                                         <button class="btn btn-primary">Register attendence</button>
                                     </div>

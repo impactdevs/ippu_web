@@ -60,6 +60,7 @@
                                         <label>Name</label>
                                         <input type="text" class="form-control" name="name" placeholder="Your name"required>
                                     </div>
+                                    
                                     <div class="form-group mb-3 text-start">
                                         <label>Email</label>
                                         <input type="text" class="form-control" name="email" placeholder="Email Address" required>
