@@ -62,7 +62,10 @@ Route::post('upload_members', [MembersController::class, 'upload_members']);
 Route::get('invite_members', [MembersController::class, 'send_invitation']);
 
 Route::get('direct_attendence/{type}/{id}', [mEventsController::class, 'direct_attendence']);
-Route::post('direct_attendence', [mEventsController::class, 'record_direct_attendence']);
+
+// Route::post('direct_attendence', [mEventsController::class, 'record_direct_attendence']);
+Route::post('direct_attendence', [mEventsController::class, 'record_direct_attendence'])
+    ->middleware('throttle:20,1');
 
 
 Route::get('/thank-you', function () {
