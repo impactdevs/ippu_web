@@ -296,65 +296,111 @@ class EventsController extends Controller
         return view('members.attendence.direct', compact('data'));
     }
 
+    // public function record_direct_attendence(Request $request)
+    // {
+    //     // if ($this->device_attended()) {
+    //     //     return redirect()->back()->with('error', 'You have already registered');
+    //     // }
+    //     //dd($request->all());
+
+    //     $request->validate([
+    //         'name' => 'required',
+    //         // 'email' => 'required|email|unique:users,email',
+    //         'email' => 'required|email',
+    //     ]);
+
+
+    //     $user = \App\Models\User::where('email', $request->email)->first();
+
+    //     if (!$user) {
+    //         $password = \Str::random(9);
+
+    //         $user = new \App\Models\User;
+    //         $user->name = $request->name;
+    //         $user->email = $request->email;
+    //         $user->password = Hash::make($password);
+    //         $user->account_type_id = \App\Models\AccountType::first()->id;
+    //         $user->save();
+    //     }
+
+    //     \Auth::login($user);
+
+    //     $attendence = new Attendence;
+    //     $attendence->user_id = \Auth::user()->id;
+    //     if ($request->type == "event") {
+    //         $attendence->event_id = $request->id;
+    //         $attendence->type = "Event";
+    //     } else {
+    //         $attendence->cpd_id = $request->id;
+    //         $attendence->type = "CPD";
+    //     }
+    //     $attendence->status = "Attended";
+    //     $attendence->membership_number = $request->membership_number;
+    //     $attendence->save();
+
+    //     if ($request->type == "event") {
+    //         //get the logged in user
+    //         $event = Event::find($request->id);
+    //         if ($event != null) {
+    //             return $this->direct_event_attendance_certificate_parser($user, $event, "event");
+    //         } else {
+    //             return redirect()->back()->with('error', 'Event not found');
+    //         }
+    //     } else {
+    //         $event = Cpd::find($request->id);
+    //         if ($event != null) {
+    //             return $this->direct_cpd_attendance_certificate_parser($user, $event, "cpd");
+    //         } else {
+    //             return redirect()->back()->with('error', 'CPD not found');
+    //         }
+    //     }
+    // }
+
     public function record_direct_attendence(Request $request)
-    {
-        // if ($this->device_attended()) {
-        //     return redirect()->back()->with('error', 'You have already registered');
-        // }
-        //dd($request->all());
+{
+    // Validate the request data
+    $request->validate([
+        'name' => 'required',
+        'email' => 'required|email',
+    ]);
 
-        $request->validate([
-            'name' => 'required',
-            // 'email' => 'required|email|unique:users,email',
-            'email' => 'required|email',
-        ]);
+    // Find user by email or create a new user
+    $user = \App\Models\User::where('email', $request->email)->first();
 
+    if (!$user) {
+        $password = \Str::random(9);
 
-        $user = \App\Models\User::where('email', $request->email)->first();
-
-        if (!$user) {
-            $password = \Str::random(9);
-
-            $user = new \App\Models\User;
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->password = Hash::make($password);
-            $user->account_type_id = \App\Models\AccountType::first()->id;
-            $user->save();
-        }
-
-        \Auth::login($user);
-
-        $attendence = new Attendence;
-        $attendence->user_id = \Auth::user()->id;
-        if ($request->type == "event") {
-            $attendence->event_id = $request->id;
-            $attendence->type = "Event";
-        } else {
-            $attendence->cpd_id = $request->id;
-            $attendence->type = "CPD";
-        }
-        $attendence->status = "Attended";
-        $attendence->membership_number = $request->membership_number;
-        $attendence->save();
-
-        if ($request->type == "event") {
-            //get the logged in user
-            $event = Event::find($request->id);
-            if ($event != null) {
-                return $this->direct_event_attendance_certificate_parser($user, $event, "event");
-            } else {
-                return redirect()->back()->with('error', 'Event not found');
-            }
-        } else {
-            $event = Cpd::find($request->id);
-            if ($event != null) {
-                return $this->direct_cpd_attendance_certificate_parser($user, $event, "cpd");
-            } else {
-                return redirect()->back()->with('error', 'CPD not found');
-            }
-        }
+        $user = new \App\Models\User;
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($password);
+        $user->account_type_id = \App\Models\AccountType::first()->id;
+        $user->save();
     }
+
+    // Log in the user
+    \Auth::login($user);
+
+    // Record attendance
+    $attendence = new Attendence;
+    $attendence->user_id = \Auth::user()->id;
+
+    if ($request->type == "event") {
+        $attendence->event_id = $request->id;
+        $attendence->type = "Event";
+    } else {
+        $attendence->cpd_id = $request->id;
+        $attendence->type = "CPD";
+    }
+
+    $attendence->status = "Attended";
+    $attendence->membership_number = $request->membership_number;
+    $attendence->save();
+
+    // Redirect to the "Thank You" page after successful registration
+    return redirect()->route('thank.you.page')->with('success', 'Thank you for registering. Your attendance has been recorded.');
+}
+
 
 
     public function direct_event_attendance_certificate_parser(User $user, $event, $eventType)

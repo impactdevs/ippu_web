@@ -64,6 +64,11 @@ Route::get('invite_members', [MembersController::class, 'send_invitation']);
 Route::get('direct_attendence/{type}/{id}', [mEventsController::class, 'direct_attendence']);
 Route::post('direct_attendence', [mEventsController::class, 'record_direct_attendence']);
 
+
+Route::get('/thank-you', function () {
+    return view('thank_you');
+})->name('thank.you.page');
+
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('generate_qr/{type}/{id}', [CpdsController::class, 'generate_qr']);
