@@ -415,7 +415,8 @@ class EventsController extends Controller
         //get the logged in user
         $event = Event::find($request->id);
         if ($event != null) {
-            return $this->direct_event_attendance_certificate_parser($user, $event, "event");
+            //return $this->direct_event_attendance_certificate_parser($user, $event, "event");
+            return $this->downloadCertificate($event->id, $user->id);
         } else {
             return redirect()->back()->with('error', 'Event not found');
         }
