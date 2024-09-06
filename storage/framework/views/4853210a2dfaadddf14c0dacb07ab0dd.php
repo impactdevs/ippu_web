@@ -14,7 +14,6 @@
 <?php $__env->stopSection(); ?>
 <?php $__env->startSection('content'); ?>
     <div class="container">
-        
         <div class="card">
             <div class="card-body">
                 <h4 class=""><?php echo e($event->name); ?></h4>
@@ -186,6 +185,11 @@
                                                     class="btn btn-sm btn-warning mb-2">
                                                     Download Certificate
                                                 </a>
+                                                <!-- Edit Email Button -->
+    <button class="btn btn-sm btn-info mb-2 edit-email-btn" data-id="<?php echo e($attendence->id); ?>"
+            data-email="<?php echo e($attendence?->user?->email); ?>">
+        Edit Email
+    </button>
                                             </td>
                                         </tr>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -286,6 +290,81 @@ function registerAttendee(name, email, membershipNumber) {
     });
 }
 </script>
+
+<script>
+$(document).on('click', '.edit-email-btn', function () {
+    var attendenceId = $(this).data('id');
+    var currentEmail = $(this).data('email');
+
+    Swal.fire({
+        title: 'Edit Attendee Email',
+        html: `
+            <form id="editEmailForm">
+                <div class="mb-3">
+                    <label for="attendeeEmail" class="form-label">New Email</label>
+                    <input type="email" id="attendeeEmail" class="form-control" required placeholder="New Email" value="${currentEmail}">
+                </div>
+            </form>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Update Email',
+        preConfirm: function () {
+            var newEmail = $('#attendeeEmail').val();
+
+            if (!newEmail) {
+                Swal.showValidationMessage('Please enter a new email');
+                return false;
+            }
+
+            return { newEmail: newEmail };
+        }
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            var data = result.value;
+            // Send the data to the server to update the email
+            updateAttendeeEmail(attendenceId, data.newEmail);
+        }
+    });
+});
+
+function updateAttendeeEmail(attendenceId, newEmail) {
+    // Use jQuery AJAX to send the data to the server
+    $.ajax({
+        url: '<?php echo e(route('events.attendence.updateEmail')); ?>', // Make sure this route is correct
+        type: 'POST',
+        data: {
+            attendence_id: attendenceId,
+            email: newEmail
+        },
+        headers: {
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include CSRF token for Laravel
+        },
+        beforeSend: function () {
+            Swal.fire({
+                title: 'Updating Email...',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        },
+        success: function (response) {
+            if (response.success) {
+                Swal.fire('Success', 'Email has been updated!', 'success').then(function () {
+                    location.reload(); // Reload the page to see the changes
+                });
+            } else {
+                Swal.fire('Error', response.message || 'There was an error updating the email.', 'error');
+            }
+        },
+        error: function () {
+            Swal.fire('Error', 'Failed to update email. Please try again later.', 'error');
+        }
+    });
+}
+</script>
+
 <?php $__env->stopSection(); ?>
 
 

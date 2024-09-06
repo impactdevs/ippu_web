@@ -15,38 +15,6 @@
 @endsection
 @section('content')
     <div class="container">
-        {{-- <div class="card">
-        <div class="card-header d-flex flex-row align-items-center justify-content-between">
-            <h5 class="card-title">{{ $event->name }}</h5>
-        </div>
-
-        <div class="card-body">
-            <table class="table table-striped">
-                <tbody>
-                    <tr>
-                        <th scope="row">Start Date</th>
-                        <th scope="row">End Date</th>
-                        <th scope="row">Rate:</th>
-                        <th scope="row">Member Rate:</th>
-                    </tr>
-                    <tr>
-
-                        <td>{{ $event->start_date ?: "(blank)" }}</td>
-                        <td>{{ $event->end_date ?: "(blank)" }}</td>
-                        <td>{{ $event->rate ?: "(blank)" }}</td>
-                        <td>{{ $event->member_rate ?: "(blank)" }}</td>
-                    </tr>
-                </tbody>
-            </table>
-
-        </div>
-
-        <div class="card-footer d-flex flex-column flex-md-row align-items-center justify-content-end">
-            <a href="{{ asset('storage/attachments/'.$event->attachment_name) }}" class="btn btn-info text-nowrap me-1" download>Download Resource</a>
-            <a href="{{ asset('storage/banners/'.$event->banner_name) }}" class="btn btn-primary text-nowrap me-1" download>Download Banner</a>
-        </div>
-    </div>
-    --}}
         <div class="card">
             <div class="card-body">
                 <h4 class="">{{ $event->name }}</h4>
@@ -179,7 +147,7 @@
                     </div>
                     <div class="tab-pane" id="pill-justified-settings-1" role="tabpanel">
 
-                         <form action="{{ route('events.bulkDownload') }}" method="POST">
+                        <form action="{{ route('events.bulkDownload') }}" method="POST">
                             @csrf
                             <input type="hidden" name="event_id" value="{{ $event->id }}">
                             <input type="hidden" name="attendees[]" value="user1">
@@ -217,6 +185,12 @@
                                                     class="btn btn-sm btn-warning mb-2">
                                                     Download Certificate
                                                 </a>
+                                                <!-- Edit Email Button -->
+                                                <button class="btn btn-sm btn-info mb-2 edit-email-btn"
+                                                    data-id="{{ $attendence->id }}"
+                                                    data-email="{{ $attendence?->user?->email }}">
+                                                    Edit Email
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -233,11 +207,11 @@
 
 
 @section('customjs')
-<script>
-$('#addNewAttendeeBtn').on('click', function () {
-    Swal.fire({
-        title: 'Add New Attendee',
-        html: `
+    <script>
+        $('#addNewAttendeeBtn').on('click', function() {
+            Swal.fire({
+                title: 'Add New Attendee',
+                html: `
             <form id="addAttendeeForm">
                 <div class="mb-3">
                     <label for="attendeeName" class="form-label">Attendee Name</label>
@@ -253,73 +227,150 @@ $('#addNewAttendeeBtn').on('click', function () {
                 </div>
             </form>
         `,
-        showCancelButton: true,
-        confirmButtonText: 'Register Attendee',
-        preConfirm: function () {
-            var name = $('#attendeeName').val();
-            var email = $('#attendeeEmail').val();
-            var membershipNumber = $('#membershipNumber').val();
+                showCancelButton: true,
+                confirmButtonText: 'Register Attendee',
+                preConfirm: function() {
+                    var name = $('#attendeeName').val();
+                    var email = $('#attendeeEmail').val();
+                    var membershipNumber = $('#membershipNumber').val();
 
-            if (!name || !email) {
-                Swal.showValidationMessage('Please enter both name and email');
-                return false;
-            }
+                    if (!name || !email) {
+                        Swal.showValidationMessage('Please enter both name and email');
+                        return false;
+                    }
 
-            return { name: name, email: email, membershipNumber: membershipNumber };
-        }
-    }).then(function (result) {
-        if (result.isConfirmed) {
-            var data = result.value;
-            // Send the data to the server to register the attendee
-            registerAttendee(data.name, data.email, data.membershipNumber);
-        }
-    });
-});
-
-function registerAttendee(name, email, membershipNumber) {
-    // Use jQuery AJAX to send the data to the server
-    $.ajax({
-        url: '{{ route('events.attendence.store') }}', // Make sure this route is correct
-        type: 'POST',
-        data: {
-            event_id: {{ $event->id }},
-            name: name,
-            email: email,
-            membership_number: membershipNumber
-        },
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}' // Include CSRF token for Laravel
-        },
-        beforeSend: function () {
-             //show swal loading
-            Swal.fire({
-                title: 'Registering Attendee...',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                didOpen: () => {
-                    Swal.showLoading();
+                    return {
+                        name: name,
+                        email: email,
+                        membershipNumber: membershipNumber
+                    };
+                }
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    var data = result.value;
+                    // Send the data to the server to register the attendee
+                    registerAttendee(data.name, data.email, data.membershipNumber);
                 }
             });
-        },
-        success: function (response) {
+        });
 
-            if (response.success) {
-                Swal.fire('Success', 'Attendee has been registered!', 'success').then(function () {
-                    location.reload(); // Reload the page to see the changes
-                });
-            } else {
-                Swal.fire('Error', response.message || 'There was an error registering the attendee.', 'error');
-            }
-        },
-        error: function () {
-            Swal.fire('Error', 'Failed to register attendee. Please try again later.', 'error');
+        function registerAttendee(name, email, membershipNumber) {
+            // Use jQuery AJAX to send the data to the server
+            $.ajax({
+                url: '{{ route('events.attendence.store') }}', // Make sure this route is correct
+                type: 'POST',
+                data: {
+                    event_id: {{ $event->id }},
+                    name: name,
+                    email: email,
+                    membership_number: membershipNumber
+                },
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // Include CSRF token for Laravel
+                },
+                beforeSend: function() {
+                    //show swal loading
+                    Swal.fire({
+                        title: 'Registering Attendee...',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                },
+                success: function(response) {
+
+                    if (response.success) {
+                        Swal.fire('Success', 'Attendee has been registered!', 'success').then(function() {
+                            location.reload(); // Reload the page to see the changes
+                        });
+                    } else {
+                        Swal.fire('Error', response.message || 'There was an error registering the attendee.',
+                            'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Failed to register attendee. Please try again later.', 'error');
+                }
+            });
         }
-    });
-}
-</script>
+    </script>
+
+    <script>
+        $(document).on('click', '.edit-email-btn', function() {
+            var attendenceId = $(this).data('id');
+            var currentEmail = $(this).data('email');
+
+            Swal.fire({
+                title: 'Edit Attendee Email',
+                html: `
+            <form id="editEmailForm">
+                <div class="mb-3">
+                    <label for="attendeeEmail" class="form-label">New Email</label>
+                    <input type="email" id="attendeeEmail" class="form-control" required placeholder="New Email" value="${currentEmail}">
+                </div>
+            </form>
+        `,
+                showCancelButton: true,
+                confirmButtonText: 'Update Email',
+                preConfirm: function() {
+                    var newEmail = $('#attendeeEmail').val();
+
+                    if (!newEmail) {
+                        Swal.showValidationMessage('Please enter a new email');
+                        return false;
+                    }
+
+                    return {
+                        newEmail: newEmail
+                    };
+                }
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    var data = result.value;
+                    // Send the data to the server to update the email
+                    updateAttendeeEmail(attendenceId, data.newEmail);
+                }
+            });
+        });
+
+        function updateAttendeeEmail(attendenceId, newEmail) {
+            // Use jQuery AJAX to send the data to the server
+            $.ajax({
+                url: '{{ route('events.attendence.updateEmail') }}', // Make sure this route is correct
+                type: 'POST',
+                data: {
+                    attendence_id: attendenceId,
+                    email: newEmail
+                },
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // Include CSRF token for Laravel
+                },
+                beforeSend: function() {
+                    Swal.fire({
+                        title: 'Updating Email...',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire('Success', 'Email has been updated!', 'success').then(function() {
+                            location.reload(); // Reload the page to see the changes
+                        });
+                    } else {
+                        Swal.fire('Error', response.message || 'There was an error updating the email.',
+                            'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Failed to update email. Please try again later.', 'error');
+                }
+            });
+        }
+    </script>
 @endsection
-
-
-
-
-

@@ -921,6 +921,26 @@ public function downloadBulkCertificates(Request $request)
     return redirect()->back()->with('success', 'The bulk download process has been queued. You will be notified when it is ready.');
 }
 
+public function updateEmail(Request $request)
+{
+    $request->validate([
+        'attendence_id' => 'required|exists:attendences,id',
+        'email' => 'required|email',
+    ]);
+    $user_details =  Attendence::find($request->attendence_id);
+    $user = User::find($user_details->user_id);
+    
+    if ($user) {
+        $user->email = $request->email;
+        $user->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    return response()->json(['success' => false, 'message' => 'User not found.']);
+}
+
+
 
 
     //new

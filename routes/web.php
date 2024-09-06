@@ -137,6 +137,7 @@ Route::post("cpds/attendence/store", [CpdsController::class, 'storeAttendance'])
 
 
     //cpds
+    Route::post('cpds/attendence/update-email', [mEventsController::class, 'updateEmail'])->name('cpds.attendence.updateEmail');
     Route::post('cpds/bulk-email', [CpdsController::class, 'sendBulkEmail']);
     Route::get('cpds/attendence/{id}/{user_id}', [mCpdsController::class, 'emailCertificate']);
     Route::post('cpds/bulk-email', [mCpdsController::class, 'bulkEmail'])->name('cpds.bulkEmail');
@@ -145,6 +146,8 @@ Route::post("cpds/attendence/store", [CpdsController::class, 'storeAttendance'])
     //cpds
 
     //events
+    Route::post('events/attendence/update-email', [mEventsController::class, 'updateEmail'])->name('events.attendence.updateEmail');
+
     Route::post('events/bulk-email', [mEventsController::class, 'sendBulkEmail']);
     Route::post('/events/bulk-download', [mEventsController::class, 'downloadBulkCertificates'])->name('events.bulkDownload');
     Route::get('events/attendence/{id}/{user_id}', [mEventsController::class, 'emailCertificate']);
