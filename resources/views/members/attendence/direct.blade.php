@@ -67,7 +67,7 @@
 
                                     <div class="form-group mb-3 text-start">
                                         <label>MemberShip Number</label>
-                                        <input type="text" class="form-control" name="membership_number" placeholder="Membership Number" required>
+                                        <input type="text" class="form-control" name="membership_number" placeholder="Membership Number" >
                                     </div>
                                     <div class="">
                                         <button class="btn btn-primary">Register attendence</button>
