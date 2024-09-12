@@ -179,6 +179,13 @@
                             <button type="submit" class="btn btn-primary mb-3">Download Bulk Certificates</button>
                         </form>
 
+                             <form action="<?php echo e(route('cpds.bulkEmail')); ?>" method="POST">
+                            <?php echo csrf_field(); ?>
+                            <input type="hidden" name="cpd_id" value="<?php echo e($cpd->id); ?>">
+                            <!-- Add more hidden inputs for other user IDs as needed -->
+                            <button type="submit" class="btn btn-primary mb-3">Email Bulk Certificates</button>
+                        </form>
+
                         <table class="table table-striped dataTable">
                             <thead>
                                 <th>

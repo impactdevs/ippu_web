@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\DownloadBulkCertificatesJob;
+use App\Jobs\SendBulkEmailEventJob;
 use App\Mail\CertificateMail;
 use App\Mail\EventCertificate;
 use App\Models\Attendence;
@@ -729,24 +730,15 @@ public function downloadCertificate($event_id, $user_id)
 
 
 
-    public function bulkEmail(Request $request)
-    {
-        $userIds = $request->input('attendees', []);
+public function sendBulkEmail(Request $request)
+{
+    $eventId = $request->input('event_id');
+    
+    // Dispatch the job to handle sending emails asynchronously
+    SendBulkEmailEventJob::dispatch($eventId);
 
-        foreach ($userIds as $userId) {
-            $user = \App\Models\User::find($userId);
-            if ($user) {
-                // Assuming $cpd_id is passed through a hidden input field or other means
-                $cpd_id = $request->input('cpd_id');
-                $cpd = Cpd::find($cpd_id);
-
-                // Generate and email certificate
-                $this->emailCertificate($cpd_id, $userId);
-            }
-        }
-
-        return redirect()->back()->with('success', 'Certificates have been emailed successfully.');
-    }
+    return redirect()->back()->with('success', 'Certificates are being processed and will be emailed shortly.');
+}
 
 // Helper method for customizing an annual event certificate
 private function customizeAnnualCertificate($image, $event, $name, $membership_number)
@@ -759,8 +751,8 @@ private function customizeAnnualCertificate($image, $event, $name, $membership_n
 
     // Name Placement
     $image->text($name, 800, 500, function ($font) {
-        // $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-        $font->file(public_path('fonts/Roboto-Bold.ttf'));
+        // $font->file(public_path('fonts/Roboto-Bold.ttf'));
+        $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
         $font->color('#b01735'); // Dark red color
         $font->size(50); // Increased size for better visibility
         $font->align('center');

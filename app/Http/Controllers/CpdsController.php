@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\DownloadBulkCPDCertificatesJob;
+use App\Jobs\SendBulkCpdEmailJob;
 use App\Mail\CertificateMail;
 use App\Models\Attendence;
 use App\Models\Cpd;
@@ -12,6 +13,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -448,23 +450,14 @@ class CpdsController extends Controller
     }
 
     public function bulkEmail(Request $request)
-    {
-        $userIds = $request->input('attendees', []);
+{
+    $cpdId = $request->input('cpd_id');
+    
+    // Dispatch the job to handle sending emails asynchronously
+    SendBulkCpdEmailJob::dispatch($cpdId);
 
-        foreach ($userIds as $userId) {
-            $user = \App\Models\User::find($userId);
-            if ($user) {
-                // Assuming $cpd_id is passed through a hidden input field or other means
-                $cpd_id = $request->input('cpd_id');
-                $cpd = Cpd::find($cpd_id);
-
-                // Generate and email certificate
-                $this->emailCertificate($cpd_id, $userId);
-            }
-        }
-
-        return redirect()->back()->with('success', 'Certificates have been emailed successfully.');
-    }
+    return redirect()->back()->with('success', 'Certificates are being processed and will be emailed shortly.');
+}
 
 
     public function downloadBulkCertificates(Request $request)
