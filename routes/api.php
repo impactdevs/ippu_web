@@ -33,7 +33,7 @@ Route::put('edit-work-experience', [WorkExperienceController::class, 'update']);
 Route::post('work-experience', [WorkExperienceController::class, 'store']);
 Route::post('/webhook/flutterwave', [FlutterwaveWebhookController::class, 'handleWebhook']);
 //cpds routes
-Route::get('cpds/{userId}', [CpdsController::class, 'index']);
+Route::get('cpds/{userId?}', [CpdsController::class, 'index']);
 Route::get('upcoming-cpds/{userId}', [CpdsController::class, 'upcoming']);
 Route::post('cpds/attend', [CpdsController::class, 'confirm_attendence']);
 Route::get('cpds/certificate/{userId}/{cpdId}', [CpdsController::class, 'certificate']);
@@ -41,7 +41,7 @@ Route::get('cpds/certificate/{userId}/{cpdId}', [CpdsController::class, 'certifi
 //events routes
 Route::get('upcoming-events/{userId}', [EventController::class, 'upcoming']);
 Route::get('attended-events/{id}', [EventController::class, 'attended']);
-Route::get('events/{userId}', [EventController::class, 'index']);
+Route::get('events/{userId?}', [EventController::class, 'index']);
 Route::post('attend-event', [EventController::class, 'confirm_attendence']);
 
 
