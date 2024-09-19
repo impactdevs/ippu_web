@@ -15,16 +15,15 @@ class CpdsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($userId)
+    public function index($userId = null)
     {
         $cpds = Cpd::all();
-
         $cpdsWithAttendance = [];
 
-        foreach ($cpds as $cpd){
-            $attendanceRequest = Attendence::where('cpd_id', $cpd->id)
-            ->where('user_id', $userId)
-            ->exists();
+        foreach ($cpds as $cpd) {
+            $attendanceRequest = $userId ? Attendence::where('cpd_id', $cpd->id)
+                ->where('user_id', $userId)
+                ->exists() : false;
 
             $cpd->attendance_request = $attendanceRequest;
 
@@ -35,6 +34,7 @@ class CpdsController extends Controller
             'data' => $cpdsWithAttendance,
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.

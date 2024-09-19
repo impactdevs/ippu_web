@@ -17,16 +17,15 @@ class EventController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($userId)
+    public function index($userId = null)
     {
         $events = Event::all();
-
         $eventsWithAttendance = [];
 
-        foreach ($events as $event){
-            $attendanceRequest = Attendence::where('event_id', $event->id)
-            ->where('user_id', $userId)
-            ->exists();
+        foreach ($events as $event) {
+            $attendanceRequest = $userId ? Attendence::where('event_id', $event->id)
+                ->where('user_id', $userId)
+                ->exists() : false;
 
             $event->attendance_request = $attendanceRequest;
 
@@ -37,6 +36,7 @@ class EventController extends Controller
             'data' => $eventsWithAttendance,
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
