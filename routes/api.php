@@ -57,7 +57,7 @@ Route::post('profile/reset-password-code', [AuthController::class, 'resetPasswor
 Route::post('profile/reset-password', [AuthController::class, 'resetPassword']);
 
 //communication routes
-Route::get('communications/{userId}', [CommunicationController::class, 'index']);
+Route::get('communications/{userId?}', [CommunicationController::class, 'index']);
 Route::post('mark-as-read', [CommunicationController::class, 'markAsRead']);
 
 //fcm device token routes
