@@ -15,7 +15,7 @@ class CommunicationController extends Controller
      */
     public function index(Request $request, $userId = null)
     {
-        // If userId is provided, find the user; otherwise, use the authenticated user
+        // If userId is provided, find the user
         if ($userId) {
             $user = User::find($userId);
 
@@ -24,38 +24,36 @@ class CommunicationController extends Controller
             }
 
             auth()->login($user);
-        } else {
-            // If no userId, use the currently authenticated user
-            $user = auth()->user();
 
-            if (!$user) {
-                return response()->json(['message' => 'User not authenticated'], 401);
+            // Fetch all communications and check their status for the specified user
+            $communications = Communication::all();
+
+            foreach ($communications as $communication) {
+                $status = UserCommunicationStatus::where('user_id', $user->id)
+                    ->where('communication_id', $communication->id)
+                    ->first();
+
+                // Set status field based on whether the user has read the communication
+                $communication->status = $status ? true : false;
             }
-        }
 
-        // Fetch all communications and iterate over them to check if they are read or unread
-        $communications = Communication::all();
-
-        foreach ($communications as $communication) {
-            $status = UserCommunicationStatus::where('user_id', $user->id)
-                ->where('communication_id', $communication->id)
-                ->first();
-
-            // Set status field based on whether the user has read the communication
-            $communication->status = $status ? true : false;
+            // Logout the user
+            auth()->logout();
+        } else {
+            // If no userId is provided, just fetch all communications without status
+            $communications = Communication::all()->map(function ($communication) {
+                $communication->status = null; // or set it to a default value, e.g., false
+                return $communication;
+            });
         }
 
         // Arrange the communications according to the latest
         $communications = $communications->sortByDesc('created_at');
 
-        // Logout the user if a specific userId was used
-        if ($userId) {
-            auth()->logout();
-        }
-
         // Return the resource as a JSON response
         return response()->json(['data' => $communications], 200);
     }
+
 
 
     /**
