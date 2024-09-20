@@ -208,7 +208,7 @@
                                         <td>{{ $attendence->user->phone_no }}</td>
                                         <td>{{ $attendence->user->email }}</td>
                                         <td>
-                                            <a href="{{ url('admin/cpds/attendence/' . $cpd->id . '/' . $attendence->user->id) }}"
+                                            <a href="{{ url('admin/cpds/attendence-email/' . $cpd->id . '/' . $attendence->user->id) }}"
                                                 class="btn btn-sm btn-primary mr-2 mb-2">
                                                 Email Certificate
                                             </a>
@@ -379,7 +379,7 @@
                     Swal.showValidationMessage('Please enter a name');
                     return false;
                 }
-                
+
                 return {
                     newEmail: newEmail,
                     newName: newName // Correctly returning newName here
