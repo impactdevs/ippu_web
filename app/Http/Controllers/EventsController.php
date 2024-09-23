@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\CertificateRequested;
 use App\Jobs\DownloadBulkCertificatesJob;
+use App\Jobs\RegularCertificateRequested;
 use App\Jobs\SendBulkEmailEventJob;
 use App\Mail\CertificateMail;
 use App\Mail\EventCertificate;
@@ -694,35 +696,30 @@ class EventsController extends Controller
 public function downloadCertificate($event_id, $user_id)
 {
     try {
-        $manager = new ImageManager(new Driver());
         $event = Event::find($event_id);
-        $user = \App\Models\User::find($user_id);
+        $user = User::find($user_id);
         $name = $user->name;
-        $membership_number = $user->membership_number;
+        $membership_number = $user->membership_number ?? 'N/A';
         $id = $user->id;
-
-        // Determine the template based on event type
-        $templatePath = $event->event_type == 'Annual' ? public_path('images/event_annual_certificate.jpeg') : public_path('images/certificate-template.jpeg');
-        if (!file_exists($templatePath)) {
-            throw new \Exception('Certificate template not found.');
-        }
-
-        $image = $manager->read($templatePath);
 
         // Customize certificate details based on event type
         if ($event->event_type == 'Annual') {
-            $this->customizeAnnualCertificate($image, $event, $name, $membership_number);
+            // $this->customizeAnnualCertificate($image, $event, $name, $membership_number);
+            CertificateRequested::dispatch($event, $name, $membership_number);
+
         } else {
-            $this->customizeRegularCertificate($image, $event, $name, $membership_number);
+            RegularCertificateRequested::dispatch($event, $name, $membership_number, $id);
         }
 
-        $file_name = 'certificate-generated_' . $id . '.png';
-        $image->save(public_path('images/' . $file_name));
+        // $file_name = 'certificate-generated_' . $id . '.png';
+        // $image->save(public_path('images/' . $file_name));
 
         // Download the generated certificate
-        return response()->download(public_path('images/' . $file_name))->deleteFileAfterSend(true);
+        // return view('waiting', compact('event', 'user'));
+        //dont navigate anywhere
+        return response()->json(['success' => true, 'message' => 'The certificate is being processed. You will be notified when it is ready.']);
     } catch (\Exception $e) {
-        return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());
+        return response()->json(['success' => false, 'message' => 'An error occurred while generating the certificate: ' . $e->getMessage()]);
     }
 }
 
@@ -733,7 +730,7 @@ public function downloadCertificate($event_id, $user_id)
 public function sendBulkEmail(Request $request)
 {
     $eventId = $request->input('event_id');
-    
+
     // Dispatch the job to handle sending emails asynchronously
     SendBulkEmailEventJob::dispatch($eventId);
 
