@@ -85,7 +85,17 @@
                                         <div class="mt-3">
                                             <p class="text-muted" id="message"></p>
                                         </div>
+
                                     </form>
+
+                                    <div class="spinner-border" id="spinner" role="status" style="display:none;">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+
+                                    {{-- thank you for attendng section that will be displayed after the certificate is generated --}}
+                                    <div class="mt-3" id="thank-you" style="display:none;">
+                                        <p class="text-muted text-success">Thank you for attending the event</p>
+                                    </div>
                                 @else
                                     <p class="text-muted mb-2 fs-14">Event has already passed!</p>
                                 @endif
@@ -112,37 +122,14 @@
 
     <script>
         $(document).ready(function() {
-            console.log('ready');
-            // Listening for the event
-            Echo.channel('certificate-generated')
-                .listen('CertificateGenerated', (e) => {
-                    console.log(e);
-                    const downloadUrl = '{{ url('images/') }}' + '/' + e.download_link;
-                    const link = document.createElement('a');
-                    link.href = downloadUrl;
-                    link.download = e.download_link;
-                    document.body.appendChild(link);
 
-
-                    //show a Swal alert
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Certificate generated successfully',
-                        icon: 'success',
-                        confirmButtonText: 'Ok',
-
-                    })
-
-                    console.log('downloadUrl', downloadUrl);
-
-                    link.click();
-                    document.body.removeChild(link);
-                });
-
-            // Send a POST request on form submit
+            // Show the spinner when submitting the form
             $('#registration-form').on('submit', function(e) {
                 e.preventDefault(); // Prevent the default form submission
 
+                // Show the spinner and hide the form
+                $('#spinner').show();
+                $('#registration-form').hide();
                 // Get the values
                 const name = $('input[name="name"]').val();
                 const email = $('input[name="email"]').val();
@@ -165,20 +152,59 @@
                     },
                     success: function(response) {
                         console.log(response.success);
+                        $('#spinner').hide(); // Hide the spinner
                         if (response.success) {
                             $('#message').text(response.message).removeClass('text-danger')
                                 .addClass('text-success');
+
                         } else {
                             $('#message').text(response.message).removeClass('text-success')
                                 .addClass('text-danger');
                         }
                     },
                     error: function(error) {
+                        $('#spinner').hide(); // Hide the spinner
                         $('#message').text(error.responseJSON.message).removeClass(
                             'text-success').addClass('text-danger');
                     }
                 });
             });
+
+            Echo.channel('certificate-generated')
+                .listen('CertificateGenerated', (e) => {
+                    console.log(e);
+
+                    const downloadUrl = '{{ url('images/') }}' + '/' + e.download_link;
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = e.download_link;
+                    document.body.appendChild(link);
+
+                    // Show a Swal alert
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Certificate generated successfully',
+                        icon: 'success',
+                        confirmButtonText: 'Ok',
+                    }).then(() => { // Handle promise resolution after alert is closed
+                        link.click();
+                        document.body.removeChild(link);
+
+                        // Stop the spinner and show the thank you message
+                        $('#spinner').hide();
+                        $('#thank-you').show();
+
+                        // Option 2: Disconnect immediately (if no further communication is expected)
+                        Echo.leave('certificate-generated');
+
+                        //stop listening to the event
+
+                        // Option 1: Disconnect after a delay (if further communication is expected)
+
+                    });
+                });
+
+
 
         });
     </script>
