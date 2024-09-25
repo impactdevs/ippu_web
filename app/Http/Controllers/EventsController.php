@@ -396,7 +396,7 @@ class EventsController extends Controller
         ->first();
 
     if ($existingAttendance) {
-        return redirect()->route('thank.you.page')->with('error', 'You have already registered for this event.');
+        return response()->json(['success' => false, 'message' => 'You have already registered for this event.']);
     }
 
     // Record attendance
@@ -422,19 +422,16 @@ class EventsController extends Controller
             //return $this->direct_event_attendance_certificate_parser($user, $event, "event");
             return $this->downloadCertificate($event->id, $user->id);
         } else {
-            return redirect()->back()->with('error', 'Event not found');
+            return response()->json(['success' => false, 'message' => 'Event not found']);
         }
     } else {
         $event = Cpd::find($request->id);
         if ($event != null) {
             return $this->direct_cpd_attendance_certificate_parser($user, $event, "cpd");
         } else {
-            return redirect()->back()->with('error', 'CPD not found');
+            return response()->json(['success' => false, 'message' => 'Event not found']);
         }
     }
-
-    // Redirect to the "Thank You" page after successful registration
-    return redirect()->route('thank.you.page')->with('success', 'Thank you for registering. Your attendance has been recorded.');
 
 }
 

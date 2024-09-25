@@ -81,12 +81,12 @@
                                                 attendance</button>
                                         </div>
 
-                                        {{-- message --}}
-                                        <div class="mt-3">
-                                            <p class="text-muted" id="message"></p>
-                                        </div>
-
                                     </form>
+
+                                    {{-- message --}}
+                                    <div class="mt-3">
+                                        <p class="text-muted text-danger" id="message"></p>
+                                    </div>
 
                                     <div class="spinner-border" id="spinner" role="status" style="display:none;">
                                         <span class="sr-only">Loading...</span>
