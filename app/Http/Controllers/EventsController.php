@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\CertificateRequested;
+use App\Jobs\CpdCertificateGeneration;
 use App\Jobs\DownloadBulkCertificatesJob;
 use App\Jobs\RegularCertificateRequested;
 use App\Jobs\SendBulkEmailEventJob;
@@ -529,104 +530,15 @@ class EventsController extends Controller
 
     public function direct_cpd_attendance_certificate_parser(User $user, $event, $eventType)
     {
-        $manager = new ImageManager(new Driver());
-        //read the image from the public folder
-        $image = $manager->read(public_path('images/cpd-certificate-template.jpg'));
+        try{
+        // Call CpdCertificateGeneration job to generate the certificate
+        CpdCertificateGeneration::dispatch($event, $user);
+        return response()->json(['success' => true, 'message' => 'The certificate is being processed. You will be notified when it is ready.']);
 
-        $eventFound = $event;
-
-
-        $user = auth()->user();
-
-        $image->text($eventFound->code, 173, 27, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#000000');
-            $font->size(20);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text($user->name, 780, 550, function ($font) {
-            $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
-            $font->color('#1F45FC');
-            $font->size(45);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text('Attended a Continuing Professional Development(CPD) activity', 760, 620, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#000000');
-            $font->size(20);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        //add event name
-        $image->text('"' . $eventFound->topic . '"', 730, 690, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#000000');
-            $font->size(20);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-
-        $startDate = Carbon::parse($eventFound->start_date);
-        $endDate = Carbon::parse($eventFound->end_date);
-
-        if ($startDate->month === $endDate->month) {
-            $x = 720;
-            // Dates are in the same month
-            $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
-        } else {
-            $x = 780;
-            // Dates are in different months
-            $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+        }catch(\Exception $e){
+            return response()->json(['success' => false, 'message' => 'An error occurred while generating the certificate: ' . $e->getMessage()]);
         }
 
-
-        $image->text('on ', 600, 760, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#000000');
-            $font->size(20);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text($formattedRange, $x, 760, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#000000');
-            $font->size(20);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text($eventFound->hours . "CPD HOURS", 1400, 945, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#000000');
-            $font->size(17);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->toPng();
-
-        //let file name be cpd-certificate-generated_user_id.png
-        $file_name = 'cpd-certificate-generated_' . $user->id . '.png';
-
-        //save the image to the public folder
-        $image->save(public_path('images/' . $file_name));
-
-        //download the image
-        return response()->download(public_path('images/' . $file_name))->deleteFileAfterSend(true);
     }
 
 
