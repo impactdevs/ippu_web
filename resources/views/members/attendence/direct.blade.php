@@ -131,18 +131,12 @@
                         icon: 'success',
                         confirmButtonText: 'Ok',
 
-                        //acton to be download
-                        onAfterClose: () => {
-                            link.click();
-                            document.body.removeChild(link);
-                        }
+                    })
 
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            link.click();
-                            document.body.removeChild(link);
-                        }
-                    });
+                    console.log('downloadUrl', downloadUrl);
+
+                    link.click();
+                    document.body.removeChild(link);
                 });
 
             // Send a POST request on form submit
