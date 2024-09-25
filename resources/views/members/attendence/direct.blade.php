@@ -186,7 +186,9 @@
                         text: 'Certificate generated successfully',
                         icon: 'success',
                         confirmButtonText: 'Ok',
-                    }).then(() => { // Handle promise resolution after alert is closed
+                    })
+
+                    // Handle promise resolution after alert is closed
                         link.click();
                         document.body.removeChild(link);
 
@@ -201,7 +203,7 @@
 
                         // Option 1: Disconnect after a delay (if further communication is expected)
 
-                    });
+
                 });
 
 
