@@ -64,8 +64,7 @@ Route::get('invite_members', [MembersController::class, 'send_invitation']);
 Route::get('direct_attendence/{type}/{id}', [mEventsController::class, 'direct_attendence']);
 
 // Route::post('direct_attendence', [mEventsController::class, 'record_direct_attendence']);
-Route::post('direct_attendence_certificate', [mEventsController::class, 'record_direct_attendence'])
-    ->middleware('throttle:20,1')->name('direct.attendence');
+Route::post('direct_attendence_certificate', [mEventsController::class, 'record_direct_attendence'])->name('direct.attendence');
 
 
 Route::get('/thank-you', function () {
