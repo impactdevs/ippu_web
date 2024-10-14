@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Events\CertificateGenerated;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -12,6 +13,7 @@ use App\Models\Event;
 use Carbon\Carbon;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
+use Log;
 
 class RegularCertificateRequested implements ShouldQueue
 {
@@ -48,6 +50,9 @@ class RegularCertificateRequested implements ShouldQueue
      */
     public function handle(): void
     {
+        try{
+
+
         $manager = new ImageManager(driver: new Driver());
         // Determine the template based on event type
         $templatePath = $this->event->event_type == 'Annual' ? public_path('images/event_annual_certificate.jpeg') : public_path('images/certificate-template.jpeg');
@@ -138,5 +143,8 @@ class RegularCertificateRequested implements ShouldQueue
 
         // throw an event to broadcast the certificate
         event(new CertificateGenerated($file_name));
+    } catch(Exception $exception){
+        Log::error("regular certicate generation failed".$exception->getMessage());
+    }
     }
 }
