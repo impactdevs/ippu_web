@@ -343,98 +343,98 @@ class EventsController extends Controller
     //     $attendence->membership_number = $request->membership_number;
     //     $attendence->save();
 
-        // if ($request->type == "event") {
-        //     //get the logged in user
-        //     $event = Event::find($request->id);
-        //     if ($event != null) {
-        //         return $this->direct_event_attendance_certificate_parser($user, $event, "event");
-        //     } else {
-        //         return redirect()->back()->with('error', 'Event not found');
-        //     }
-        // } else {
-        //     $event = Cpd::find($request->id);
-        //     if ($event != null) {
-        //         return $this->direct_cpd_attendance_certificate_parser($user, $event, "cpd");
-        //     } else {
-        //         return redirect()->back()->with('error', 'CPD not found');
-        //     }
-        // }
+    // if ($request->type == "event") {
+    //     //get the logged in user
+    //     $event = Event::find($request->id);
+    //     if ($event != null) {
+    //         return $this->direct_event_attendance_certificate_parser($user, $event, "event");
+    //     } else {
+    //         return redirect()->back()->with('error', 'Event not found');
+    //     }
+    // } else {
+    //     $event = Cpd::find($request->id);
+    //     if ($event != null) {
+    //         return $this->direct_cpd_attendance_certificate_parser($user, $event, "cpd");
+    //     } else {
+    //         return redirect()->back()->with('error', 'CPD not found');
+    //     }
+    // }
     // }
 
     public function record_direct_attendence(Request $request)
-{
-    // Validate the request data
-    $request->validate([
-        'name' => 'required',
-        'email' => 'required|email',
-    ]);
+    {
+        // Validate the request data
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+        ]);
 
-    $user = \App\Models\User::where('email', $request->email)->first();
+        $user = \App\Models\User::where('email', $request->email)->first();
 
-    if (!$user) {
-        $password = \Str::random(9);
+        if (!$user) {
+            $password = \Str::random(9);
 
-        $user = new \App\Models\User;
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = Hash::make($password);
-        $user->account_type_id = \App\Models\AccountType::first()->id;
-        $user->save();
-    }
+            $user = new \App\Models\User;
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->password = Hash::make($password);
+            $user->account_type_id = \App\Models\AccountType::first()->id;
+            $user->save();
+        }
 
-    // Log in the user
-    \Auth::login($user);
+        // Log in the user
+        \Auth::login($user);
 
-    // Check if the user is already registered for this event or CPD
-    $existingAttendance = Attendence::where('user_id', $user->id)
-        ->where(function($query) use ($request) {
-            if ($request->type == "event") {
-                $query->where('event_id', $request->id);
+        // Check if the user is already registered for this event or CPD
+        $existingAttendance = Attendence::where('user_id', $user->id)
+            ->where(function ($query) use ($request) {
+                if ($request->type == "event") {
+                    $query->where('event_id', $request->id);
+                } else {
+                    $query->where('cpd_id', $request->id);
+                }
+            })
+            ->first();
+
+        if ($existingAttendance) {
+            return response()->json(['success' => false, 'message' => 'You have already registered for this event.']);
+        }
+
+        // Record attendance
+        $attendance = new Attendence;
+        $attendance->user_id = \Auth::user()->id;
+
+        if ($request->type == "event") {
+            $attendance->event_id = $request->id;
+            $attendance->type = "Event";
+        } else {
+            $attendance->cpd_id = $request->id;
+            $attendance->type = "CPD";
+        }
+
+        $attendance->status = "Attended";
+        $attendance->membership_number = $request->membership_number;
+        $attendance->save();
+
+        if ($request->type == "event") {
+            //get the logged in user
+            $event = Event::find($request->id);
+            if ($event != null) {
+                //return $this->direct_event_attendance_certificate_parser($user, $event, "event");
+                return $this->downloadCertificate($event->id, $user->id);
             } else {
-                $query->where('cpd_id', $request->id);
+                return response()->json(['success' => false, 'message' => 'Event not found']);
             }
-        })
-        ->first();
-
-    if ($existingAttendance) {
-        return response()->json(['success' => false, 'message' => 'You have already registered for this event.']);
-    }
-
-    // Record attendance
-    $attendance = new Attendence;
-    $attendance->user_id = \Auth::user()->id;
-
-    if ($request->type == "event") {
-        $attendance->event_id = $request->id;
-        $attendance->type = "Event";
-    } else {
-        $attendance->cpd_id = $request->id;
-        $attendance->type = "CPD";
-    }
-
-    $attendance->status = "Attended";
-    $attendance->membership_number = $request->membership_number;
-    $attendance->save();
-
-    if ($request->type == "event") {
-        //get the logged in user
-        $event = Event::find($request->id);
-        if ($event != null) {
-            //return $this->direct_event_attendance_certificate_parser($user, $event, "event");
-            return $this->downloadCertificate($event->id, $user->id);
         } else {
-            return response()->json(['success' => false, 'message' => 'Event not found']);
+            $event = Cpd::find($request->id);
+            if ($event != null) {
+                return $this->direct_cpd_attendance_certificate_parser($user, $event, "cpd");
+            } else {
+                return response()->json(['success' => false, 'message' => 'Event not found']);
+            }
         }
-    } else {
-        $event = Cpd::find($request->id);
-        if ($event != null) {
-            return $this->direct_cpd_attendance_certificate_parser($user, $event, "cpd");
-        } else {
-            return response()->json(['success' => false, 'message' => 'Event not found']);
-        }
-    }
 
-}
+    }
 
 
 
@@ -530,12 +530,12 @@ class EventsController extends Controller
 
     public function direct_cpd_attendance_certificate_parser(User $user, $event, $eventType)
     {
-        try{
-        // Call CpdCertificateGeneration job to generate the certificate
-        CpdCertificateGeneration::dispatch($event, $user);
-        return response()->json(['success' => true, 'message' => 'The certificate is being processed. You will be notified when it is ready.']);
+        try {
+            // Call CpdCertificateGeneration job to generate the certificate
+            CpdCertificateGeneration::dispatch($event, $user);
+            return response()->json(['success' => true, 'message' => 'The certificate is being processed. You will be notified when it is ready.']);
 
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'An error occurred while generating the certificate: ' . $e->getMessage()]);
         }
 
@@ -558,287 +558,287 @@ class EventsController extends Controller
 
     //new
     public function emailCertificate($event_id, $user_id)
-{
-    try {
-        $manager = new ImageManager(new Driver());
-        $event = Event::find($event_id);
-        $user = \App\Models\User::find($user_id);
-        $name = $user->name;
-        $membership_number = $user->membership_number;
-        $id = $user->id;
+    {
+        try {
+            $manager = new ImageManager(new Driver());
+            $event = Event::find($event_id);
+            $user = \App\Models\User::find($user_id);
+            $name = $user->name;
+            $membership_number = $user->membership_number;
+            $id = $user->id;
 
 
 
-        $formattedRange = Carbon::parse($event->start_date)->format('jS F Y') . ' - ' . Carbon::parse($event->end_date)->format('jS F Y');
+            $formattedRange = Carbon::parse($event->start_date)->format('jS F Y') . ' - ' . Carbon::parse($event->end_date)->format('jS F Y');
 
-        // Determine the template based on event type
-        $templatePath = $event->event_type == 'Annual' ? public_path('images/event_annual_certificate.jpeg') : public_path('images/certificate-template.jpeg');
-        if (!file_exists($templatePath)) {
-            throw new \Exception('Certificate template not found.');
+            // Determine the template based on event type
+            $templatePath = $event->event_type == 'Annual' ? public_path('images/event_annual_certificate.jpeg') : public_path('images/certificate-template.jpeg');
+            if (!file_exists($templatePath)) {
+                throw new \Exception('Certificate template not found.');
+            }
+
+            $image = $manager->read($templatePath);
+
+            // Customize certificate details based on event type
+            if ($event->event_type == 'Annual') {
+                $this->customizeAnnualCertificate($image, $event, $name, $membership_number);
+            } else {
+                $this->customizeRegularCertificate($image, $event, $name, $membership_number);
+            }
+
+            $file_name = 'certificate-generated_' . $id . '.png';
+            $image->save(public_path('images/' . $file_name));
+
+            // Send the certificate via email
+            $path = public_path('images/' . $file_name);
+            Mail::to($user->email)->send(new EventCertificate($name, $event, $path, $formattedRange));
+
+            // Optionally, delete the certificate after sending the email
+            unlink($path);
+
+            return redirect()->back()->with('success', 'Certificate generated and emailed successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());
         }
+    }
 
-        $image = $manager->read($templatePath);
+    public function downloadCertificate($event_id, $user_id)
+    {
+        try {
+            $event = Event::find($event_id);
+            $user = User::find($user_id);
+            $name = $user->name;
+            $membership_number = $user->membership_number ?? 'N/A';
+            $id = $user->id;
 
-        // Customize certificate details based on event type
-        if ($event->event_type == 'Annual') {
-            $this->customizeAnnualCertificate($image, $event, $name, $membership_number);
+            // Customize certificate details based on event type
+            if ($event->event_type == 'Annual') {
+                // $this->customizeAnnualCertificate($image, $event, $name, $membership_number);
+                CertificateRequested::dispatch($event, $name, $membership_number);
+
+            } else {
+                RegularCertificateRequested::dispatch($event, $name, $membership_number, $id);
+            }
+
+            // $file_name = 'certificate-generated_' . $id . '.png';
+            // $image->save(public_path('images/' . $file_name));
+
+            // Download the generated certificate
+            // return view('waiting', compact('event', 'user'));
+            //dont navigate anywhere
+            return response()->json(['success' => true, 'message' => 'The certificate is being processed. You will be notified when it is ready.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'An error occurred while generating the certificate: ' . $e->getMessage()]);
+        }
+    }
+
+
+
+
+
+    public function sendBulkEmail(Request $request)
+    {
+        $eventId = $request->input('event_id');
+
+        // Dispatch the job to handle sending emails asynchronously
+        SendBulkEmailEventJob::dispatch($eventId);
+
+        return redirect()->back()->with('success', 'Certificates are being processed and will be emailed shortly.');
+    }
+
+    // Helper method for customizing an annual event certificate
+    private function customizeAnnualCertificate($image, $event, $name, $membership_number)
+    {
+        // Additional information for Annual events
+        $place = $event->place ?? 'Not specified';
+        $theme = $event->theme ?? 'Not specified';
+        $annual_event_date = Carbon::parse($event->annual_event_date)->format('jS F Y');
+        $organizing_committee = $event->organizing_committee ?? 'Institute of Procurement Professionals of Uganda (IPPU)';
+
+        // Name Placement
+        $image->text($name, 800, 500, function ($font) {
+            // $font->file(public_path('fonts/Roboto-Bold.ttf'));
+            $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
+            $font->color('#b01735'); // Dark red color
+            $font->size(50); // Increased size for better visibility
+            $font->align('center');
+            $font->valign('middle');
+        });
+
+
+
+        // Event Name Placement
+        $image->text($event->name, 800, 620, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#008000'); // Green color
+            $font->size(30); // Increased size
+            $font->align('center');
+            $font->valign('middle');
+        });
+
+        // Theme Text Placement
+        // Theme Text Placement (split into two lines)
+        $theme = wordwrap('THEME: ' . $theme, 50, "\n", true); // Adjust the 50 to fit the length you want per line
+
+        $image->text($theme, 800, 680, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#405189'); // Blue color
+            $font->size(30);
+            $font->align('center');
+            $font->valign('middle');
+        });
+
+
+        // Organizer and Date Text Placement
+        $image->text('Organised by ' . $organizing_committee, 800, 740, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
+            $font->color('#405189'); // Blue color
+            $font->size(30);
+            $font->align('center');
+            $font->valign('middle');
+        });
+
+        // Date and Place Text Placement
+        $image->text('on ' . $annual_event_date . ' at ' . $place . '.', 800, 780, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
+            $font->color('#405189'); // Blue color
+            $font->size(30);
+            $font->align('center');
+            $font->valign('middle');
+        });
+
+        // CPD Points Text Placement
+        $image->text('This activity was awarded ' . $event->points . ' CPD Credit Points (Hours) of IPPU', 800, 830, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#008000'); // Green color
+            $font->size(30);
+            $font->align('center');
+            $font->valign('middle');
+        });
+
+        // Membership Number Placement
+        // $image->text(($membership_number ?? 'N/A'), 1900, 2000, function ($font) {
+        //     $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+        //     $font->color('#405189'); // Blue color
+        //     $font->size(45);
+        //     $font->align('center');
+        //     $font->valign('middle');
+        // });
+    }
+
+    // Helper method for customizing a regular event certificate
+    private function customizeRegularCertificate($image, $event, $name, $membership_number)
+    {
+
+        $image->text('PRESENTED TO', 420, 250, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#405189');
+            $font->size(12);
+            $font->align('center');
+            $font->valign('middle');
+        });
+
+        //dd($user->name);
+
+        $image->text($name, 420, 300, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#b01735');
+            $font->size(20);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
+
+
+
+        $image->text('FOR ATTENDING THE', 420, 340, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#405189');
+            $font->size(12);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
+
+        //add event name
+        $image->text($event->name, 420, 370, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
+            $font->color('#008000');
+            $font->size(22);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
+
+
+
+        $startDate = Carbon::parse($event->start_date);
+        $endDate = Carbon::parse($event->end_date);
+
+        if ($startDate->month === $endDate->month) {
+            $x = 420;
+            // Dates are in the same month
+            $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
         } else {
-            $this->customizeRegularCertificate($image, $event, $name, $membership_number);
+            $x = 480;
+            // Dates are in different months
+            $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
         }
 
-        $file_name = 'certificate-generated_' . $id . '.png';
-        $image->save(public_path('images/' . $file_name));
 
-        // Send the certificate via email
-        $path = public_path('images/' . $file_name);
-        Mail::to($user->email)->send(new EventCertificate($name, $event, $path, $formattedRange));
+        $image->text('Organized by the Institute of Procurement Professionals of Uganda on ' . $formattedRange, $x, 400, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
+            $font->color('#405189');
+            $font->size(12);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
 
-        // Optionally, delete the certificate after sending the email
-        unlink($path);
+        //add membership number
+        $image->text('MembershipNumber: ' . $membership_number ?? "N/A", 450, 483, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#405189');
+            $font->size(12);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
 
-        return redirect()->back()->with('success', 'Certificate generated and emailed successfully.');
-    } catch (\Exception $e) {
-        return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());
     }
-}
 
-public function downloadCertificate($event_id, $user_id)
-{
-    try {
-        $event = Event::find($event_id);
-        $user = User::find($user_id);
-        $name = $user->name;
-        $membership_number = $user->membership_number ?? 'N/A';
-        $id = $user->id;
 
-        // Customize certificate details based on event type
-        if ($event->event_type == 'Annual') {
-            // $this->customizeAnnualCertificate($image, $event, $name, $membership_number);
-            CertificateRequested::dispatch($event, $name, $membership_number);
 
-        } else {
-            RegularCertificateRequested::dispatch($event, $name, $membership_number, $id);
+    public function downloadBulkCertificates(Request $request)
+    {
+        $event_id = $request->input('event_id');
+
+        // Queue the job for downloading bulk certificates
+        DownloadBulkCertificatesJob::dispatch($event_id);
+
+        return redirect()->back()->with('success', 'The bulk download process has been queued. You will be notified when it is ready.');
+    }
+
+    public function updateEmail(Request $request)
+    {
+        $request->validate([
+            'attendence_id' => 'required|exists:attendences,id',
+            'email' => 'required|email',
+            'name' => 'required'
+        ]);
+        $user_details = Attendence::find($request->attendence_id);
+        $user = User::find($user_details->user_id);
+
+        if ($user) {
+            $user->email = $request->email;
+            $user->name = $request->name;
+            $user->save();
+
+            return response()->json(['success' => true]);
         }
 
-        // $file_name = 'certificate-generated_' . $id . '.png';
-        // $image->save(public_path('images/' . $file_name));
-
-        // Download the generated certificate
-        // return view('waiting', compact('event', 'user'));
-        //dont navigate anywhere
-        return response()->json(['success' => true, 'message' => 'The certificate is being processed. You will be notified when it is ready.']);
-    } catch (\Exception $e) {
-        return response()->json(['success' => false, 'message' => 'An error occurred while generating the certificate: ' . $e->getMessage()]);
+        return response()->json(['success' => false, 'message' => 'User not found.']);
     }
-}
-
-
-
-
-
-public function sendBulkEmail(Request $request)
-{
-    $eventId = $request->input('event_id');
-
-    // Dispatch the job to handle sending emails asynchronously
-    SendBulkEmailEventJob::dispatch($eventId);
-
-    return redirect()->back()->with('success', 'Certificates are being processed and will be emailed shortly.');
-}
-
-// Helper method for customizing an annual event certificate
-private function customizeAnnualCertificate($image, $event, $name, $membership_number)
-{
-    // Additional information for Annual events
-    $place = $event->place ?? 'Not specified';
-    $theme = $event->theme ?? 'Not specified';
-    $annual_event_date = Carbon::parse($event->annual_event_date)->format('jS F Y');
-    $organizing_committee = $event->organizing_committee ?? 'Institute of Procurement Professionals of Uganda (IPPU)';
-
-    // Name Placement
-    $image->text($name, 800, 500, function ($font) {
-        // $font->file(public_path('fonts/Roboto-Bold.ttf'));
-        $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
-        $font->color('#b01735'); // Dark red color
-        $font->size(50); // Increased size for better visibility
-        $font->align('center');
-        $font->valign('middle');
-    });
-
-
-
-    // Event Name Placement
-    $image->text($event->name, 800, 620, function ($font) {
-        $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-        $font->color('#008000'); // Green color
-        $font->size(30); // Increased size
-        $font->align('center');
-        $font->valign('middle');
-    });
-
-    // Theme Text Placement
-    // Theme Text Placement (split into two lines)
-    $theme = wordwrap('THEME: ' . $theme, 50, "\n", true); // Adjust the 50 to fit the length you want per line
-
-    $image->text($theme, 800, 680, function ($font) {
-        $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-        $font->color('#405189'); // Blue color
-        $font->size(30);
-        $font->align('center');
-        $font->valign('middle');
-    });
-
-
-    // Organizer and Date Text Placement
-    $image->text('Organised by ' . $organizing_committee, 800, 740, function ($font) {
-        $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-        $font->color('#405189'); // Blue color
-        $font->size(30);
-        $font->align('center');
-        $font->valign('middle');
-    });
-
-    // Date and Place Text Placement
-    $image->text('on ' . $annual_event_date . ' at ' . $place . '.', 800, 780, function ($font) {
-        $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-        $font->color('#405189'); // Blue color
-        $font->size(30);
-        $font->align('center');
-        $font->valign('middle');
-    });
-
-    // CPD Points Text Placement
-    $image->text('This activity was awarded ' . $event->points . ' CPD Credit Points (Hours) of IPPU', 800, 830, function ($font) {
-        $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-        $font->color('#008000'); // Green color
-        $font->size(30);
-        $font->align('center');
-        $font->valign('middle');
-    });
-
-    // Membership Number Placement
-    // $image->text(($membership_number ?? 'N/A'), 1900, 2000, function ($font) {
-    //     $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-    //     $font->color('#405189'); // Blue color
-    //     $font->size(45);
-    //     $font->align('center');
-    //     $font->valign('middle');
-    // });
-}
-
-// Helper method for customizing a regular event certificate
-private function customizeRegularCertificate($image, $event, $name, $membership_number)
-{
-
-   $image->text('PRESENTED TO', 420, 250, function ($font) {
-       $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-       $font->color('#405189');
-       $font->size(12);
-       $font->align('center');
-       $font->valign('middle');
-   });
-
-   //dd($user->name);
-
-   $image->text($name, 420, 300, function ($font) {
-       $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-       $font->color('#b01735');
-       $font->size(20);
-       $font->align('center');
-       $font->valign('middle');
-       $font->lineHeight(1.6);
-   });
-
-
-
-   $image->text('FOR ATTENDING THE', 420, 340, function ($font) {
-       $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-       $font->color('#405189');
-       $font->size(12);
-       $font->align('center');
-       $font->valign('middle');
-       $font->lineHeight(1.6);
-   });
-
-   //add event name
-   $image->text($event->name, 420, 370, function ($font) {
-       $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-       $font->color('#008000');
-       $font->size(22);
-       $font->align('center');
-       $font->valign('middle');
-       $font->lineHeight(1.6);
-   });
-
-
-
-   $startDate = Carbon::parse($event->start_date);
-   $endDate = Carbon::parse($event->end_date);
-
-   if ($startDate->month === $endDate->month) {
-       $x = 420;
-       // Dates are in the same month
-       $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
-   } else {
-       $x = 480;
-       // Dates are in different months
-       $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
-   }
-
-
-   $image->text('Organized by the Institute of Procurement Professionals of Uganda on ' . $formattedRange, $x, 400, function ($font) {
-       $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-       $font->color('#405189');
-       $font->size(12);
-       $font->align('center');
-       $font->valign('middle');
-       $font->lineHeight(1.6);
-   });
-
-   //add membership number
-   $image->text('MembershipNumber: ' . $membership_number ?? "N/A", 450, 483, function ($font) {
-       $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-       $font->color('#405189');
-       $font->size(12);
-       $font->align('center');
-       $font->valign('middle');
-       $font->lineHeight(1.6);
-   });
-
-}
-
-
-
-public function downloadBulkCertificates(Request $request)
-{
-    $event_id = $request->input('event_id');
-
-    // Queue the job for downloading bulk certificates
-    DownloadBulkCertificatesJob::dispatch($event_id);
-
-    return redirect()->back()->with('success', 'The bulk download process has been queued. You will be notified when it is ready.');
-}
-
-public function updateEmail(Request $request)
-{
-    $request->validate([
-        'attendence_id' => 'required|exists:attendences,id',
-        'email' => 'required|email',
-        'name'=>'required'
-    ]);
-    $user_details =  Attendence::find($request->attendence_id);
-    $user = User::find($user_details->user_id);
-
-    if ($user) {
-        $user->email = $request->email;
-        $user->name = $request->name;
-        $user->save();
-
-        return response()->json(['success' => true]);
-    }
-
-    return response()->json(['success' => false, 'message' => 'User not found.']);
-}
 
 
 

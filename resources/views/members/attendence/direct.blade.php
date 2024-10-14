@@ -77,7 +77,7 @@
                                         </div>
 
                                         <div class="">
-                                            <button type="submit" class="btn btn-primary" id="register">Register
+                                            <button type="submit" class="btn btn-secondary" id="register">Register
                                                 attendance</button>
                                         </div>
 
@@ -189,19 +189,19 @@
                     })
 
                     // Handle promise resolution after alert is closed
-                        link.click();
-                        document.body.removeChild(link);
+                    link.click();
+                    document.body.removeChild(link);
 
-                        // Stop the spinner and show the thank you message
-                        $('#spinner').hide();
-                        $('#thank-you').show();
+                    // Stop the spinner and show the thank you message
+                    $('#spinner').hide();
+                    $('#thank-you').show();
 
-                        // Option 2: Disconnect immediately (if no further communication is expected)
-                        Echo.leave('certificate-generated');
+                    // Option 2: Disconnect immediately (if no further communication is expected)
+                    Echo.leave('certificate-generated');
 
-                        //stop listening to the event
+                    //stop listening to the event
 
-                        // Option 1: Disconnect after a delay (if further communication is expected)
+                    // Option 1: Disconnect after a delay (if further communication is expected)
 
 
                 });
