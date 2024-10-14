@@ -24,6 +24,7 @@
         "laravelcollective/html": "^6.4",
         "milon/barcode": "^10.0",
         "munafio/chatify": "^1.6",
+        "pusher/pusher-php-server": "*",
         "spatie/laravel-activitylog": "^4.7",
         "spatie/laravel-permission": "^5.10",
         "spatie/simple-excel": "^3.2",
