@@ -20,8 +20,8 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $today = Carbon::now();
             $users = User::whereMonth('dob', $today->month)
-                          ->whereDay('dob', $today->day)
-                          ->get();
+                ->whereDay('dob', $today->day)
+                ->get();
 
             Notification::send($users, new BirthdayWish());
 
@@ -33,7 +33,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

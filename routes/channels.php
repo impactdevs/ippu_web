@@ -13,6 +13,6 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('certificate-generated', function(){
+Broadcast::channel('certificate-generated', function($user){
     return true;
 });
