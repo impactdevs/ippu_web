@@ -32,6 +32,22 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+    <style>
+        #register {
+            background-color: green; /* Green background */
+            color: white; /* White text */
+            border: none; /* Remove border */
+            padding: 10px 20px; /* Add some padding */
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer; /* Change cursor on hover */
+            font-size: 16px; /* Font size */
+        }
+
+        #register:hover {
+            background-color: darkgreen; /* Darker green on hover */
+        }
+    </style>
+
 </head>
 
 <body>
@@ -77,7 +93,7 @@
                                         </div>
 
                                         <div class="">
-                                            <button type="submit" class="btn btn-secondary" id="register">Register
+                                            <button type="submit" class="" id="register" style="">Register
                                                 attendance</button>
                                         </div>
 
