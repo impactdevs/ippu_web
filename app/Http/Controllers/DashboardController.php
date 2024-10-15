@@ -13,6 +13,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Str;
 use App\Jobs\SendReminderEmails;
+use Symfony\Component\Mailer\Exception\TransportException;
 
 class DashboardController extends Controller
 {
@@ -63,8 +64,8 @@ class DashboardController extends Controller
         }catch(\Throwable $e){
             return redirect()->back()->with('error',$e->getMessage());
         }
-        
-        
+
+
     }
 
     public function redirect_url()
@@ -180,6 +181,7 @@ class DashboardController extends Controller
 
     public function post_review(Request $request)
     {
+        try{
         // try{
             if ($request->status == "Denied") {
                 $request->validate([
@@ -227,7 +229,7 @@ class DashboardController extends Controller
             }else{
                 $membership->status = $request->status;
             }
-            
+
             $membership->comment = $request->comment;
             $membership->processed_by = Auth::user()->id;
             $membership->expiry_date = date('Y-12-31');
@@ -238,9 +240,9 @@ class DashboardController extends Controller
 
             \Mail::to($member)->send(new \App\Mail\ApplicationReview($membership));
             return redirect('admin/members')->with('success','Member application has been procced successfully');
-        // }catch(\Throwable $e){
-        //     return redirect()->back()->with('error',$e->getMessage());
-        // }
+        }catch(TransportException $e){
+            return redirect()->back()->with('error',$e->getMessage());
+        }
     }
 
     public function create_reminder($type)
@@ -282,14 +284,14 @@ class DashboardController extends Controller
         //dd('sending');
         // Dispatch the job
         SendReminderEmails::dispatch($request);
-        
+
         // Return success response
         return redirect()->back()->with('success', 'Reminder emails are being sent!');
     } catch (\Exception $e) {
         //dd($e);
         // Log the error
         \Log::error('Failed to dispatch reminder emails job: ' . $e->getMessage());
-        
+
         // Return error response
         return redirect()->back()->with('error', 'There was an issue sending the reminder emails. Please try again.');
     }

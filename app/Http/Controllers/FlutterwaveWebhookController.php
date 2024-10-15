@@ -14,9 +14,10 @@ class FlutterwaveWebhookController extends Controller
         $webhooks = FlutterwaveWebhook::latest()->get();
         return view('webhooks.index', compact('webhooks'));
     }
-    
+
     public function handleWebhook(Request $request)
     {
+        Log::info("webhook invoked");
         // Log the payload for debugging purposes
         // Log the payload for debugging purposes
         WebhookLog::create([

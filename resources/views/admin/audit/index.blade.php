@@ -4,7 +4,7 @@
 @forelse ($activityLogs as $activityLog)
 <div class="card">
     <div class="card-body">
-        <b>{{ $activityLoggi->causer->name }}</b> {{ $activityLog->description }}
+        <b>{{ optional($activityLog->causer)->name }}</b> {{ $activityLog->description }}
     </div>
 </div>
 @empty

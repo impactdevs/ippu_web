@@ -53,7 +53,7 @@
                 </thead>
                 <tbody>
                     @foreach($members as $member)
-                        <tr class="member-row {{ $member->subscribed ? 'paid' : 'not-paid' }}">
+                        <tr class="member-row {{ $member->subscribed ? 'paid' : 'not-paid' }} {{ $member?->latestMembership?->status == "Pending"? 'bg-primary text-light': ''}}">
                             <td>{{ $member->membership_number }}</td>
                             <td>{{ $member->name }}</td>
                             <td>{{ $member?->account_type?->name }}</td>
