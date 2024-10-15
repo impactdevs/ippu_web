@@ -65,7 +65,7 @@
                                 <tr class="cust_tr" id="cust_detail" data-url="{{url('customer.show',$customer['id'])}}" data-id="{{$customer['id']}}">
                                     <td class="Id">
                                         {{-- @can('show customer') --}}
-                                            <a href="{{ url('customer.show',\Crypt::encrypt($customer['id'])) }}" class="btn btn-outline-primary">
+                                            <a href="{{ url('admin/customers',\Crypt::encrypt($customer['id'])) }}" class="btn btn-outline-primary">
                                                 {{ Auth::user()->customerNumberFormat($customer['customer_id']) }}
                                             </a>
                                         {{-- @else --}}
@@ -90,7 +90,7 @@
                                                 <div class="action-btn  ms-2">
                                                     <a href="{{ url('admin/customers',\Crypt::encrypt($customer['id'])) }}" class="mx-3 bg-info btn btn-sm align-items-center"
                                                        data-bs-toggle="tooltip" title="{{__('View')}}">
-                                                        <i class="las la-eye text-white text-white"></i>
+                                                        <i class="las la-eye text-white></i>
                                                     </a>
                                                 </div>
                                                 {{-- @endcan --}}
@@ -108,7 +108,7 @@
                                                 @can('delete customer')
                                                     <div class=" ms-2">
                                                         {!! Form::open(['method' => 'DELETE', 'url' => ['customer.destroy', $customer['id']],'id'=>'delete-form-'.$customer['id']]) !!}
-                                                        <a href="#" class="mx-3 bg-danger btn btn-sm  align-items-center bs-pass-para" data-bs-toggle="tooltip" title="{{__('Delete')}}" ><i class="las la-trash text-white text-white"></i></a>
+                                                        <a href="#" class="mx-3 bg-danger btn btn-sm  align-items-center bs-pass-para" data-bs-toggle="tooltip" title="{{__('Delete')}}" ><i class="las la-trash text-white text"></i></a>
                                                         {!! Form::close() !!}
                                                     </div>
                                                 @endcan
