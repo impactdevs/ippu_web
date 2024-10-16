@@ -62,10 +62,7 @@
                     <div class="col-xl-5">
                         <div class="card overflow-hidden">
                             <div class="card-body p-4 text-center">
-                                <div class="text-center">
-                                    <img src="https://ippu.or.ug/wp-content/uploads/2020/03/cropped-Logo-192x192.png"
-                                        alt="" width="10%" height="10%">
-                                </div>
+                               <x-logo />
                                 <h3 class="mt-4 fw-semibold">Record Attendence</h3>
                                 <p class="text-muted mb-2 fs-14">{{ $data->name }}</p>
                                 <h5 class="text-warning fw-semibold">{{ $data->points }} Points</h5>

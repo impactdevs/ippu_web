@@ -12,7 +12,7 @@
         @if(Auth::user()->user_type == "Admin")
         <li class="nav-item">
             <a class="nav-link" href="{{ url('admin/reminders/?status=Unread') }}">
-                <i class="bx bx-bell"></i> <span data-key="t-members">Notifications</span> <span class="badge badge-pill bg-danger unread_notifications" data-key="t-hot">0</span>
+                <i class="bx bx-bell"></i> <span data-key="t-members">Notifications</span> <span class="badge badge-pill bg-danger unread_notifications" data-key="t-hot">99+</span>
             </a>
         </li>
         <li class="nav-item">
@@ -54,7 +54,7 @@
                 <i class="las la-users"></i> <span data-key="t-members">Transactions</span>
             </a>
         </li>
-    
+
         <li class="nav-item">
             <a class="nav-link menu-link" href="#sidebarCPDs" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarAuth">
                 <i class="ri-layout-3-line"></i> <span data-key="t-layouts">CPDs</span>
