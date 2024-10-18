@@ -181,7 +181,7 @@
                                             <td>{{ $attendence?->user?->phone_no }}</td>
                                             <td>{{ $attendence?->user?->email }}</td>
                                             <td>
-                                                <a href="{{ url('admin/events/attendence-email/' . $event->id . '/' . $attendence->user->id) }}"
+                                                <a href="{{ url('admin/events/attendence-email/' . $event->id . '/' . optional($attendence->user)->id) }}"
                                                     class="btn btn-sm btn-primary mr-2 mb-2">
                                                     Email Certificate
                                                 </a>
