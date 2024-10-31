@@ -4,7 +4,7 @@
 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
     <h4 class="mb-sm-0">Members</h4>
     <div class="page-title-right">
-        <ol class="breadcrumb m-0">
+        <ol class="m-0 breadcrumb">
             <li class="breadcrumb-item"><a href="{{ url('dashboard') }}">Dashboard</a></li>
             <li class="breadcrumb-item active">Members</li>
         </ol>
@@ -15,7 +15,7 @@
 @section('content')
 <div class="card">
     <div class="card-body">
-        <div class="row mb-3">
+        <div class="mb-3 row">
             <div class="col-md-3">
                 <label for="tinTypeFilter">Filter by Member Type</label>
                 <select id="tinTypeFilter" class="form-control form-select">
@@ -33,14 +33,14 @@
                 <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">All</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="paid-tab" data-bs-toggle="tab" data-bs-target="#paid" type="button" role="tab">Paid</button>
+                <button class="nav-link" id="paid-tab" data-bs-toggle="tab" data-bs-target="#paid" type="button" role="tab">Paid Up</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="not-paid-tab" data-bs-toggle="tab" data-bs-target="#not-paid" type="button" role="tab">Not Paid</button>
             </li>
         </ul>
 
-        <div class="table-responsive mt-3">
+        <div class="mt-3 table-responsive">
             <table class="table table-striped table-hover" id="members_table">
                 <thead>
                     <th>Membership No.</th>
@@ -79,7 +79,7 @@
                                         @endif
                                         <li>
                                             <button class="dropdown-item btn-danger btn-delete" delete-item-form="delete-member">Delete</button>
-                                            <form id="delete-member" action="{{ route('delete-member', $member->id) }}" method="POST" style="display: none;" class="m-0 p-0">
+                                            <form id="delete-member" action="{{ route('delete-member', $member->id) }}" method="POST" style="display: none;" class="p-0 m-0">
                                                 @csrf
                                                 @method('DELETE')
                                             </form>

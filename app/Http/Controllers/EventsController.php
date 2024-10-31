@@ -30,6 +30,7 @@ use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 use Symfony\Component\Mailer\Exception\TransportException;
 use ZipArchive;
+use Illuminate\Support\Facades\Http;
 
 
 
@@ -59,19 +60,86 @@ class EventsController extends Controller
     public function redirect_url()
     {
         $payment_details = request()->all();
+
         try {
-            if ($payment_details['status'] == 'successful') {
                 $register_attendance = $this->confirm_attendence(request());
                 if ($register_attendance) {
                     return view('members.dashboard')->with('success', 'registration successful!');
                 } else {
                     return view('members.dashboard')->with('error', 'registration failed!');
                 }
-            }
+
         } catch (TransportException $exception) {
             return view('members.dashboard')->with('error', $exception->getMessage());
         }
     }
+
+    // public function pay($id = ''){
+    //     try {
+    //         $client = new Client();
+    //         $event = Event::find($id);
+
+    //        $details =   [
+    //             'tx_ref' => Str::uuid(),
+    //             'amount' => $event->rate,
+    //             'currency' => 'UGX',
+    //             'redirect_url' => url('redirect_url_events') . '?event_id=' . $event->id,
+    //             'meta' => [
+    //                 'consumer_id' => auth()->user()->id,
+    //                 "full_name" => auth()->user()->name,
+    //                 "email" => auth()->user()->email,
+    //                 "being_payment_for" => "Attendance of Event",
+    //                 "event_id" => $event->id,
+    //                 "event_topic" => $event->name,
+    //                 "flw_app_id" => env('FLW_APP_ID'),
+    //             ],
+    //             'customer' => [
+    //                 'email' => auth()->user()->email,
+    //                 'phonenumber' => auth()->user()->phone_no,
+    //                 'name' => auth()->user()->name,
+    //             ],
+    //             'customizations' => [
+    //                 'title' => 'IPP Membership APP',
+    //                 'logo' => 'https://ippu.or.ug/wp-content/uploads/2020/03/cropped-Logo-192x192.png',
+    //             ],
+    //         ];
+
+    //         $response = Http::withHeaders([
+    //             'Authorization' => 'Bearer ' . env('FLW_SECRET_KEY'),
+    //             'Content-Type' => 'application/json',
+    //         ])->post('https://api.flutterwave.com/v3/payments', [
+    //             'tx_ref' => Str::uuid(),
+    //             'amount' => $event->rate,
+    //             'currency' => 'UGX',
+    //             'redirect_url' => 'https://example_company.com/success',
+    //             'customer' => [
+    //                 'email' => auth()->user()->email,
+    //                 'phonenumber' => auth()->user()->phone_no,
+    //                 'name' => auth()->user()->name,
+    //             ],
+    //             'customizations' => [
+    //                 'title' => 'IPP Membership APP',
+    //                 'logo' => 'https://ippu.or.ug/wp-content/uploads/2020/03/cropped-Logo-192x192.png',
+    //             ],
+    //         ]);
+
+    //         // dd($response);
+
+    //         if ($response->successful()) {
+    //             // Handle successful response
+    //             $data = $response->json();
+    //             dd($data);
+    //         } else {
+    //             // Handle failed response
+    //             $data = $response->json();
+    //             Log::error('Flutterwave Payment Error', $data);
+    //         }
+    //     } catch (\Exception $e) {
+    //         Log::error('Request failed', [
+    //             'error' => $e->getMessage()
+    //         ]);
+    //     }
+    // }
 
     public function pay($id = '')
     {
@@ -79,15 +147,21 @@ class EventsController extends Controller
             $client = new Client();
             $event = Event::find($id);
 
-            $response = $client->post('https://api.flutterwave.com/v3/payments', [
+            $amount = request()->input('amount') ?? $event->rate;
+
+
+
+            // dd(url('redirect_url_events') . '?event_id=' . $event->id);
+
+            $options = [
                 'headers' => [
                     'Authorization' => 'Bearer ' . env('FLW_SECRET_KEY'),
                 ],
                 'json' => [
                     'tx_ref' => Str::uuid(),
-                    'amount' => $event->rate,
+                    'amount' => $amount,
                     'currency' => 'UGX',
-                    'redirect_url' => url('redirect_url_events') . '?event_id=' . $event->id,
+                    'redirect_url' => 'https://ippu.org/login',
                     'meta' => [
                         'consumer_id' => auth()->user()->id,
                         "full_name" => auth()->user()->name,
@@ -107,19 +181,25 @@ class EventsController extends Controller
                         'logo' => 'https://ippu.or.ug/wp-content/uploads/2020/03/cropped-Logo-192x192.png',
                     ],
                 ],
-            ]);
+            ];
+
+            // dd($options);
+
+            $response = $client->post('https://api.flutterwave.com/v3/payments', $options);
 
             $responseBody = json_decode($response->getBody(), true);
-            //check if the request was successful
+
             if ($responseBody['status'] == 'success') {
-                return redirect()->away($responseBody['data']['link']);
+                return response()->json(['success' => true, 'data' => $responseBody['data']['link']]);
             } else {
                 return redirect()->back()->with('error', 'Payment request failed!');
             }
-        } catch (RequestException $e) {
+        } catch (RequestException  $e) {
+            dd($e->getMessage());
             if ($e->hasResponse()) {
                 $responseBody = json_decode($e->getResponse()->getBody(), true);
-                return redirect()->back()->with('error', $responseBody['message']);
+                dd($responseBody);
+                //return redirect()->back()->with('error', $responseBody['message']);
             } else {
                 return redirect()->back()->with('error', 'Payment request failed!');
             }
@@ -433,7 +513,6 @@ class EventsController extends Controller
                 return response()->json(['success' => false, 'message' => 'Event not found']);
             }
         }
-
     }
 
 
@@ -534,11 +613,9 @@ class EventsController extends Controller
             // Call CpdCertificateGeneration job to generate the certificate
             CpdCertificateGeneration::dispatch($event, $user);
             return response()->json(['success' => true, 'message' => 'The certificate is being processed. You will be notified when it is ready.']);
-
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'An error occurred while generating the certificate: ' . $e->getMessage()]);
         }
-
     }
 
 
@@ -615,7 +692,6 @@ class EventsController extends Controller
             if ($event->event_type == 'Annual') {
                 // $this->customizeAnnualCertificate($image, $event, $name, $membership_number);
                 CertificateRequested::dispatch($event, $name, $membership_number);
-
             } else {
                 RegularCertificateRequested::dispatch($event, $name, $membership_number, $id);
             }
@@ -804,7 +880,6 @@ class EventsController extends Controller
             $font->valign('middle');
             $font->lineHeight(1.6);
         });
-
     }
 
 

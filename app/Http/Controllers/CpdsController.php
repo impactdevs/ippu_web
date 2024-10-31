@@ -64,9 +64,9 @@ class CpdsController extends Controller
     {
         $payment_details = request()->all();
         try {
-            if ($payment_details['status'] == 'successful') {
-                $this->confirm_attendence(request());
-            }
+
+                return $this->confirm_attendence(request());
+
         } catch (TransportException $exception) {
             return view('members.dashboard')->with('error', 'Email could not be sent!');
         }
@@ -80,6 +80,7 @@ class CpdsController extends Controller
         try {
             $client = new Client();
             $cpd = Cpd::find($id);
+            $amount = request()->input('amount') ??$cpd->normal_rate;
 
             $response = $client->post('https://api.flutterwave.com/v3/payments', [
                 'headers' => [
@@ -87,7 +88,7 @@ class CpdsController extends Controller
                 ],
                 'json' => [
                     'tx_ref' => Str::uuid(),
-                    'amount' => $cpd->normal_rate,
+                    'amount' => $amount,
                     'currency' => 'UGX',
                     'redirect_url' => url('redirect_url_cpds') . '?cpd_id=' . $cpd->id,
                     'meta' => [
@@ -116,7 +117,8 @@ class CpdsController extends Controller
             $responseBody = json_decode($response->getBody(), true);
             //check if the request was successful
             if ($responseBody['status'] == 'success') {
-                return redirect()->away($responseBody['data']['link']);
+                // return redirect()->away($responseBody['data']['link']);
+                return response()->json(['success' => true, 'data' => $responseBody['data']['link']]);
             } else {
                 return redirect()->back()->with('error', 'Payment request failed!');
             }
@@ -452,7 +454,7 @@ class CpdsController extends Controller
     public function bulkEmail(Request $request)
 {
     $cpdId = $request->input('cpd_id');
-    
+
     // Dispatch the job to handle sending emails asynchronously
     SendBulkCpdEmailJob::dispatch($cpdId);
 
@@ -463,13 +465,13 @@ class CpdsController extends Controller
     public function downloadBulkCertificates(Request $request)
     {
         $cpd_id = $request->input('cpd_id');
-    
+
         // Queue the job for downloading bulk CPD certificates
         DownloadBulkCPDCertificatesJob::dispatch($cpd_id);
-    
+
         return redirect()->back()->with('success', 'The bulk download process for CPD certificates has been queued. You will be notified when it is ready.');
     }
-    
+
     public function updateEmail(Request $request)
 {
     $request->validate([
@@ -480,7 +482,7 @@ class CpdsController extends Controller
 
     $user_details =  Attendence::find($request->attendence_id);
     $user = User::find($user_details->user_id);
-    
+
     if ($user) {
         $user->email = $request->email;
         $user->name = $request->name;
@@ -491,6 +493,6 @@ class CpdsController extends Controller
 
     return response()->json(['success' => false, 'message' => 'User not found.']);
 }
-    
+
 
 }

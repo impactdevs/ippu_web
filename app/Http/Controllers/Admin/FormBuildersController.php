@@ -3,19 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\FormBuilder;
 use App\Models\FormField;
 use App\Models\FormFieldResponse;
-use App\Models\User;
-use App\Models\Pipeline;
 use App\Models\FormResponse;
-use Auth;
-
-use Dompdf\Options;
-use BaconQrCode\Renderer\ImageRenderer;
+use App\Models\Pipeline;
+use App\Models\User;
 use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
+
 use BaconQrCode\Writer;
+use Dompdf\Options;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FormBuildersController extends Controller
 {
@@ -24,7 +24,7 @@ class FormBuildersController extends Controller
      */
     public function index()
     {
-        $usr = \Auth::user();
+        $usr = Auth::user();
         $forms = FormBuilder::get();
 
         return view('admin.form_builder.index', compact('forms'));
@@ -43,15 +43,15 @@ class FormBuildersController extends Controller
      */
     public function store(Request $request)
     {
-        try{
+        try {
             $validator = \Validator::make(
-                $request->all(), [
-                                   'name' => 'required',
-                               ]
+                $request->all(),
+                [
+                    'name' => 'required',
+                ]
             );
 
-            if($validator->fails())
-            {
+            if ($validator->fails()) {
                 $messages = $validator->getMessageBag();
 
                 return redirect()->route('form_builder.index')->with('error', $messages->first());
@@ -64,12 +64,12 @@ class FormBuildersController extends Controller
             $form_builder->created_by = \Auth::user()->id;
             $form_builder->save();
 
-            activity()->performedOn($form_builder)->log('created form builder:'.$form_builder->name);
+            activity()->performedOn($form_builder)->log('created form builder:' . $form_builder->name);
 
             return redirect()->back()->with('success', __('Form successfully created.'));
-        }  catch(\Throwable $e) {
+        } catch (\Throwable $e) {
             return redirect()->back()->with('error', $e->getMessage());
-        }  
+        }
     }
 
     /**
@@ -77,14 +77,14 @@ class FormBuildersController extends Controller
      */
     public function show(FormBuilder $formBuilder)
     {
-         // if($formBuilder->created_by == \Auth::user()->id)
-         //    {
-                return view('admin.form_builder.show', compact('formBuilder'));
-            // }
-            // else
-            // {
-            //     return response()->json(['error' => __('Permission Denied.')], 401);
-            // }
+        // if($formBuilder->created_by == \Auth::user()->id)
+        //    {
+        return view('admin.form_builder.show', compact('formBuilder'));
+        // }
+        // else
+        // {
+        //     return response()->json(['error' => __('Permission Denied.')], 401);
+        // }
     }
 
     /**
@@ -94,12 +94,12 @@ class FormBuildersController extends Controller
     {
         // if($formBuilder->created_by == Auth::user()->id)
         //     {
-                return view('admin.form_builder.edit', compact('formBuilder'));
-            // }
-            // else
-            // {
-            //     return response()->json(['error' => __('Permission Denied.')], 401);
-            // }
+        return view('admin.form_builder.edit', compact('formBuilder'));
+        // }
+        // else
+        // {
+        //     return response()->json(['error' => __('Permission Denied.')], 401);
+        // }
     }
 
     /**
@@ -110,34 +110,34 @@ class FormBuildersController extends Controller
         $usr = \Auth::user();
         // if($usr->can('edit form builder'))
         // {
-            // if($formBuilder->created_by == $usr->id)
-            // {
-                $validator = \Validator::make(
-                    $request->all(), [
-                                       'name' => 'required',
-                                   ]
-                );
+        // if($formBuilder->created_by == $usr->id)
+        // {
+        $validator = \Validator::make(
+            $request->all(),
+            [
+                'name' => 'required',
+            ]
+        );
 
-                if($validator->fails())
-                {
-                    $messages = $validator->getMessageBag();
+        if ($validator->fails()) {
+            $messages = $validator->getMessageBag();
 
-                    return redirect()->back()->with('error', $messages->first());
-                }
+            return redirect()->back()->with('error', $messages->first());
+        }
 
-                $formBuilder->name           = $request->name;
-                $formBuilder->is_active      = $request->is_active;
-                $formBuilder->is_lead_active = 0;
-                $formBuilder->save();
+        $formBuilder->name           = $request->name;
+        $formBuilder->is_active      = $request->is_active;
+        $formBuilder->is_lead_active = 0;
+        $formBuilder->save();
 
-                activity()->performedOn($formBuilder)->log('updated form builder:'.$formBuilder->name);
+        activity()->performedOn($formBuilder)->log('updated form builder:' . $formBuilder->name);
 
-                return redirect()->back()->with('success', __('Form successfully updated.'));
-            // }
-            // else
-            // {
-            //     return redirect()->back()->with('error', __('Permission Denied.'));
-            // }
+        return redirect()->back()->with('success', __('Form successfully updated.'));
+        // }
+        // else
+        // {
+        //     return redirect()->back()->with('error', __('Permission Denied.'));
+        // }
         // }
         // else
         // {
@@ -155,29 +155,29 @@ class FormBuildersController extends Controller
 
     public function formFieldBind($form_id)
     {
-        $usr = \Auth::user();
+        $usr = Auth::user();
         // if($usr->type == 'company')
         // {
-            $form = FormBuilder::find($form_id);
+        $form = FormBuilder::find($form_id);
 
-            // if($form->created_by == $usr->id)
-            // {
-                $types = $form->form_field->pluck('name', 'id');
+        // if($form->created_by == $usr->id)
+        // {
+        $types = $form->form_field->pluck('name', 'id');
 
-                $formField = FormFieldResponse::where('form_id', '=', $form_id)->first();
+        $formField = FormFieldResponse::where('form_id', '=', $form_id)->first();
 
-                // Get Users
-                $users = User::get()->pluck('name', 'id');
+        // Get Users
+        $users = User::get()->pluck('name', 'id');
 
-                // Pipelines
-                $pipelines = Pipeline::where('created_by', '=', $usr->id)->get()->pluck('name', 'id');
+        // Pipelines
+        $pipelines = Pipeline::where('created_by', '=', $usr->id)->get()->pluck('name', 'id');
 
-                return view('admin.form_builder.form_field', compact('form', 'types', 'formField', 'users', 'pipelines'));
-            // }
-            // else
-            // {
-            //     return redirect()->back()->with('error', __('Permission Denied.'));
-            // }
+        return view('admin.form_builder.form_field', compact('form', 'types', 'formField', 'users', 'pipelines'));
+        // }
+        // else
+        // {
+        //     return redirect()->back()->with('error', __('Permission Denied.'));
+        // }
         // }
         // else
         // {
@@ -190,15 +190,15 @@ class FormBuildersController extends Controller
     {
         // if(Auth::user()->can('view form response'))
         // {
-            $form = FormBuilder::find($form_id);
-            // if($form->created_by == \Auth::user()->id)
-            // {
-                return view('admin.form_builder.response', compact('form'));
-            // }
-            // else
-            // {
-            //     return response()->json(['error' => __('Permission Denied . ')], 401);
-            // }
+        $form = FormBuilder::find($form_id);
+        // if($form->created_by == \Auth::user()->id)
+        // {
+        return view('admin.form_builder.response', compact('form'));
+        // }
+        // else
+        // {
+        //     return response()->json(['error' => __('Permission Denied . ')], 401);
+        // }
         // }
         // else
         // {
@@ -211,18 +211,18 @@ class FormBuildersController extends Controller
     {
         // if(Auth::user()->can('view form response'))
         // {
-            $formResponse = FormResponse::find($response_id);
-            $form         = FormBuilder::find($formResponse->form_id);
-            // if($form->created_by == \Auth::user()->id)
-            // {
-                $response = json_decode($formResponse->response, true);
+        $formResponse = FormResponse::find($response_id);
+        $form         = FormBuilder::find($formResponse->form_id);
+        // if($form->created_by == \Auth::user()->id)
+        // {
+        $response = json_decode($formResponse->response, true);
 
-                return view('admin.form_builder.response_detail', compact('response'));
-            // }
-            // else
-            // {
-            //     return response()->json(['error' => __('Permission Denied . ')], 401);
-            // }
+        return view('admin.form_builder.response_detail', compact('response'));
+        // }
+        // else
+        // {
+        //     return response()->json(['error' => __('Permission Denied . ')], 401);
+        // }
         // }
         // else
         // {
@@ -234,30 +234,21 @@ class FormBuildersController extends Controller
     public function formView($code)
     {
 
-        if(!empty($code))
-        {
+        if (!empty($code)) {
             $form = FormBuilder::where('code', 'LIKE', $code)->first();
 
-            if(!empty($form))
-            {
-                if($form->is_active == 1)
-                {
+            if (!empty($form)) {
+                if ($form->is_active == 1) {
                     $objFields = $form->form_field;
 
                     return view('admin.form_builder.form_view', compact('objFields', 'code', 'form'));
-                }
-                else
-                {
+                } else {
                     return view('admin.form_builder.form_view', compact('code', 'form'));
                 }
-            }
-            else
-            {
+            } else {
                 return redirect()->route('login')->with('error', __('Form not found please contact to admin.'));
             }
-        }
-        else
-        {
+        } else {
             return redirect()->route('login')->with('error', __('Permission Denied.'));
         }
     }
@@ -268,11 +259,9 @@ class FormBuildersController extends Controller
         // Get form
         $form = FormBuilder::where('code', 'LIKE', $request->code)->first();
 
-        if(!empty($form))
-        {
+        if (!empty($form)) {
             $arrFieldResp = [];
-            foreach($request->field as $key => $value)
-            {
+            foreach ($request->field as $key => $value) {
                 $arrFieldResp[FormField::find($key)->name] = (!empty($value)) ? $value : '-';
             }
 
@@ -285,23 +274,20 @@ class FormBuildersController extends Controller
             );
 
             // in form convert lead is active then creat lead
-            if($form->is_lead_active == 1)
-            {
+            if ($form->is_lead_active == 1) {
                 $objField = $form->fieldResponse;
 
                 // validation
                 $email = User::where('email', 'LIKE', $request->field[$objField->email_id])->first();
 
-                if(!empty($email))
-                {
+                if (!empty($email)) {
                     return redirect()->back()->with('error', __('Email already exist in our record.!'));
                 }
 
                 $usr   = User::find($form->created_by);
-                $stage = LeadStage::where('pipeline_id', '=', $objField->pipeline_id)->where('created_by',$form->created_by)->first();
+                $stage = LeadStage::where('pipeline_id', '=', $objField->pipeline_id)->where('created_by', $form->created_by)->first();
 
-                if(!empty($stage))
-                {
+                if (!empty($stage)) {
                     $lead              = new Lead();
                     $lead->name        = $request->field[$objField->name_id];
                     $lead->email       = $request->field[$objField->email_id];
@@ -318,8 +304,7 @@ class FormBuildersController extends Controller
                         $objField->user_id,
                     ];
 
-                    foreach($usrLeads as $usrLead)
-                    {
+                    foreach ($usrLeads as $usrLead) {
                         UserLead::create(
                             [
                                 'user_id' => $usrLead,
@@ -331,12 +316,9 @@ class FormBuildersController extends Controller
             }
 
             return redirect()->back()->with('success', __('Data submit successfully.'));
-        }
-        else
-        {
+        } else {
             return redirect()->route('login')->with('error', __('Something went wrong.'));
         }
-
     }
 
     // Store convert into lead modal
@@ -346,71 +328,67 @@ class FormBuildersController extends Controller
         $usr = Auth::user();
         // if($usr->type == 'company')
         // {
-            $form                 = FormBuilder::find($id);
-            $form->is_lead_active = $request->is_lead_active;
-            $form->save();
+        $form                 = FormBuilder::find($id);
+        $form->is_lead_active = $request->is_lead_active;
+        $form->save();
 
-            // if($form->created_by == $usr->creatorId())
-            // {
-                if($form->is_lead_active == 1)
-                {
-                    $validator = \Validator::make(
-                        $request->all(), [
-                                           'subject_id' => 'required',
-                                           'name_id' => 'required',
-                                           'email_id' => 'required',
-                                           'user_id' => 'required',
-                                           'pipeline_id' => 'required',
-                                       ]
-                    );
+        // if($form->created_by == $usr->creatorId())
+        // {
+        if ($form->is_lead_active == 1) {
+            $validator = \Validator::make(
+                $request->all(),
+                [
+                    'subject_id' => 'required',
+                    'name_id' => 'required',
+                    'email_id' => 'required',
+                    'user_id' => 'required',
+                    'pipeline_id' => 'required',
+                ]
+            );
 
-                    if($validator->fails())
-                    {
-                        $messages = $validator->getMessageBag();
+            if ($validator->fails()) {
+                $messages = $validator->getMessageBag();
 
-                        // if validation failed then make status 0
-                        $form->is_lead_active = 0;
-                        $form->save();
+                // if validation failed then make status 0
+                $form->is_lead_active = 0;
+                $form->save();
 
-                        return redirect()->back()->with('error', $messages->first());
-                    }
+                return redirect()->back()->with('error', $messages->first());
+            }
 
-                    if(!empty($request->form_response_id))
-                    {
-                        // if record already exists then update it.
-                        $field_bind = FormFieldResponse::find($request->form_response_id);
-                        $field_bind->update(
-                            [
-                                'subject_id' => $request->subject_id,
-                                'name_id' => $request->name_id,
-                                'email_id' => $request->email_id,
-                                'user_id' => $request->user_id,
-                                'pipeline_id' => $request->pipeline_id,
-                            ]
-                        );
-                    }
-                    else
-                    {
-                        // Create Field Binding record on form_field_responses tbl
-                        FormFieldResponse::create(
-                            [
-                                'form_id' => $request->form_id,
-                                'subject_id' => $request->subject_id,
-                                'name_id' => $request->name_id,
-                                'email_id' => $request->email_id,
-                                'user_id' => $request->user_id,
-                                'pipeline_id' => $request->pipeline_id,
-                            ]
-                        );
-                    }
-                }
+            if (!empty($request->form_response_id)) {
+                // if record already exists then update it.
+                $field_bind = FormFieldResponse::find($request->form_response_id);
+                $field_bind->update(
+                    [
+                        'subject_id' => $request->subject_id,
+                        'name_id' => $request->name_id,
+                        'email_id' => $request->email_id,
+                        'user_id' => $request->user_id,
+                        'pipeline_id' => $request->pipeline_id,
+                    ]
+                );
+            } else {
+                // Create Field Binding record on form_field_responses tbl
+                FormFieldResponse::create(
+                    [
+                        'form_id' => $request->form_id,
+                        'subject_id' => $request->subject_id,
+                        'name_id' => $request->name_id,
+                        'email_id' => $request->email_id,
+                        'user_id' => $request->user_id,
+                        'pipeline_id' => $request->pipeline_id,
+                    ]
+                );
+            }
+        }
 
-                return redirect()->back()->with('success', __('Setting saved successfully!'));
-            // }
-            // else
-            // {
-            //     return redirect()->back()->with('error', __('Permission Denied.'));
-            // }
+        return redirect()->back()->with('success', __('Setting saved successfully!'));
+        // }
+        // else
+        // {
+        //     return redirect()->back()->with('error', __('Permission Denied.'));
+        // }
         // }
         // else
         // {
@@ -424,17 +402,17 @@ class FormBuildersController extends Controller
         $usr = \Auth::user();
         // if($usr->can('create form field'))
         // {
-            $formbuilder = FormBuilder::find($id);
-            // if($formbuilder->created_by == $usr->id)
-            // {
-                $types = FormBuilder::$fieldTypes;
+        $formbuilder = FormBuilder::find($id);
+        // if($formbuilder->created_by == $usr->id)
+        // {
+        $types = FormBuilder::$fieldTypes;
 
-                return view('admin.form_builder.field_create', compact('types', 'formbuilder'));
-            // }
-            // else
-            // {
-            //     return redirect()->back()->with('error', __('Permission Denied.'));
-            // }
+        return view('admin.form_builder.field_create', compact('types', 'formbuilder'));
+        // }
+        // else
+        // {
+        //     return redirect()->back()->with('error', __('Permission Denied.'));
+        // }
         // }
         // else
         // {
@@ -448,34 +426,32 @@ class FormBuildersController extends Controller
         // if($usr->can('create form field'))
         // {
         \DB::beginTransaction();
-            $formbuilder = FormBuilder::find($id);
-            // if($formbuilder->created_by == $usr->id)
-            // {
-                $names = $request->name;
-                $types = $request->type;
+        $formbuilder = FormBuilder::find($id);
+        // if($formbuilder->created_by == $usr->id)
+        // {
+        $names = $request->name;
+        $types = $request->type;
 
-                foreach($names as $key => $value)
-                {
-                    if(!empty($value))
-                    {
-                        // create form field
-                        FormField::create(
-                            [
-                                'form_id' => $formbuilder->id,
-                                'name' => $value,
-                                'type' => $types[$key],
-                                'created_by' => $usr->id,
-                            ]
-                        );
-                    }
-                }
-                \DB::commit();
-                return redirect()->back()->with('success', __('Field successfully created.'));
-            // }
-            // else
-            // {
-            //     return redirect()->back()->with('error', __('Permission Denied.'));
-            // }
+        foreach ($names as $key => $value) {
+            if (!empty($value)) {
+                // create form field
+                FormField::create(
+                    [
+                        'form_id' => $formbuilder->id,
+                        'name' => $value,
+                        'type' => $types[$key],
+                        'created_by' => $usr->id,
+                    ]
+                );
+            }
+        }
+        \DB::commit();
+        return redirect()->back()->with('success', __('Field successfully created.'));
+        // }
+        // else
+        // {
+        //     return redirect()->back()->with('error', __('Permission Denied.'));
+        // }
         // }
         // else
         // {
@@ -485,29 +461,27 @@ class FormBuildersController extends Controller
 
     public function fieldEdit($id, $field_id)
     {
+        // dd("hello");
         $usr = \Auth::user();
         // if($usr->can('edit form field'))
         // {
-            $form = FormBuilder::find($id);
-            // if($form->created_by == $usr->creatorId())
-            // {
-                $form_field = FormField::find($field_id);
+        $form = FormBuilder::find($id);
+        // if($form->created_by == $usr->creatorId())
+        // {
+        $form_field = FormField::find($field_id);
 
-                if(!empty($form_field))
-                {
-                    $types = FormBuilder::$fieldTypes;
+        if (!empty($form_field)) {
+            $types = FormBuilder::$fieldTypes;
 
-                    return view('form_builder.field_edit', compact('form_field', 'types', 'form'));
-                }
-                else
-                {
-                    return redirect()->back()->with('error', __('Field not found.'));
-                }
-            // }
-            // else
-            // {
-            //     return redirect()->back()->with('error', __('Permission Denied.'));
-            // }
+            return view('form_builder.field_edit', compact('form_field', 'types', 'form'));
+        } else {
+            return redirect()->back()->with('error', __('Field not found.'));
+        }
+        // }
+        // else
+        // {
+        //     return redirect()->back()->with('error', __('Permission Denied.'));
+        // }
         // }
         // else
         // {
@@ -517,58 +491,77 @@ class FormBuildersController extends Controller
 
     public function fieldUpdate($id, $field_id, Request $request)
     {
+        // dd($field_id, $id, $request->all());
         $usr = \Auth::user();
         // if($usr->can('edit form field'))
         // {
-            $form = FormBuilder::find($id);
-            // if($form->created_by == $usr->creatorId())
-            // {
-                $validator = \Validator::make(
-                    $request->all(), [
-                                       'name' => 'required',
-                                   ]
-                );
-                if($validator->fails())
-                {
-                    $messages = $validator->getMessageBag();
+        $form = FormBuilder::find($id);
+        // if($form->created_by == $usr->creatorId())
+        // {
+        $validator = \Validator::make(
+            $request->all(),
+            [
+                'name' => 'required',
+                'type' => 'required',
+            ]
+        );
+        if ($validator->fails()) {
+            $messages = $validator->getMessageBag();
 
-                    return redirect()->back()->with('error', $messages->first());
-                }
+            return redirect()->back()->with('error', $messages->first());
+        }
 
-                $field = FormField::find($field_id);
-                $field->update(
-                    [
-                        'name' => $request->name,
-                        'type' => $request->type,
-                    ]
-                );
+        $field = FormField::find($field_id);
+        $field->update(
+            [
+                'name' => $request->name,
+                'type' => $request->type,
+            ]
+        );
 
-                return redirect()->back()->with('success', __('Form successfully updated.'));
-            // }
-            // else
-            // {
-            //     return redirect()->back()->with('error', __('Permission Denied.'));
-            // }
+        // return redirect()->back()->with('success', __('Form successfully updated.'));
+        // }
+        // else
+        // {
+        //     return redirect()->back()->with('error', __('Permission Denied.'));
+        // }
         // }
         // else
         // {
         //     return redirect()->back()->with('error', __('Permission denied.'));
         // }
+
+        //return json
+        return response()->json(['success' => __('Form successfully updated.')],200);
     }
 
-            public function generate_form_qr(Request $request, formField $formField)
-        {
-          
-            $formField = FormField::where('form_id', $request->form_id)->get();
+    public function fieldDestroy($id, $field_id, Request $request)
+    {
+        // dd('hello destroy');
+        // $form = FormBuilder::find($id);
 
-            if($formField -> isNotEmpty()){
+        //find the form field and delete
+        // $form = FormBuilder::find($id);
+        $form_field = FormField::find($field_id);
+        $form_field->delete();
+        // return response()->json(['success'=> __('Field successfully deleted.')],200);
+        return redirect()->back()->with('success', __('Field successfully deleted.'));
+
+    }
+
+    public function generate_form_qr(Request $request, formField $formField)
+    {
+
+        $formField = FormField::where('form_id', $request->form_id)->get();
+
+        if ($formField->isNotEmpty()) {
             //dd($formField, $id );
             $url = $request->url;
 
-            
+
             //decode the url
             $url = urldecode($url);
-           
+
             // Create options for QR code generation
             $options = new Options();
             $options->set('defaultFont', 'Courier');
@@ -592,12 +585,10 @@ class FormBuildersController extends Controller
             header('Content-Disposition: attachment; filename="qr_code.png"');
             header('Content-Type: image/png');
             echo $qrCode;
-            } else{
-                 //echo"missing some fields....";
-                // dd($formField, $id);
-                return redirect()->back()->with('error',' Missing fields detected, please add fields.');
-                
-            }
+        } else {
+            //echo"missing some fields....";
+            // dd($formField, $id);
+            return redirect()->back()->with('error', ' Missing fields detected, please add fields.');
         }
-
+    }
 }

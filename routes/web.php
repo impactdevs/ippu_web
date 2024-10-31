@@ -107,8 +107,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('subscribe', [DashboardController::class, 'subscribe']);
     Route::get('pay', [DashboardController::class, 'pay']);
     Route::get('redirect_url', [DashboardController::class, 'redirect_url']);
-    Route::get('redirect_url_events', [mEventsController::class, 'redirect_url']);
-    Route::get('redirect_url_cpds', [mCpdsController::class, 'redirect_url']);
+    Route::any('redirect_url_events', [mEventsController::class, 'redirect_url'])->name('redirect_url_events');
+    Route::any('redirect_url_cpds', [mCpdsController::class, 'redirect_url'])->name('redirect_url_cpds');
     Route::get('cpd_details/{id}', [mCpdsController::class, 'details']);
     Route::resource('jobs', mJobsController::class);
     Route::get('who-we-are', function () {
@@ -198,6 +198,14 @@ Route::post("cpds/attendence/store", [CpdsController::class, 'storeAttendance'])
     Route::get('form_response/{id}', [FormBuildersController::class, 'viewResponse']);
     Route::get('form_builder/{id}/field', [FormBuildersController::class, 'fieldCreate']);
     Route::post('form_builder/{id}/field', [FormBuildersController::class, 'fieldStore']);
+
+    //form field actions
+     Route::post('/form_field/{builderId}/edit/{fieldId}', [FormBuildersController::class,"fieldUpdate"])->name('form.field.edit');
+    // //'route' => ['form.field.destroy', [$formBuilder->id,$field->id]]])
+  Route::delete('/form_field/{builderId}/delete/{fieldId}', [FormBuildersController::class,"fieldDestroy"])->name('form.field.destroy');
+
+
+
     Route::get('/form_response/{id}', [FormBuildersController::class, 'viewResponse'])->name('form.response');
     Route::get('/response/{id}', [FormBuildersController::class, 'responseDetail'])->name('response.detail');
     Route::get('members', [MembersController::class, 'index']);

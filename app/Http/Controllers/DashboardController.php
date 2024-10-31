@@ -87,8 +87,11 @@ class DashboardController extends Controller
 
        public function pay()
     {
+
         try {
             $client = new Client();
+
+
 
             $response = $client->post('https://api.flutterwave.com/v3/payments', [
                 'headers' => [
@@ -103,8 +106,8 @@ class DashboardController extends Controller
                         'consumer_id' => auth()->user()->id,
                         "full_name" => auth()->user()->name,
                         "email" => auth()->user()->email,
-                        "being_payment_for" => "Membership Subscription",
-                        "flw_app_id" => env('FLW_APP_ID'),
+                        "being_payment_for" => "Membership Subscription"
+                        // "flw_app_id" => env('FLW_APP_ID'),
                     ],
                     'customer' => [
                         'email' => auth()->user()->email,
@@ -117,6 +120,7 @@ class DashboardController extends Controller
                     ],
                 ],
             ]);
+
 
             $responseBody = json_decode($response->getBody(), true);
             //check if the request was successful

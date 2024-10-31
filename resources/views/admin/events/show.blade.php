@@ -4,7 +4,7 @@
         <h4 class="mb-sm-0">Events</h4>
 
         <div class="page-title-right">
-            <ol class="breadcrumb m-0">
+            <ol class="m-0 breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ url('dashboard') }}">Dashboard</a></li>
                 <li class="breadcrumb-item"><a href="{{ url('admin/events') }}">Events</a></li>
                 <li class="breadcrumb-item active">{{ $event->name }}</li>
@@ -19,7 +19,7 @@
             <div class="card-body">
                 <h4 class="">{{ $event->name }}</h4>
                 <!-- Nav tabs -->
-                <ul class="nav nav-pills nav-justified mb-3 bg-light" role="tablist">
+                <ul class="mb-3 nav nav-pills nav-justified bg-light" role="tablist">
                     <li class="nav-item waves-effect waves-light">
                         <a class="nav-link active" data-bs-toggle="tab" href="#pill-justified-home-1" role="tab">
                             Details
@@ -48,7 +48,7 @@
                             <div class="col-md-7">
                                 {!! $event->details !!}
                                 <div class="p-1 mb-2 bg-light">
-                                    <div class="d-flex flex-row align-items-center justify-content-between">
+                                    <div class="flex-row d-flex align-items-center justify-content-between">
                                         <div>
                                             <h6 class="text-danger font-weight-bold fw-medium">Start Date</h6>
                                             <span>{{ date('F j, Y, g:i a', strtotime($event->start_date)) }}</span>
@@ -151,16 +151,16 @@
                         <form action="{{ route('events.bulkDownload') }}" method="POST">
                             @csrf
                             <input type="hidden" name="event_id" value="{{ $event->id }}">
-                            <button type="submit" class="btn btn-primary mb-3">Download Bulk Certificates</button>
+                            <button type="submit" class="mb-3 btn btn-primary">Download Bulk Certificates</button>
                         </form>
 
                             <form action="{{ route('events.bulkEmail') }}" method="POST">
                             @csrf
                             <input type="hidden" name="event_id" value="{{ $event->id }}">
-                            <button type="submit" class="btn btn-primary mb-3">Bulk Email Cerificates</button>
+                            <button type="submit" class="mb-3 btn btn-primary">Bulk Email Cerificates</button>
                         </form>
                         <!-- Add New Attendee Button -->
-                        <div class="d-flex justify-content-end mb-3">
+                        <div class="mb-3 d-flex justify-content-end">
                             <button id="addNewAttendeeBtn" class="btn btn-success btn-sm">
                                 Add New Attendee
                             </button>
@@ -182,15 +182,15 @@
                                             <td>{{ $attendence?->user?->email }}</td>
                                             <td>
                                                 <a href="{{ url('admin/events/attendence-email/' . $event->id . '/' . optional($attendence->user)->id) }}"
-                                                    class="btn btn-sm btn-primary mr-2 mb-2">
+                                                    class="mb-2 mr-2 btn btn-sm btn-primary">
                                                     Email Certificate
                                                 </a>
                                                 <a href="{{ url('admin/events/download_certificate/' . $event->id . '/' . $attendence->user->id) }}"
-                                                    class="btn btn-sm btn-warning mb-2">
+                                                    class="mb-2 btn btn-sm btn-warning">
                                                     Download Certificate
                                                 </a>
                                                 <!-- Edit Email Button -->
-                                                <button class="btn btn-sm btn-info mb-2 edit-email-btn"
+                                                <button class="mb-2 btn btn-sm btn-info edit-email-btn"
                                                     data-id="{{ $attendence->id }}"
                                                     data-email="{{ $attendence?->user?->email }}"
                                                     data-name="{{ $attendence?->user?->name }}">
@@ -263,7 +263,7 @@
         function registerAttendee(name, email, membershipNumber) {
             // Use jQuery AJAX to send the data to the server
             $.ajax({
-                url: '{{ route('events.attendence.store') }}', // Make sure this route is correct
+                url: '{{ route('events.attendence.store') }}',
                 type: 'POST',
                 data: {
                     event_id: {{ $event->id }},

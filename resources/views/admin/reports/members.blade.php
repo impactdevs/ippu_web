@@ -4,7 +4,7 @@
     <h4 class="mb-sm-0">Reports</h4>
 
     <div class="page-title-right">
-        <ol class="breadcrumb m-0">
+        <ol class="m-0 breadcrumb">
             <li class="breadcrumb-item"><a href="{{ url('dashboard') }}">Dashboard</a></li>
             <li class="breadcrumb-item active">Member Reports</li>
         </ol>
@@ -13,13 +13,13 @@
 </div>
 @endsection
 @section('content')
-<form class="row mb-3">
+<form class="mb-3 row">
 	<div class="col-md-4">
 		<div class="form-group">
 			<select class="form-control" name="type">
 				<option value="*" {{ (is_null(request('type'))?'': ((request('type') == '*') ? 'selected' : ''))  }}>All Members</option>
-				<option value="1" {{ (is_null(request('type'))?'': ((request('type') == 1) ? 'selected' : ''))  }}>Subscribed</option>
-				<option value="2" {{ (is_null(request('type'))?'': ((request('type') == 2) ? 'selected' : ''))  }}>Not Subscribed</option>
+				<option value="1" {{ (is_null(request('type'))?'': ((request('type') == 1) ? 'selected' : ''))  }}>Paid Up</option>
+				<option value="2" {{ (is_null(request('type'))?'': ((request('type') == 2) ? 'selected' : ''))  }}>Not Paid</option>
 			</select>
 		</div>
 	</div>
@@ -46,7 +46,7 @@
 							<td>{{ $member->name }}</td>
 							<td>{{ $member->address }}</td>
 							<td>{{ $member->phone_no.' '.$member->alt_phone_no }}</td>
-							<td>{{ ($member->subscribed) ? 'Subscribed' : 'Not Subscribed' }}</td>
+							<td>{{ ($member->subscribed) ? 'Paid Up' : 'Not Paid' }}</td>
 						</tr>
 					@endforeach
 				</tbody>
