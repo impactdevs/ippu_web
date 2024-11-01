@@ -120,7 +120,6 @@ class CertificateRequested implements ShouldQueue
 
             // Save the image
             $file_name = 'certificate-generated_' . $this->id . '.png';
-            Log::info(public_path('images/' . $file_name));
             $image->save($directoryPath . '/' . $file_name);
 
             // throw an event to broadcast the certificate
