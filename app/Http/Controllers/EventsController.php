@@ -691,7 +691,7 @@ class EventsController extends Controller
             // Customize certificate details based on event type
             if ($event->event_type == 'Annual') {
                 // $this->customizeAnnualCertificate($image, $event, $name, $membership_number);
-                CertificateRequested::dispatch($event, $name, $membership_number);
+                CertificateRequested::dispatch($event, $name, $id);
             } else {
                 RegularCertificateRequested::dispatch($event, $name, $membership_number, $id);
             }
