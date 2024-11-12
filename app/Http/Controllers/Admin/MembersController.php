@@ -38,7 +38,7 @@ public function getAllUsers()
     {
         $member = User::find($member);
         return view('admin.members.status',compact('member'));
-        
+
     }
 
     public function update_member_status(Request $request)
@@ -96,7 +96,7 @@ public function getAllUsers()
       ]);
 
         set_time_limit(600);
-       
+
        $response = new \stdClass;
        $response->count = 0;
        $response->members = [];
@@ -142,7 +142,7 @@ public function getAllUsers()
                         $year_members_count += 1;
                     }
                 }
-               
+
                 $phone_no = (string) $row["TELEPHONE"];
 
                 if (!empty($phone_no)) {
@@ -157,7 +157,7 @@ public function getAllUsers()
 
                     if (strpos($entry_category, "AF") !== false) {
                        $entry_category = "AFFLIATE";
-                    } 
+                    }
 
                     $exist_category = false;
 
@@ -211,7 +211,7 @@ public function getAllUsers()
                 }
             });
 
-           
+
         return $response;
     }
 
@@ -290,6 +290,7 @@ public function getAllUsers()
     {
         try{
             $member = User::find($id);
+
 
             if ($member) {
                 $member->delete();

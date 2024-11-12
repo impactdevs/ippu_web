@@ -38,7 +38,7 @@
                             @endif
                         </td>
                         <td>{{ $reminder->title }}</td>
-                        <td>{{ $reminder->created_at->diffForHumans() }} ago</td>
+                        <td>{{ $reminder->created_at }} </td>
                         <td>
                             <div class="form-check form-switch form-switch-success">
                                 <input class="form-check-input read_notification" type="checkbox" role="switch" id="SwitchCheck3" value="{{ $reminder->id }}">

@@ -11,36 +11,67 @@ class RemindersController extends Controller
     /**
      * Display a listing of the resource.
      */
+    // public function index(Request $request)
+    // {
+    //     try{
+    //         $reminders = MemberReminder::query();
+
+    //         if ($request->status) {
+    //             $reminders->where('status',$request->status);
+    //         }
+
+    //         $reminders = $reminders->orderBy('id','desc')->get();
+
+    //         if ($request->response && $request->response == "json") {
+    //             return json_encode(['count'=>($reminders->count() > 100) ? "99+" : $reminders->count(),'data'=>$reminders]);
+    //         }
+    //         // $users = \App\Models\User::all();
+
+    //         // foreach ($users as $user) {
+    //         //     $notification = new MemberReminder;
+    //         //     $notification->user_id = \Auth::user()->id;
+    //         //     $notification->title = "A new user has signed up to IPPU";
+    //         //     $notification->member_id = $user->id;
+    //         //     $notification->reminder_date = $user->created_at;
+    //         //     $notification->status = "Unread";
+    //         //     $notification->save();
+    //         // }
+    //         return view('admin.reminders.index',compact('reminders'));
+    //     }catch(\Throwable $ex){
+    //         return $ex;
+    //     }
+    // }
+
     public function index(Request $request)
-    {
-        try{
-            $reminders = MemberReminder::query();
+{
+    try {
+        // Start the query for MemberReminder
+        $reminders = MemberReminder::query();
 
-            if ($request->status) {
-                $reminders->where('status',$request->status);
-            }
-
-            $reminders = $reminders->orderBy('id','desc')->get();
-
-            if ($request->response && $request->response == "json") {
-                return json_encode(['count'=>($reminders->count() > 100) ? "99+" : $reminders->count(),'data'=>$reminders]);
-            }
-            // $users = \App\Models\User::all();
-
-            // foreach ($users as $user) {
-            //     $notification = new MemberReminder;
-            //     $notification->user_id = \Auth::user()->id;
-            //     $notification->title = "A new user has signed up to IPPU";
-            //     $notification->member_id = $user->id;
-            //     $notification->reminder_date = $user->created_at;
-            //     $notification->status = "Unread";
-            //     $notification->save();
-            // }
-            return view('admin.reminders.index',compact('reminders'));
-        }catch(\Throwable $ex){
-            return $ex;
+        // Apply a filter if a status is provided in the request
+        if ($request->status) {
+            $reminders->where('status', $request->status);
         }
+
+        // Order the reminders by the latest created date
+        $reminders = $reminders->orderBy('created_at', 'desc')->get();
+
+        // Return JSON response if requested
+        if ($request->response && $request->response == "json") {
+            return json_encode([
+                'count' => ($reminders->count() > 100) ? "99+" : $reminders->count(),
+                'data' => $reminders
+            ]);
+        }
+
+        // Return the view with reminders
+        return view('admin.reminders.index', compact('reminders'));
+
+    } catch (\Throwable $ex) {
+        return response()->json(['error' => $ex->getMessage()], 500);
     }
+}
+
 
     /**
      * Show the form for creating a new resource.
