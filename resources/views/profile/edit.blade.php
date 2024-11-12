@@ -3,7 +3,7 @@
 <div class="card">
     <div class="card-header">
                 <div class="d-flex flex-row justify-content-center">
-            <h5 class="card-title">Edit Profile</h5>
+            <h5 class="card-title">Member Profile</h5>
             {{-- add a download membership certificate button --}}
             @if($user->latestMembership!=null)
             <a href="{{ url('membership_certificate') }}" class="btn btn-outline-primary ms-auto">Download Membership Certificate</a>

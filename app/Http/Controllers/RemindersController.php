@@ -54,7 +54,9 @@ class RemindersController extends Controller
         }
 
         // Order the reminders by the latest created date
-        $reminders = $reminders->orderBy('created_at', 'desc')->get();
+        $reminders = $reminders->orderBy('created_at', 'desc')
+         ->limit(1000)
+        ->get();
 
         // Return JSON response if requested
         if ($request->response && $request->response == "json") {
