@@ -125,7 +125,7 @@ class CertificateRequested implements ShouldQueue
             // throw an event to broadcast the certificate
             event(new CertificateGenerated($file_name));
         } catch (\Exception $e) {
-            Log::error("Regular certificate generation failed: " . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error("Regular certificate generation failed: " . $e->getMessage());
         }
     }
 

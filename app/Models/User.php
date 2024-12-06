@@ -28,7 +28,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'membership_number',
         'organisation',
         'profile_pic',
-        'dark_mode'
+        'dark_mode',
+        'phone_no',
     ];
 
     /**

@@ -74,27 +74,39 @@
                                     </div>
                                 @endif
                                 @if ($data->end_date == 'Future')
-                                    <form id="registration-form" method="POST">
-                                        <input type="hidden" name="type" value="{{ $data->type }}">
-                                        <input type="hidden" name="id" value="{{ $data->id }}">
-                                        <div class="form-group mb-3 text-start">
-                                            <label>Name</label>
-                                            <input type="text" class="form-control" name="name"
-                                                placeholder="Your name" required>
-                                        </div>
+                                <form id="registration-form" method="POST">
+                                    <input type="hidden" name="type" value="{{ $data->type }}">
+                                    <input type="hidden" name="id" value="{{ $data->id }}">
+                                    <div class="form-group mb-3 text-start">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" name="name"
+                                            placeholder="Your name" required>
+                                    </div>
 
-                                        <div class="form-group mb-3 text-start">
-                                            <label>Email</label>
-                                            <input type="text" class="form-control" name="email"
-                                                placeholder="Email Address" required>
-                                        </div>
+                                    <div class="form-group mb-3 text-start">
+                                        <label>Email</label>
+                                        <input type="text" class="form-control" name="email"
+                                            placeholder="Email Address" required>
+                                    </div>
 
-                                        <div class="">
-                                            <button type="submit" class="" id="register" style="">Register
-                                                attendance</button>
-                                        </div>
+                                    <div class="form-group mb-3 text-start">
+                                        <label>Phone Number</label>
+                                        <input type="text" class="form-control" name="phone_no"
+                                            placeholder="Enter Your Phone Number" required>
+                                    </div>
 
-                                    </form>
+                                    <div class="form-group mb-3 text-start">
+                                        <label>Organization</label>
+                                        <input type="text" class="form-control" name="organisation"
+                                            placeholder="Organisation" required>
+                                    </div>
+
+                                    <div class="">
+                                        <button type="submit" class="" id="register" style="">Register
+                                            attendance</button>
+                                    </div>
+
+                                </form>
 
                                     {{-- message --}}
                                     <div class="mt-3">
@@ -148,6 +160,8 @@
                 const email = $('input[name="email"]').val();
                 const type = $('input[name="type"]').val();
                 const id = $('input[name="id"]').val();
+                const phone_no = $('input[name="phone_no"]').val();
+                const organisation = $('input[name="organisation"]').val();
 
                 const url = '{{ url('direct_attendence_certificate') }}';
 
@@ -161,7 +175,9 @@
                         name: name,
                         email: email,
                         type: type,
-                        id: id
+                        id: id,
+                        phone_no: phone_no,
+                        organisation: organisation
                     },
                     success: function(response) {
                         console.log(response.success);
