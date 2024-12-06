@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('breadcrumb')
     <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-        <h4 class="mb-sm-0">Members</h4>
+        <h4 class="mb-sm-0">Member Transactions</h4>
         <div class="page-title-right">
             <ol class="breadcrumb m-0">
                 <li class="breadcrumb-item"><a href="{{ url('dashboard') }}">Dashboard</a></li>
@@ -17,6 +17,7 @@
             <div class="table-responsive mt-3">
                 <table class="table table-striped table-hover" id="webhooks">
                     <thead>
+                        <th>Date</th>
                         <th>Customer Name</th>
                         <th>Customer Email</th>
                         <th>Transaction ID</th>
@@ -27,6 +28,7 @@
                     <tbody>
                         @foreach ($webhooks as $webhook)
                             <tr>
+                                <td>{{ $webhook->created_at }}</td>
                                 <td>{{ $webhook->customer_name }}</td>
                                 <td>{{ $webhook->customer_email }}</td>
                                 <td>{{ $webhook->transaction_id }}</td>

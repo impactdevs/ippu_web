@@ -9,17 +9,21 @@ use Illuminate\Support\Facades\Log;
 
 class FlutterwaveWebhookController extends Controller
 {
-        public function index()
+    public function index()
     {
-        $webhooks = FlutterwaveWebhook::latest()->get();
+        $webhooks = FlutterwaveWebhook::orderBy('created_at', 'desc')->get();
         return view('webhooks.index', compact('webhooks'));
     }
 
+
     public function handleWebhook(Request $request)
     {
+
+        // return "am here";
         Log::info("webhook invoked");
         // Log the payload for debugging purposes
         // Log the payload for debugging purposes
+        // return $request->all();
         WebhookLog::create([
             'event_type' => $request->input('event'),
             'payload' => json_encode($request->all()),
