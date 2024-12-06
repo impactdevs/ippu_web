@@ -11,7 +11,9 @@ class FlutterwaveWebhookController extends Controller
 {
     public function index()
     {
-        $webhooks = FlutterwaveWebhook::orderBy('created_at', 'desc')->get();
+        $webhooks = FlutterwaveWebhook::latest()->get();
+
+        // dd($webhooks->toArray());
         return view('webhooks.index', compact('webhooks'));
     }
 
