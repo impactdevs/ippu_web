@@ -436,6 +436,7 @@ class EventsController extends Controller
         }
     } else {
         $event = Cpd::find($request->id);
+
         if ($event != null) {
             return $this->direct_cpd_attendance_certificate_parser($user, $event, "cpd");
         } else {
@@ -542,8 +543,8 @@ class EventsController extends Controller
     {
         try {
             // Call CpdCertificateGeneration job to generate the certificate
-            CpdCertificateGeneration::dispatch($event, $user);
-            return response()->json(['success' => true, 'message' => 'The certificate is being processed. You will be notified when it is ready.']);
+            //CpdCertificateGeneration::dispatch($event, $user);
+            return response()->json(['success' => true, 'message' => 'Thank you for your attendance. The certificate will be sent to your email.']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'An error occurred while generating the certificate: ' . $e->getMessage()]);
         }
