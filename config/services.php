@@ -37,4 +37,9 @@ return [
         'redirect' => 'http://127.0.0.1:8000/api/login-by-google',
     ],
 
+    'recaptcha' => [
+        'key' => env('RECAPTCHA_SITE_KEY'),
+        'secret' => env('RECAPTCHA_SECRET_KEY'),
+    ]
+
 ];

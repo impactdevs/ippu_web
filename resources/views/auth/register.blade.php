@@ -75,7 +75,8 @@
     <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
     <!-- custom Css-->
     <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
-    {!! HCaptcha::script() !!}
+    <script async src="https://www.google.com/recaptcha/api.js"></script>
+
 </head>
 
 <body>
@@ -201,7 +202,7 @@
                                                         @endforeach
                                                     </select>
                                                     <div id="description">
-                                                       
+
                                                 </div>
                                             </div>
 
@@ -216,8 +217,9 @@
                                                 <p id="pass-upper" class="invalid fs-12 mb-2">At least <b>uppercase</b> letter (A-Z)</p>
                                                 <p id="pass-number" class="invalid fs-12 mb-0">A least <b>number</b> (0-9)</p>
                                             </div>
-                                            
-                                                {!! HCaptcha::display() !!}
+
+                                                <!-- Google Recaptcha Widget-->
+                                            <div class="g-recaptcha mt-4" data-sitekey={{config('services.recaptcha.key')}}></div>
 
                                             <div class="mt-4">
                                                 <button class="btn btn-success w-100" type="submit">Sign Up</button>
