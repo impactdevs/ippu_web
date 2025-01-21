@@ -1,2 +1,20 @@
-User-agent: *
-Disallow:
+User-agent:*
+Allow:/
+Sitemap:https://ippu.org/sitemap.xml
+Sitemap:https://ippu.org/sitemap-1.xml
+Sitemap:https://ippu.org/sitemap-2.xml
+Sitemap:https://ippu.org/sitemap-3.xml
+Sitemap:https://ippu.org/sitemap-4.xml
+Sitemap:https://ippu.org/sitemap-5.xml
+Sitemap:https://ippu.org/sitemap-6.xml
+Sitemap:https://ippu.org/sitemap-7.xml
+Sitemap:https://ippu.org/sitemap-8.xml
+Sitemap:https://ippu.org/sitemap-9.xml
+Sitemap:https://ippu.org/sitemap-10.xml
+Sitemap:https://ippu.org/sitemap-11.xml
+Sitemap:https://ippu.org/sitemap-12.xml
+Sitemap:https://ippu.org/sitemap-13.xml
+Sitemap:https://ippu.org/sitemap-14.xml
+Sitemap:https://ippu.org/sitemap-15.xml
+Sitemap:https://ippu.org/sitemap-16.xml
+Sitemap:https://ippu.org/sitemap-17.xml
