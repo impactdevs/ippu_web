@@ -611,28 +611,75 @@ class EventsController extends Controller
         }
     }
 
+    // public function downloadCertificate($event_id, $user_id)
+    // {
+    //     try {
+    //         $event = Event::find($event_id);
+    //         $user = User::find($user_id);
+    //         $name = $user->name;
+    //         $membership_number = $user->membership_number ?? 'N/A';
+    //         $id = $user->id;
+
+    //         // Customize certificate details based on event type
+    //         if ($event->event_type == 'Annual') {
+    //             // $this->customizeAnnualCertificate($image, $event, $name, $membership_number);
+    //             CertificateRequested::dispatch($event, $name, $id);
+    //         } else {
+    //             RegularCertificateRequested::dispatch($event, $name, $membership_number, $id);
+    //         }
+
+    //         // download certificate using download method
+    //         return response()->download(public_path('images/certificate-generated_' . $id . '.png'))->deleteFileAfterSend(true);
+
+    //     } catch (\Exception $e) {
+    //         return response()->json(['success' => false, 'message' => 'An error occurred while generating the certificate: ' . $e->getMessage()]);
+    //     }
+    // }
+
     public function downloadCertificate($event_id, $user_id)
     {
         try {
+            $manager = new ImageManager(new Driver());
             $event = Event::find($event_id);
-            $user = User::find($user_id);
+            $user = \App\Models\User::find($user_id);
             $name = $user->name;
-            $membership_number = $user->membership_number ?? 'N/A';
+            $membership_number = $user->membership_number;
             $id = $user->id;
+
+
+
+            $formattedRange = Carbon::parse($event->start_date)->format('jS F Y') . ' - ' . Carbon::parse($event->end_date)->format('jS F Y');
+
+            // Determine the template based on event type
+            $templatePath = $event->event_type == 'Annual' ? public_path('images/event_annual_certificate.jpeg') : public_path('images/certificate-template.jpeg');
+            if (!file_exists($templatePath)) {
+                throw new \Exception('Certificate template not found.');
+            }
+
+            $image = $manager->read($templatePath);
 
             // Customize certificate details based on event type
             if ($event->event_type == 'Annual') {
-                // $this->customizeAnnualCertificate($image, $event, $name, $membership_number);
-                CertificateRequested::dispatch($event, $name, $id);
+                $this->customizeAnnualCertificate($image, $event, $name, $membership_number);
             } else {
-                RegularCertificateRequested::dispatch($event, $name, $membership_number, $id);
+                $this->customizeRegularCertificate($image, $event, $name, $membership_number);
             }
 
-            // download certificate using download method
-            return response()->download(public_path('images/certificate-generated_' . $id . '.png'))->deleteFileAfterSend(true);
+            $file_name = 'certificate-generated_' . $id . '.png';
+            $image->save(public_path('images/' . $file_name));
 
+            // Send the certificate via email
+            $path = public_path('images/' . $file_name);
+
+
+            //download the image
+            return response()->download(public_path('images/' . $file_name))->deleteFileAfterSend(true);
+            // // Optionally, delete the certificate after sending the email
+            // unlink($path);
+
+            // return redirect()->back()->with('success', 'Certificate generated and emailed successfully.');
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'An error occurred while generating the certificate: ' . $e->getMessage()]);
+            return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());
         }
     }
 

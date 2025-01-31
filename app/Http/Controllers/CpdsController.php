@@ -359,7 +359,6 @@ class CpdsController extends Controller
             // Return the certificate for download
             return response()->download($path)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            dd($e->getMessage());
             // Handle any errors that occur during the certificate generation
             return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());
         }
