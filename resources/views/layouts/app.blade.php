@@ -1245,6 +1245,28 @@
                 ]
             });
 
+            //download event Certificate
+            $(".download-event-certificate").click(function() {
+                var url = $(this).attr('data-url');
+
+                $.ajax({
+                    url: url,
+                    success: function(data) {
+                        console.log(data);
+                        var a = document.createElement('a');
+                        a.href = data.url;
+                        a.download = data.name;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    },
+                    error: function(data) {
+                        data = data.responseJSON;
+                        console.log(data);
+                    }
+                });
+            });
+
 
             $(".datatable").DataTable({
                 dom: 'Bfrltip', // 'B' for buttons, 'f' for filtering, 'r' for processing, 't' for table, 'i' for info, 'p' for pagination

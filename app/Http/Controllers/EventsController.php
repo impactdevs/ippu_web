@@ -641,7 +641,7 @@ class EventsController extends Controller
         try {
             $manager = new ImageManager(new Driver());
             $event = Event::find($event_id);
-            $user = \App\Models\User::find($user_id);
+            $user = User::find($user_id);
             $name = $user->name;
             $membership_number = $user->membership_number;
             $id = $user->id;
@@ -673,7 +673,12 @@ class EventsController extends Controller
 
             //check if the file exists and is readable and send the file
             if (file_exists($path) && is_readable($path)) {
-                return response(["data" => $path], 200);
+                return response([
+                    "success" => true,
+                    "message" => "Certificate generated successfully.",
+                    "url" => url('images/' . $file_name),
+                    "name"=>$name
+                ]);
             } else {
                 return redirect()->back()->with('error', 'An error occurred while downloading the certificate.');
             }

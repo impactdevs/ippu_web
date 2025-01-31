@@ -356,8 +356,17 @@ class CpdsController extends Controller
             $path = public_path('certificates/' . $user->id . '_certificate.png');
             $image->save($path);
 
-            // Return the certificate for download
-            return response()->download($path);
+              //check if the file exists and is readable and send the file
+              if (file_exists($path) && is_readable($path)) {
+                return response([
+                    "success" => true,
+                    "message" => "Certificate generated successfully.",
+                    "url" => url('certificates/' . $user->id . '_certificate.png'),
+                    "name"=>$user->name
+                ]);
+            } else {
+                return redirect()->back()->with('error', 'An error occurred while downloading the certificate.');
+            }
         } catch (\Exception $e) {
             // Handle any errors that occur during the certificate generation
             return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());

@@ -180,7 +180,7 @@
                             <button type="submit" class="btn btn-primary mb-3">Download Bulk Certificates</button>
                         </form>
 
-                             <form action="{{ route('cpds.bulkEmail') }}" method="POST">
+                        <form action="{{ route('cpds.bulkEmail') }}" method="POST">
                             @csrf
                             <input type="hidden" name="cpd_id" value="{{ $cpd->id }}">
                             <!-- Add more hidden inputs for other user IDs as needed -->
@@ -216,26 +216,29 @@
                                                 </button>
                                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                                     <li>
-                                            <a href="{{ url('admin/cpds/attendence-email/' . $cpd->id . '/' . $attendence->user->id) }}"
-                                                class="btn btn-sm btn-primary mr-2 mb-2">
-                                                Email Certificate
-                                            </a>
+                                                        <a href="{{ url('admin/cpds/attendence-email/' . $cpd->id . '/' . $attendence->user->id) }}"
+                                                            class="btn btn-sm btn-primary mr-2 mb-2">
+                                                            Email Certificate
+                                                        </a>
                                                     </li>
                                                     <li>
-                                            <a href="{{ url('admin/cpds/download_certificate/' . $cpd->id . '/' . $attendence->user->id) }}"
-                                                class="btn btn-sm btn-warning mb-2">
-                                                Download
-                                            </a>
+
+
+                                                        <button
+                                                            class="mb-2 btn btn-sm btn-warning download-event-certificate"
+                                                            data-url="{{ url('admin/cpds/download_certificate/' . $cpd->id . '/' . $attendence->user->id) }}">
+                                                            Download Certificate
+                                                        </button>
                                                     </li>
 
                                                     <li>
-                                            <!-- Edit Email Button -->
-                                            <button class="btn btn-sm btn-info mb-2 edit-email-btn"
-                                                data-id="{{ $attendence->id }}"
-                                                data-email="{{ $attendence?->user?->email }}"
-                                                data-name="{{ $attendence?->user?->name }}">
-                                                Edit Details
-                                            </button>
+                                                        <!-- Edit Email Button -->
+                                                        <button class="btn btn-sm btn-info mb-2 edit-email-btn"
+                                                            data-id="{{ $attendence->id }}"
+                                                            data-email="{{ $attendence?->user?->email }}"
+                                                            data-name="{{ $attendence?->user?->name }}">
+                                                            Edit Details
+                                                        </button>
 
                                                     </li>
                                                 </ul>
@@ -360,15 +363,15 @@
         }
     </script>
 
- <script>
-    $(document).on('click', '.edit-email-btn', function() {
-        var attendenceId = $(this).data('id');
-        var currentEmail = $(this).data('email');
-        var currentName = $(this).data('name');
+    <script>
+        $(document).on('click', '.edit-email-btn', function() {
+            var attendenceId = $(this).data('id');
+            var currentEmail = $(this).data('email');
+            var currentName = $(this).data('name');
 
-        Swal.fire({
-            title: 'Edit Attendee Details',
-            html: `
+            Swal.fire({
+                title: 'Edit Attendee Details',
+                html: `
                 <form id="editEmailForm">
                    <div class="mb-3">
                         <label for="attendeeName" class="form-label">Attendee Name</label>
@@ -380,73 +383,73 @@
                     </div>
                 </form>
             `,
-            showCancelButton: true,
-            confirmButtonText: 'Update Details',
-            preConfirm: function() {
-                var newEmail = $('#attendeeEmail').val();
-                var newName = $('#attendeeName').val();
+                showCancelButton: true,
+                confirmButtonText: 'Update Details',
+                preConfirm: function() {
+                    var newEmail = $('#attendeeEmail').val();
+                    var newName = $('#attendeeName').val();
 
-                if (!newEmail) {
-                    Swal.showValidationMessage('Please enter a new email');
-                    return false;
-                }
-
-                if (!newName) {
-                    Swal.showValidationMessage('Please enter a name');
-                    return false;
-                }
-
-                return {
-                    newEmail: newEmail,
-                    newName: newName // Correctly returning newName here
-                };
-            }
-        }).then(function(result) {
-            if (result.isConfirmed) {
-                var data = result.value;
-                // Send the data to the server to update the email and name
-                updateAttendeeEmail(attendenceId, data.newEmail, data.newName);
-            }
-        });
-    });
-
-    function updateAttendeeEmail(attendenceId, newEmail, newName) {
-        // Use jQuery AJAX to send the data to the server
-        $.ajax({
-            url: '{{ route('cpds.attendence.updateEmail') }}', // Make sure this route is correct
-            type: 'POST',
-            data: {
-                attendence_id: attendenceId,
-                email: newEmail,
-                name: newName
-            },
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}' // Include CSRF token for Laravel
-            },
-            beforeSend: function() {
-                Swal.fire({
-                    title: 'Updating Details...',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    didOpen: () => {
-                        Swal.showLoading();
+                    if (!newEmail) {
+                        Swal.showValidationMessage('Please enter a new email');
+                        return false;
                     }
-                });
-            },
-            success: function(response) {
-                if (response.success) {
-                    Swal.fire('Success', 'Info has been updated!', 'success').then(function() {
-                        location.reload(); // Reload the page to see the changes
-                    });
-                } else {
-                    Swal.fire('Error', response.message || 'There was an error updating the email.', 'error');
-                }
-            },
-            error: function() {
-                Swal.fire('Error', 'Failed to update email. Please try again later.', 'error');
-            }
-        });
-    }
-</script>
 
+                    if (!newName) {
+                        Swal.showValidationMessage('Please enter a name');
+                        return false;
+                    }
+
+                    return {
+                        newEmail: newEmail,
+                        newName: newName // Correctly returning newName here
+                    };
+                }
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    var data = result.value;
+                    // Send the data to the server to update the email and name
+                    updateAttendeeEmail(attendenceId, data.newEmail, data.newName);
+                }
+            });
+        });
+
+        function updateAttendeeEmail(attendenceId, newEmail, newName) {
+            // Use jQuery AJAX to send the data to the server
+            $.ajax({
+                url: '{{ route('cpds.attendence.updateEmail') }}', // Make sure this route is correct
+                type: 'POST',
+                data: {
+                    attendence_id: attendenceId,
+                    email: newEmail,
+                    name: newName
+                },
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // Include CSRF token for Laravel
+                },
+                beforeSend: function() {
+                    Swal.fire({
+                        title: 'Updating Details...',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire('Success', 'Info has been updated!', 'success').then(function() {
+                            location.reload(); // Reload the page to see the changes
+                        });
+                    } else {
+                        Swal.fire('Error', response.message || 'There was an error updating the email.',
+                            'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Failed to update email. Please try again later.', 'error');
+                }
+            });
+        }
+    </script>
 @endsection
