@@ -1234,6 +1234,18 @@
                 $(".dataTable").DataTable().destroy();
 
             }
+
+            $(".dataTable").DataTable({
+                dom: 'Bfrltip', // 'B' for buttons, 'f' for filtering, 'r' for processing, 't' for table, 'i' for info, 'p' for pagination
+                buttons: [
+                    'copy',
+                    'excel',
+                    'csv',
+                    'pdf'
+                ]
+            });
+
+
             $(".datatable").DataTable({
                 dom: 'Bfrltip', // 'B' for buttons, 'f' for filtering, 'r' for processing, 't' for table, 'i' for info, 'p' for pagination
                 buttons: [
