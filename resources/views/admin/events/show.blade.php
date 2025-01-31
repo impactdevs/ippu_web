@@ -195,10 +195,12 @@
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <a href="{{ url('admin/events/download_certificate/' . $event->id . '/' . $attendence->user->id) }}"
-                                                                class="mb-2 btn btn-sm btn-warning">
-                                                                Download Certificate
-                                                            </a>
+
+                                                            <button class="mb-2 btn btn-sm btn-warning download-event-certificate"
+                                                            data-url="{{ url('admin/events/download_certificate/' . $event->id . '/' . $attendence->user->id) }}"
+                                                            >
+                                                            Download Certificate
+                                                        </button>
                                                         </li>
                                                         <li>
                                                             <!-- Edit Email Button -->

@@ -222,8 +222,6 @@
                                                         </a>
                                                     </li>
                                                     <li>
-
-
                                                         <button
                                                             class="mb-2 btn btn-sm btn-warning download-event-certificate"
                                                             data-url="{{ url('admin/cpds/download_certificate/' . $cpd->id . '/' . $attendence->user->id) }}">
