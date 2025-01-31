@@ -1228,15 +1228,12 @@
 
             $(".select2").select2();
 
-            $(".dataTable").DataTable({
-                dom: 'Bfrltip', // 'B' for buttons, 'f' for filtering, 'r' for processing, 't' for table, 'i' for info, 'p' for pagination
-                buttons: [
-                    'copy',
-                    'excel',
-                    'csv',
-                    'pdf'
-                ]
-            });
+            // Check if the DataTable instance already exists
+            if ($.fn.DataTable.isDataTable(".dataTable")) {
+                // Destroy the existing DataTable instance
+                $(".dataTable").DataTable().destroy();
+
+            }
             $(".datatable").DataTable({
                 dom: 'Bfrltip', // 'B' for buttons, 'f' for filtering, 'r' for processing, 't' for table, 'i' for info, 'p' for pagination
                 buttons: [
