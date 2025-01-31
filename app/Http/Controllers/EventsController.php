@@ -628,13 +628,9 @@ class EventsController extends Controller
                 RegularCertificateRequested::dispatch($event, $name, $membership_number, $id);
             }
 
-            // $file_name = 'certificate-generated_' . $id . '.png';
-            // $image->save(public_path('images/' . $file_name));
+            // download certificate using download method
+            return response()->download(public_path('images/certificate-generated_' . $id . '.png'))->deleteFileAfterSend(true);
 
-            // Download the generated certificate
-            // return view('waiting', compact('event', 'user'));
-            //dont navigate anywhere
-            return response()->json(['success' => true, 'message' => 'The certificate is being processed. You will be notified when it is ready.']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'An error occurred while generating the certificate: ' . $e->getMessage()]);
         }
