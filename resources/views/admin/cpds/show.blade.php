@@ -224,7 +224,7 @@
                                                     <li>
                                             <a href="{{ url('admin/cpds/download_certificate/' . $cpd->id . '/' . $attendence->user->id) }}"
                                                 class="btn btn-sm btn-warning mb-2">
-                                                Download Certificate
+                                                Download
                                             </a>
                                                     </li>
 
