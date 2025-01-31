@@ -208,15 +208,27 @@
                                         <td>{{ $attendence->user->phone_no }}</td>
                                         <td>{{ $attendence->user->email }}</td>
                                         <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+                                                    id="dropdownMenuButton" data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                    <li>
                                             <a href="{{ url('admin/cpds/attendence-email/' . $cpd->id . '/' . $attendence->user->id) }}"
                                                 class="btn btn-sm btn-primary mr-2 mb-2">
                                                 Email Certificate
                                             </a>
+                                                    </li>
+                                                    <li>
                                             <a href="{{ url('admin/cpds/download_certificate/' . $cpd->id . '/' . $attendence->user->id) }}"
                                                 class="btn btn-sm btn-warning mb-2">
                                                 Download Certificate
                                             </a>
+                                                    </li>
 
+                                                    <li>
                                             <!-- Edit Email Button -->
                                             <button class="btn btn-sm btn-info mb-2 edit-email-btn"
                                                 data-id="{{ $attendence->id }}"
@@ -224,6 +236,10 @@
                                                 data-name="{{ $attendence?->user?->name }}">
                                                 Edit Details
                                             </button>
+
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach

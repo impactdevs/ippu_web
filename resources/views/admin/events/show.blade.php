@@ -154,7 +154,7 @@
                             <button type="submit" class="mb-3 btn btn-primary">Download Bulk Certificates</button>
                         </form>
 
-                            <form action="{{ route('events.bulkEmail') }}" method="POST">
+                        <form action="{{ route('events.bulkEmail') }}" method="POST">
                             @csrf
                             <input type="hidden" name="event_id" value="{{ $event->id }}">
                             <button type="submit" class="mb-3 btn btn-primary">Bulk Email Cerificates</button>
@@ -181,22 +181,37 @@
                                             <td>{{ $attendence?->user?->phone_no }}</td>
                                             <td>{{ $attendence?->user?->email }}</td>
                                             <td>
-                                                <a href="{{ url('admin/events/attendence-email/' . $event->id . '/' . optional($attendence->user)->id) }}"
-                                                    class="mb-2 mr-2 btn btn-sm btn-primary">
-                                                    Email Certificate
-                                                </a>
-                                                <a href="{{ url('admin/events/download_certificate/' . $event->id . '/' . $attendence->user->id) }}"
-                                                    class="mb-2 btn btn-sm btn-warning">
-                                                    Download Certificate
-                                                </a>
-                                                <!-- Edit Email Button -->
-                                                <button class="mb-2 btn btn-sm btn-info edit-email-btn"
-                                                    data-id="{{ $attendence->id }}"
-                                                    data-email="{{ $attendence?->user?->email }}"
-                                                    data-name="{{ $attendence?->user?->name }}">
+                                                <div class="dropdown">
+                                                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+                                                        id="dropdownMenuButton" data-bs-toggle="dropdown"
+                                                        aria-expanded="false">
+                                                        Actions
+                                                    </button>
+                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                        <li>
+                                                            <a href="{{ url('admin/events/attendence-email/' . $event->id . '/' . optional($attendence->user)->id) }}"
+                                                                class="mb-2 mr-2 btn btn-sm btn-primary">
+                                                                Email Certificate
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="{{ url('admin/events/download_certificate/' . $event->id . '/' . $attendence->user->id) }}"
+                                                                class="mb-2 btn btn-sm btn-warning">
+                                                                Download Certificate
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <!-- Edit Email Button -->
+                                                            <button class="mb-2 btn btn-sm btn-info edit-email-btn"
+                                                                data-id="{{ $attendence->id }}"
+                                                                data-email="{{ $attendence?->user?->email }}"
+                                                                data-name="{{ $attendence?->user?->name }}">
 
-                                                    Edit Details
-                                                </button>
+                                                                Edit Details
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -303,15 +318,15 @@
         }
     </script>
 
-<script>
-    $(document).on('click', '.edit-email-btn', function() {
-        var attendenceId = $(this).data('id');
-        var currentEmail = $(this).data('email');
-        var currentName = $(this).data('name'); // Retrieve the current name
+    <script>
+        $(document).on('click', '.edit-email-btn', function() {
+            var attendenceId = $(this).data('id');
+            var currentEmail = $(this).data('email');
+            var currentName = $(this).data('name'); // Retrieve the current name
 
-        Swal.fire({
-            title: 'Edit Attendee Details',
-            html: `
+            Swal.fire({
+                title: 'Edit Attendee Details',
+                html: `
             <form id="editEmailForm">
                 <div class="mb-3">
                     <label for="attendeeName" class="form-label">Attendee Name</label>
@@ -323,73 +338,73 @@
                 </div>
             </form>
         `,
-            showCancelButton: true,
-            confirmButtonText: 'Update Details',
-            preConfirm: function() {
-                var newEmail = $('#attendeeEmail').val();
-                var newName = $('#attendeeName').val(); // Get the new name
+                showCancelButton: true,
+                confirmButtonText: 'Update Details',
+                preConfirm: function() {
+                    var newEmail = $('#attendeeEmail').val();
+                    var newName = $('#attendeeName').val(); // Get the new name
 
-                if (!newEmail) {
-                    Swal.showValidationMessage('Please enter a new email');
-                    return false;
-                }
-
-                if (!newName) {
-                    Swal.showValidationMessage('Please enter a new name');
-                    return false;
-                }
-
-                return {
-                    newEmail: newEmail,
-                    newName: newName
-                };
-            }
-        }).then(function(result) {
-            if (result.isConfirmed) {
-                var data = result.value;
-                // Send the data to the server to update the email and name
-                updateAttendeeDetails(attendenceId, data.newEmail, data.newName);
-            }
-        });
-    });
-
-    function updateAttendeeDetails(attendenceId, newEmail, newName) {
-        // Use jQuery AJAX to send the data to the server
-        $.ajax({
-            url: '{{ route('events.attendence.updateEmail') }}', // Ensure this route is correct
-            type: 'POST',
-            data: {
-                attendence_id: attendenceId,
-                email: newEmail,
-                name: newName // Send the name along with the email
-            },
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}' // Include CSRF token for Laravel
-            },
-            beforeSend: function() {
-                Swal.fire({
-                    title: 'Updating Details...',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    didOpen: () => {
-                        Swal.showLoading();
+                    if (!newEmail) {
+                        Swal.showValidationMessage('Please enter a new email');
+                        return false;
                     }
-                });
-            },
-            success: function(response) {
-                if (response.success) {
-                    Swal.fire('Success', 'Details have been updated!', 'success').then(function() {
-                        location.reload(); // Reload the page to see the changes
-                    });
-                } else {
-                    Swal.fire('Error', response.message || 'There was an error updating the details.', 'error');
-                }
-            },
-            error: function() {
-                Swal.fire('Error', 'Failed to update details. Please try again later.', 'error');
-            }
-        });
-    }
-</script>
 
+                    if (!newName) {
+                        Swal.showValidationMessage('Please enter a new name');
+                        return false;
+                    }
+
+                    return {
+                        newEmail: newEmail,
+                        newName: newName
+                    };
+                }
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    var data = result.value;
+                    // Send the data to the server to update the email and name
+                    updateAttendeeDetails(attendenceId, data.newEmail, data.newName);
+                }
+            });
+        });
+
+        function updateAttendeeDetails(attendenceId, newEmail, newName) {
+            // Use jQuery AJAX to send the data to the server
+            $.ajax({
+                url: '{{ route('events.attendence.updateEmail') }}', // Ensure this route is correct
+                type: 'POST',
+                data: {
+                    attendence_id: attendenceId,
+                    email: newEmail,
+                    name: newName // Send the name along with the email
+                },
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // Include CSRF token for Laravel
+                },
+                beforeSend: function() {
+                    Swal.fire({
+                        title: 'Updating Details...',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire('Success', 'Details have been updated!', 'success').then(function() {
+                            location.reload(); // Reload the page to see the changes
+                        });
+                    } else {
+                        Swal.fire('Error', response.message || 'There was an error updating the details.',
+                            'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Failed to update details. Please try again later.', 'error');
+                }
+            });
+        }
+    </script>
 @endsection
