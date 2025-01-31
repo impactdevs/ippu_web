@@ -1,56 +1,4 @@
-{{-- <x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
-
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ml-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
---}}
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable">
 
 
@@ -113,7 +61,7 @@
                                                     </div>
                                                     <div class="carousel-inner text-center text-white-50 pb-5">
                                                         <div class="carousel-item active">
-                                                            <h5 class="fs-15 text-white-50">Who we are</h5>
+                                                            <h5 class="fs-15 text-white-50">Who we are??</h5>
                                                             <p class="fs-15 fst-italic">The Institute of Procurement Professionals of Uganda (IPPU) is a professional body that was established to bring together both the public and private sector procurement and supply chain professionals in Uganda. The idea to form IPPU was because of the growing concern to have in place an institutional self-regulating framework, which could ensure that procurement professionals and practitioners in Uganda conducted themselves professionally and maintained best procurement practices in carrying out their work.</p>
                                                             <p class="fs-15 fst-italic">Since 2005 there were various meetings and consultations which where spear headed by the Public Procurement and Disposal of Public Assets Authority (PPDA), Ministry of Finance, Planning and Economic Development (MOFPED) and various development partners. this led to the formation of a committee which was given the mandate to promote a local professional body after a series of these consultations with various stakeholders, IPPU was incorporated as a company limited by guarantee on the 4th April 2008, together with the election of an interim council in May 2008. The interim council was to be the governing body of the institute. The organization’s main objective is to prescribe, regulate the practice and conduct of members of the procurement profession and to promote procurement professional standards in Uganda</p>
                                                         </div>
