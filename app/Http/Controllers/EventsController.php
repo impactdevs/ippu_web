@@ -671,11 +671,12 @@ class EventsController extends Controller
             // Send the certificate via email
             $path = public_path('images/' . $file_name);
 
-
-            //download the image
-            return response()->download(public_path('images/' . $file_name))->deleteFileAfterSend(true);
-            // // Optionally, delete the certificate after sending the email
-            // unlink($path);
+            //check if the file exists and is readable and send the file
+            if (file_exists($path) && is_readable($path)) {
+                return response(["data" => $path], 200);
+            } else {
+                return redirect()->back()->with('error', 'An error occurred while downloading the certificate.');
+            }
 
             // return redirect()->back()->with('success', 'Certificate generated and emailed successfully.');
         } catch (\Exception $e) {
@@ -767,14 +768,8 @@ class EventsController extends Controller
             $font->valign('middle');
         });
 
-        // Membership Number Placement
-        // $image->text(($membership_number ?? 'N/A'), 1900, 2000, function ($font) {
-        //     $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-        //     $font->color('#405189'); // Blue color
-        //     $font->size(45);
-        //     $font->align('center');
-        //     $font->valign('middle');
-        // });
+        // convert the image to png
+        $image->toPng();
     }
 
     // Helper method for customizing a regular event certificate
@@ -855,6 +850,9 @@ class EventsController extends Controller
             $font->valign('middle');
             $font->lineHeight(1.6);
         });
+
+        //convert the image to png
+        $image->toPng();
     }
 
 
