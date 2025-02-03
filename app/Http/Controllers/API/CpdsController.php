@@ -98,10 +98,10 @@ class CpdsController extends Controller
 
         $cpdsWithAttendance = [];
 
-        foreach ($cpds as $cpd){
+        foreach ($cpds as $cpd) {
             $attendanceRequest = Attendence::where('cpd_id', $cpd->id)
-            ->where('user_id', $userId)
-            ->exists();
+                ->where('user_id', $userId)
+                ->exists();
 
             $cpd->attendance_request = $attendanceRequest;
 
@@ -119,7 +119,7 @@ class CpdsController extends Controller
         $cpds = Cpd::whereHas('attended')->get();
 
         //attach attendance details
-        foreach ($cpds as $cpd){
+        foreach ($cpds as $cpd) {
             $cpd->attendance_status = Attendence::where('cpd_id', $cpd->id)->first()->status;
         }
 
@@ -149,96 +149,64 @@ class CpdsController extends Controller
         }
     }
 
-        public function generate_certificate($event){
+    public function generate_certificate($event)
+    {
         $manager = new ImageManager(new Driver());
         //read the image from the public folder
-        $image = $manager->read(public_path('images/cpd-certificate-template.jpg'));
-
+        // Load the certificate template
+        $image = $manager->read(public_path('images/cpd_template.jpeg'));
         $event = Cpd::find($event);
         $user = auth()->user();
 
-        $image->text($event->code, 173, 27, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#000000');
+
+
+        // Add details to the certificate
+        $image->text($event->code, 180, 85, function ($font) {
+            $font->file(public_path('fonts/Roboto-Bold.ttf'));
             $font->size(20);
+            $font->color('#000000');
             $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
         });
 
-        $image->text($user->name, 780, 550, function ($font) {
-            $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
-            $font->color('#1F45FC');
+        $image->text($user->name, 780, 625, function ($font) {
+            $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
             $font->size(45);
+            $font->color('#1F45FC');
             $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
         });
 
-        $image->text('Attended a Continuing Professional Development(CPD) activity', 760, 620, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
+        $image->text($event->topic, 850, 770, function ($font) {
+            $font->file(public_path('fonts/Roboto-Bold.ttf'));
+            $font->size(25);
             $font->color('#000000');
-            $font->size(20);
             $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
         });
-
-       //add event name
-        $image->text('"'.$event->topic.'"', 730, 690, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#000000');
-            $font->size(20);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
 
         $startDate = Carbon::parse($event->start_date);
         $endDate = Carbon::parse($event->end_date);
 
-        if ($startDate->month === $endDate->month) {
-            $x=720;
-            // Dates are in the same month
-            $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
-        } else {
-            $x=780;
-            // Dates are in different months
-            $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
-        }
+        $x = ($startDate->month === $endDate->month) ? 720 : 780;
+        $formattedRange = ($startDate->month === $endDate->month)
+            ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
+            : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
 
-
-        $image->text('on ', 600, 760, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#000000');
+        $image->text($formattedRange, $x, 825, function ($font) {
+            $font->file(public_path('fonts/Roboto-Bold.ttf'));
             $font->size(20);
+            $font->color('#000000');
             $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
         });
 
-        $image->text($formattedRange, $x, 760, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#000000');
-            $font->size(20);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text($event->hours."CPD HOURS", 1400, 945, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#000000');
+        $image->text($event->hours . " CPD HOURS", 1400, 1020, function ($font) {
+            $font->file(public_path('fonts/Roboto-Bold.ttf'));
             $font->size(17);
+            $font->color('#000000');
             $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
         });
 
         $image->toPng();
 
-               $filePath = public_path('images/certificate-generated' . $user->id . '.png');
+        $filePath = public_path('images/certificate-generated' . $user->id . '.png');
 
         //get the image url
         $imageUrl = url('images/certificate-generated' . $user->id . '.png');

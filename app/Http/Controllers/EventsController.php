@@ -514,7 +514,7 @@ class EventsController extends Controller
             $formattedRange = Carbon::parse($event->start_date)->format('jS F Y') . ' - ' . Carbon::parse($event->end_date)->format('jS F Y');
 
             // Determine the template based on event type
-            $templatePath = $event->event_type == 'Annual' ? public_path('images/event_annual_certificate.jpeg') : public_path('images/certificate-template.jpeg');
+            $templatePath = public_path('images/event_annual_certificate.jpeg');
             if (!file_exists($templatePath)) {
                 throw new \Exception('Certificate template not found.');
             }

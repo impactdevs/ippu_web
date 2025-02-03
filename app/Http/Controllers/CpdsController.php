@@ -384,7 +384,7 @@ class CpdsController extends Controller
             $user = \App\Models\User::find($user_id);
 
             // Load the certificate template
-            $image = $manager->read(public_path('images/cpd-certificate-template.jpg'));
+            $image = $manager->read(public_path('images/cpd_template.jpeg'));
 
             // Add details to the certificate
             $image->text($event->code, 173, 27, function ($font) {
