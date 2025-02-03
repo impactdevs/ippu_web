@@ -74,73 +74,6 @@ class EventsController extends Controller
         }
     }
 
-    // public function pay($id = ''){
-    //     try {
-    //         $client = new Client();
-    //         $event = Event::find($id);
-
-    //        $details =   [
-    //             'tx_ref' => Str::uuid(),
-    //             'amount' => $event->rate,
-    //             'currency' => 'UGX',
-    //             'redirect_url' => url('redirect_url_events') . '?event_id=' . $event->id,
-    //             'meta' => [
-    //                 'consumer_id' => auth()->user()->id,
-    //                 "full_name" => auth()->user()->name,
-    //                 "email" => auth()->user()->email,
-    //                 "being_payment_for" => "Attendance of Event",
-    //                 "event_id" => $event->id,
-    //                 "event_topic" => $event->name,
-    //                 "flw_app_id" => env('FLW_APP_ID'),
-    //             ],
-    //             'customer' => [
-    //                 'email' => auth()->user()->email,
-    //                 'phonenumber' => auth()->user()->phone_no,
-    //                 'name' => auth()->user()->name,
-    //             ],
-    //             'customizations' => [
-    //                 'title' => 'IPP Membership APP',
-    //                 'logo' => 'https://ippu.or.ug/wp-content/uploads/2020/03/cropped-Logo-192x192.png',
-    //             ],
-    //         ];
-
-    //         $response = Http::withHeaders([
-    //             'Authorization' => 'Bearer ' . env('FLW_SECRET_KEY'),
-    //             'Content-Type' => 'application/json',
-    //         ])->post('https://api.flutterwave.com/v3/payments', [
-    //             'tx_ref' => Str::uuid(),
-    //             'amount' => $event->rate,
-    //             'currency' => 'UGX',
-    //             'redirect_url' => 'https://example_company.com/success',
-    //             'customer' => [
-    //                 'email' => auth()->user()->email,
-    //                 'phonenumber' => auth()->user()->phone_no,
-    //                 'name' => auth()->user()->name,
-    //             ],
-    //             'customizations' => [
-    //                 'title' => 'IPP Membership APP',
-    //                 'logo' => 'https://ippu.or.ug/wp-content/uploads/2020/03/cropped-Logo-192x192.png',
-    //             ],
-    //         ]);
-
-    //         // dd($response);
-
-    //         if ($response->successful()) {
-    //             // Handle successful response
-    //             $data = $response->json();
-    //             dd($data);
-    //         } else {
-    //             // Handle failed response
-    //             $data = $response->json();
-    //             Log::error('Flutterwave Payment Error', $data);
-    //         }
-    //     } catch (\Exception $e) {
-    //         Log::error('Request failed', [
-    //             'error' => $e->getMessage()
-    //         ]);
-    //     }
-    // }
-
     public function pay($id = '')
     {
         try {
@@ -611,30 +544,6 @@ class EventsController extends Controller
         }
     }
 
-    // public function downloadCertificate($event_id, $user_id)
-    // {
-    //     try {
-    //         $event = Event::find($event_id);
-    //         $user = User::find($user_id);
-    //         $name = $user->name;
-    //         $membership_number = $user->membership_number ?? 'N/A';
-    //         $id = $user->id;
-
-    //         // Customize certificate details based on event type
-    //         if ($event->event_type == 'Annual') {
-    //             // $this->customizeAnnualCertificate($image, $event, $name, $membership_number);
-    //             CertificateRequested::dispatch($event, $name, $id);
-    //         } else {
-    //             RegularCertificateRequested::dispatch($event, $name, $membership_number, $id);
-    //         }
-
-    //         // download certificate using download method
-    //         return response()->download(public_path('images/certificate-generated_' . $id . '.png'))->deleteFileAfterSend(true);
-
-    //     } catch (\Exception $e) {
-    //         return response()->json(['success' => false, 'message' => 'An error occurred while generating the certificate: ' . $e->getMessage()]);
-    //     }
-    // }
 
     public function downloadCertificate($event_id, $user_id)
     {
@@ -651,7 +560,7 @@ class EventsController extends Controller
             $formattedRange = Carbon::parse($event->start_date)->format('jS F Y') . ' - ' . Carbon::parse($event->end_date)->format('jS F Y');
 
             // Determine the template based on event type
-            $templatePath = $event->event_type == 'Annual' ? public_path('images/event_annual_certificate.jpeg') : public_path('images/certificate-template.jpeg');
+            $templatePath = public_path('images/event_annual_certificate.jpeg');
             if (!file_exists($templatePath)) {
                 throw new \Exception('Certificate template not found.');
             }
@@ -778,85 +687,86 @@ class EventsController extends Controller
     }
 
     // Helper method for customizing a regular event certificate
+
     private function customizeRegularCertificate($image, $event, $name, $membership_number)
     {
+        // Additional information for Annual events
+        $place = $event->location ?? 'Not specified';
+        $theme = $event->theme ?? 'Not specified';
+        $annual_event_date = Carbon::parse($event->annual_event_date)->format('jS F Y');
+        $organizing_committee = $event->organizing_committee ?? 'Institute of Procurement Professionals of Uganda (IPPU)';
 
-        $image->text('PRESENTED TO', 420, 250, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#405189');
-            $font->size(12);
+        // Name Placement
+        $image->text($name, 800, 500, function ($font) {
+            // $font->file(public_path('fonts/Roboto-Bold.ttf'));
+            $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
+            $font->color('#b01735'); // Dark red color
+            $font->size(50); // Increased size for better visibility
             $font->align('center');
             $font->valign('middle');
         });
 
-        //dd($user->name);
 
-        $image->text($name, 420, 300, function ($font) {
+
+        // Event Name Placement
+        $image->text($event->name, 800, 620, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#b01735');
-            $font->size(20);
+            $font->color('#008000'); // Green color
+            $font->size(30); // Increased size
             $font->align('center');
             $font->valign('middle');
-            $font->lineHeight(1.6);
         });
 
+        // Theme Text Placement
+        // Theme Text Placement (split into two lines)
+        // $theme = wordwrap('THEME: ' . $theme, 50, "\n", true); // Adjust the 50 to fit the length you want per line
+
+        // $image->text($theme, 800, 680, function ($font) {
+        //     $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+        //     $font->color('#405189'); // Blue color
+        //     $font->size(30);
+        //     $font->align('center');
+        //     $font->valign('middle');
+        // });
 
 
-        $image->text('FOR ATTENDING THE', 420, 340, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#405189');
-            $font->size(12);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        //add event name
-        $image->text($event->name, 420, 370, function ($font) {
+        // Organizer and Date Text Placement
+        $image->text('Organised by ' . $organizing_committee, 800, 700, function ($font) {
             $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#008000');
-            $font->size(22);
+            $font->color('#405189'); // Blue color
+            $font->size(30);
             $font->align('center');
             $font->valign('middle');
-            $font->lineHeight(1.6);
         });
-
-
 
         $startDate = Carbon::parse($event->start_date);
         $endDate = Carbon::parse($event->end_date);
 
-        if ($startDate->month === $endDate->month) {
-            $x = 420;
-            // Dates are in the same month
-            $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
-        } else {
-            $x = 480;
-            // Dates are in different months
-            $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
-        }
+        $x = ($startDate->month === $endDate->month) ? 720 : 780;
+        $formattedRange = ($startDate->month === $endDate->month)
+            ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
+            : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
 
 
-        $image->text('Organized by the Institute of Procurement Professionals of Uganda on ' . $formattedRange, $x, 400, function ($font) {
+        // Date and Place Text Placement
+        $image->text('on ' . $formattedRange, 800, 780, function ($font) {
             $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#405189');
-            $font->size(12);
+            $font->color('#405189'); // Blue color
+            $font->size(30);
             $font->align('center');
             $font->valign('middle');
-            $font->lineHeight(1.6);
         });
 
-        //add membership number
-        $image->text('MembershipNumber: ' . $membership_number ?? "N/A", 450, 483, function ($font) {
+        // CPD Points Text Placement
+        $image->text('This activity was awarded ' . $event->points . ' CPD Credit Points (Hours) of IPPU', 800, 830, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#405189');
-            $font->size(12);
+            $font->color('#008000'); // Green color
+            $font->size(30);
             $font->align('center');
             $font->valign('middle');
-            $font->lineHeight(1.6);
         });
 
-        //convert the image to png
+        // convert the image to png
         $image->toPng();
     }
 
