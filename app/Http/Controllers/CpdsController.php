@@ -387,23 +387,23 @@ class CpdsController extends Controller
             $image = $manager->read(public_path('images/cpd_template.jpeg'));
 
             // Add details to the certificate
-            $image->text($event->code, 173, 27, function ($font) {
+            $image->text($event->code, 180, 85, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
                 $font->size(20);
                 $font->color('#000000');
                 $font->align('center');
             });
 
-            $image->text($user->name, 780, 550, function ($font) {
+            $image->text($user->name, 780, 625, function ($font) {
                 $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
                 $font->size(45);
                 $font->color('#1F45FC');
                 $font->align('center');
             });
 
-            $image->text($event->topic, 730, 690, function ($font) {
+            $image->text($event->topic, 850, 770, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
-                $font->size(20);
+                $font->size(25);
                 $font->color('#000000');
                 $font->align('center');
             });
@@ -416,27 +416,19 @@ class CpdsController extends Controller
                 ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
                 : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
 
-            $image->text('on ', 600, 760, function ($font) {
-                $font->file(public_path('fonts/Roboto-Regular.ttf'));
-                $font->size(20);
-                $font->color('#000000');
-                $font->align('center');
-            });
-
-            $image->text($formattedRange, $x, 760, function ($font) {
+            $image->text($formattedRange, $x, 825, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
                 $font->size(20);
                 $font->color('#000000');
                 $font->align('center');
             });
 
-            $image->text($event->hours . " CPD HOURS", 1400, 945, function ($font) {
+            $image->text($event->hours . " CPD HOURS", 1400, 1020, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
                 $font->size(17);
                 $font->color('#000000');
                 $font->align('center');
             });
-
 
 
             // Save the certificate to a temporary file
