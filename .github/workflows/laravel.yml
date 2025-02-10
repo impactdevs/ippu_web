@@ -1,4 +1,4 @@
-name: Deploy ICTAU CRM TO DIGITAL OCEAN
+name: Deploy IPPU  to production
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
           username: ${{ secrets.DO_USERNAME }}
           key: ${{ secrets.DO_SSH_KEY }}
           source: "."
-          target: "/var/www/ictau.impact-outsourcing.com"
+          target: "/var/www/ippu.org"
 
       - name: Run migrations, optimize, and restart Supervisor
         uses: appleboy/ssh-action@master
@@ -33,7 +33,7 @@ jobs:
           username: ${{ secrets.DO_USERNAME }}
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
-            cd /var/www/ictau.impact-outsourcing.com
+            cd /var/www/ippu.org
             php artisan migrate --force
             php artisan optimize:clear
             php artisan optimize
@@ -48,5 +48,5 @@ jobs:
           username: ${{ secrets.DO_USERNAME }}
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
-            sudo chgrp -R www-data /var/www/ictau.impact-outsourcing.com/storage /var/www/ictau.impact-outsourcing.com/bootstrap/cache
-            sudo chmod -R ug+rwx /var/www/ictau.impact-outsourcing.com/storage /var/www/ictau.impact-outsourcing.com/bootstrap/cache
+            sudo chgrp -R www-data /var/www/ippu.org/storage /var/www/ippu.org/bootstrap/cache
+            sudo chmod -R ug+rwx /var/www/ippu.org/storage /var/www/ippu.org/bootstrap/cache
