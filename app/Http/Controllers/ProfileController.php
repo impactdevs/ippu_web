@@ -176,6 +176,18 @@ class ProfileController extends Controller
             $font->lineHeight(1.6);
         });
 
+        if(!is_null($user->profile_pic)){
+            $profile_photo = public_path('storage/profiles/' . $user->profile_pic);
+        }else{
+            $profile_photo = public_path('images/certificate_profile.png');
+        }
+        //modify the profile photo dimensions
+        $manager->read($profile_photo)->resize(400, 400)->save($profile_photo);
+
+        //add the qr code to the certificate
+        $image->place($profile_photo, 'top-right', 52, 600);
+        $image->toPng();
+
 
         //save the image to the public folder
         $image->save(public_path('images/certificate-generated' . $user->id . '.png'));
@@ -188,6 +200,7 @@ class ProfileController extends Controller
         $user = User::find(\Auth::user()->id);
         $certificate = $this->generate_certificate_helper($user);
         return response()->download($certificate)->deleteFileAfterSend(true);
+        // return response()->file($certificate);
     }
     public function email_membership_certificate(Request $request)
     {
