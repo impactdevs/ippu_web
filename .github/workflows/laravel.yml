@@ -50,3 +50,14 @@ jobs:
           script: |
             sudo chgrp -R www-data /var/www/ippu.org/storage /var/www/ippu.org/bootstrap/cache
             sudo chmod -R ug+rwx /var/www/ippu.org/storage /var/www/ippu.org/bootstrap/cache
+
+      # set right permissions for images directory in public, make sure its readable and writable
+      - name: Set proper permissions for images directory
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            sudo chgrp -R www-data /var/www/ippu.org/public/images
+            sudo chmod -R ug+rwx /var/www/ippu.org/public/images
