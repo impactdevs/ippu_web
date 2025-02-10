@@ -1,4 +1,4 @@
-name: Updating Production for IPPU
+name: Deploy IPPU TO PRODUCTION
 
 on:
   push:
@@ -12,6 +12,26 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Ensure .env exists and configure
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd /var/www/ippu.org
+            # Check if .env exists, if not copy from .env.example
+            if [ ! -f .env ]; then
+              cp .env.example .env
+            fi
+            # Set the correct Pusher credentials (from GitHub secrets)
+            echo "PUSHER_APP_KEY=${{ secrets.PUSHER_APP_KEY }}" >> .env
+            echo "PUSHER_APP_SECRET=${{ secrets.PUSHER_APP_SECRET }}" >> .env
+            echo "PUSHER_APP_ID=${{ secrets.PUSHER_APP_ID }}" >> .env
+            echo "PUSHER_APP_CLUSTER=${{ secrets.PUSHER_APP_CLUSTER }}" >> .env
+            # Verify .env has the correct keys
+            cat .env | grep PUSHER
 
       - name: Install dependencies
         run: |
