@@ -176,17 +176,19 @@ class ProfileController extends Controller
             $font->lineHeight(1.6);
         });
 
+
         //save the image to the public folder
         $image->save(public_path('images/certificate-generated' . $user->id . '.png'));
 
-        return response()->file(public_path('images/certificate-generated' . $user->id . '.png'));
+        return public_path('images/certificate-generated' . $user->id . '.png');
     }
 
     public function generate_membership_certificate()
     {
         $user = User::find(\Auth::user()->id);
         $certificate = $this->generate_certificate_helper($user);
-        return response()->download($certificate)->deleteFileAfterSend(true);
+        // return response()->download($certificate)->deleteFileAfterSend(true);
+        return response()->file($certificate);
     }
     public function email_membership_certificate(Request $request)
     {
