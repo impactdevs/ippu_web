@@ -1,4 +1,4 @@
-name: Deploy IPPU TO PRODUCTION
+name: Deploy ICTAU CRM TO DIGITAL OCEAN
 
 on:
   push:
@@ -13,29 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Ensure .env exists and configure
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DO_HOST }}
-          username: ${{ secrets.DO_USERNAME }}
-          key: ${{ secrets.DO_SSH_KEY }}
-          script: |
-            cd /var/www/ippu.org
-            # Check if .env exists, if not copy from .env.example
-            if [ ! -f .env ]; then
-              cp .env.example .env
-            fi
-            # Set the correct Pusher credentials (from GitHub secrets)
-            echo "PUSHER_APP_KEY=${{ secrets.PUSHER_APP_KEY }}" >> .env
-            echo "PUSHER_APP_SECRET=${{ secrets.PUSHER_APP_SECRET }}" >> .env
-            echo "PUSHER_APP_ID=${{ secrets.PUSHER_APP_ID }}" >> .env
-            echo "PUSHER_APP_CLUSTER=${{ secrets.PUSHER_APP_CLUSTER }}" >> .env
-            # Verify .env has the correct keys
-            cat .env | grep PUSHER
-
-      - name: Install dependencies
-        run: |
-          composer install --no-dev --prefer-dist --optimize-autoloader
+      # - name: Install dependencies
+      #   run: |
+      #     composer install --no-dev --prefer-dist --optimize-autoloader
 
       - name: Upload files to DigitalOcean
         uses: appleboy/scp-action@master
@@ -44,7 +24,7 @@ jobs:
           username: ${{ secrets.DO_USERNAME }}
           key: ${{ secrets.DO_SSH_KEY }}
           source: "."
-          target: "/var/www/ippu.org"
+          target: "/var/www/ictau.impact-outsourcing.com"
 
       - name: Run migrations, optimize, and restart Supervisor
         uses: appleboy/ssh-action@master
@@ -53,9 +33,10 @@ jobs:
           username: ${{ secrets.DO_USERNAME }}
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
-            cd /var/www/ippu.org
+            cd /var/www/ictau.impact-outsourcing.com
             php artisan migrate --force
             php artisan optimize:clear
+            php artisan optimize
             sudo supervisorctl reread
             sudo supervisorctl update
             sudo supervisorctl restart all
@@ -67,5 +48,5 @@ jobs:
           username: ${{ secrets.DO_USERNAME }}
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
-            sudo chgrp -R www-data /var/www/ippu.org/storage /var/www/ippu.org/bootstrap/cache
-            sudo chmod -R ug+rwx /var/www/ippu.org/storage /var/www/ippu.org/bootstrap/cache
+            sudo chgrp -R www-data /var/www/ictau.impact-outsourcing.com/storage /var/www/ictau.impact-outsourcing.com/bootstrap/cache
+            sudo chmod -R ug+rwx /var/www/ictau.impact-outsourcing.com/storage /var/www/ictau.impact-outsourcing.com/bootstrap/cache
