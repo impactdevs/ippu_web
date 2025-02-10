@@ -117,6 +117,7 @@ class ProfileController extends Controller
     //create a generate certificate helper function
     public function generate_certificate_helper(User $user = null)
     {
+        ob_clean(); // Clear any previous output
         $manager = new ImageManager(new Driver());
 
         $image = $manager->read(public_path('images/membership_template.jpeg'));
@@ -188,10 +189,6 @@ class ProfileController extends Controller
     {
         $user = User::find(\Auth::user()->id);
         $certificate = $this->generate_certificate_helper($user);
-        // Ensure the file exists and is fully written
-        if (!file_exists($certificate) || filesize($certificate) == 0) {
-            return abort(500, 'Certificate generation failed.');
-        }
         return response()->download($certificate)->deleteFileAfterSend(true);
     }
     public function email_membership_certificate(Request $request)
