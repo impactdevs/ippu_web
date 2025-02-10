@@ -27,14 +27,14 @@ class ProfileController extends Controller
         }
 
         $user->membership_amount = AccountType::find($user->account_type_id)->rate;
-        
+
         // Check if the user has a latest membership
         $latestMembership = $user->latestMembership;
 
             $subscriptionStatus = \DB::table('memberships')
             ->where('expiry_date', '>', Carbon::now())
             ->where('user_id', $user->id)->orderBy('created_at', 'desc')->first()->status??false;
-     
+
 
         // Update the user's subscription_status field
         $user->subscription_status = $subscriptionStatus;
@@ -145,7 +145,7 @@ class ProfileController extends Controller
             $membership->user_id = $user->id;
             $membership->save();
 
-            
+
 
             if (!$user) {
                 return response()->json(['error' => 'User not found'], 404);
@@ -223,10 +223,9 @@ class ProfileController extends Controller
     {
         $manager = new ImageManager(new Driver());
 
-        $image = $manager->read(public_path('images/membership_certificate_template.jpeg'));
+        $image = $manager->read(public_path('images/membership_template.jpeg'));
 
         $user = auth()->user();
-
         //get this year's 01/01
         $yearStart = Carbon::now()->startOfYear()->format('dS F, Y');
 
@@ -238,135 +237,52 @@ class ProfileController extends Controller
         //add 12 months to the processing date to get expiry date
         $expiryDate = $yearEnd;
 
-        $image->text(strtoupper($user->name), 700, 550, function ($font) {
+        $image->text(strtoupper($user->name), 890, 1150, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#405189');
-            $font->size(30);
+            $font->size(50);
             $font->align('center');
             $font->valign('middle');
             $font->lineHeight(1.6);
         });
 
-        $image->text('Membership number ', 500, 650, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#405189');
-            $font->size(30);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text($user->membership_number ?? "N/A", 770, 650, function ($font) {
+        $image->text($user->membership_number ?? "N/A", 1230, 1268, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#405189');
-            $font->size(30);
+            $font->size(50);
             $font->align('center');
             $font->valign('middle');
             $font->lineHeight(1.6);
         });
 
-        $image->text('is a registered', 620, 720, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#405189');
-            $font->size(30);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text(strtoupper($user->account_type->name), 500, 790, function ($font) {
+        $image->text(strtoupper($user->account_type->name), 900, 1490, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#405189');
-            $font->size(30);
+            $font->size(50);
             $font->align('center');
             $font->valign('middle');
             $font->lineHeight(1.6);
         });
 
-        $image->text('member of', 680, 790, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#405189');
-            $font->size(30);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text('The Institute of Procurement Professionals of Uganda', 560, 860, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#405189');
-            $font->size(30);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text("(IPPU)", 990, 860, function ($font) {
+        $image->text($membershipProcessingDate, 1050, 1812, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#405189');
-            $font->size(30);
+            $font->size(50);
             $font->align('center');
             $font->valign('middle');
             $font->lineHeight(1.6);
         });
 
-
-        $image->text('from today ', 400, 930, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#405189');
-            $font->size(30);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text($membershipProcessingDate, 620, 930, function ($font) {
+        $image->text($expiryDate, 1050, 1932, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#405189');
-            $font->size(30);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text('until ', 400, 1000, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#405189');
-            $font->size(30);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text($expiryDate, 600, 1070, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#405189');
-            $font->size(30);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text('and agrees to abide by regulations and ', 600, 1140, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#405189');
-            $font->size(30);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text('Ethical code of conduct ', 580, 1210, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-            $font->color('#405189');
-            $font->size(30);
+            $font->size(50);
             $font->align('center');
             $font->valign('middle');
             $font->lineHeight(1.6);
         });
 
         $image->toPng();
-
         $filePath = public_path('images/certificate-generated' . $user->id . '.png');
 
         //get the image url

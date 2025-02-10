@@ -176,83 +176,18 @@ class ProfileController extends Controller
             $font->lineHeight(1.6);
         });
 
-        $image->toPng();
+        // Save the image with explicit format
+        $imagePath = public_path('images/certificate-generated' . $user->id . '.png');
+        $image->save($imagePath, 'png'); // Explicitly set format
 
-        //save the image to the public folder
-        $image->save(public_path('images/certificate-generated' . $user->id . '.png'));
-
-        return public_path('images/certificate-generated' . $user->id . '.png');
+        return $imagePath;
     }
 
     public function generate_membership_certificate()
     {
         $user = User::find(\Auth::user()->id);
-                $manager = new ImageManager(new Driver());
-
-        $image = $manager->read(public_path('images/membership_template.jpeg'));
-        //get this year's 01/01
-        $yearStart = Carbon::now()->startOfYear()->format('dS F, Y');
-
-        //get this year's 31/12
-        $yearEnd = Carbon::now()->endOfYear()->format('dS F, Y');
-
-        $membershipProcessingDate = $yearStart;
-
-        //add 12 months to the processing date to get expiry date
-        $expiryDate = $yearEnd;
-
-        $image->text(strtoupper($user->name), 890, 1150, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#405189');
-            $font->size(50);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text($user->membership_number ?? "N/A", 1230, 1268, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#405189');
-            $font->size(50);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text(strtoupper($user->account_type->name), 900, 1490, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#405189');
-            $font->size(50);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text($membershipProcessingDate, 1050, 1812, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#405189');
-            $font->size(50);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->text($expiryDate, 1050, 1932, function ($font) {
-            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-            $font->color('#405189');
-            $font->size(50);
-            $font->align('center');
-            $font->valign('middle');
-            $font->lineHeight(1.6);
-        });
-
-        $image->toPng();
-
-        //save the image to the public folder
-        $image->save(public_path('images/certificate-generated' . $user->id . '.png'));
-
-        // return public_path('images/certificate-generated' . $user->id . '.png');
-        return response()->download(public_path('images/certificate-generated' . $user->id . '.png'))->deleteFileAfterSend(true);
+        $certificate = $this->generate_certificate_helper($user);
+        return response()->download($certificate)->deleteFileAfterSend(true);
     }
     public function email_membership_certificate(Request $request)
     {
