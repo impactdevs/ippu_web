@@ -187,7 +187,7 @@ class ProfileController extends Controller
     public function generate_membership_certificate()
     {
         $user = User::find(\Auth::user()->id);
-        $manager = new ImageManager(new Driver());
+                $manager = new ImageManager(new Driver());
 
         $image = $manager->read(public_path('images/membership_template.jpeg'));
         //get this year's 01/01
@@ -250,7 +250,9 @@ class ProfileController extends Controller
 
         //save the image to the public folder
         $image->save(public_path('images/certificate-generated' . $user->id . '.png'));
-        return response()->download(public_path('images/certificate-generated' . $user->id . '.png'));
+
+        // return public_path('images/certificate-generated' . $user->id . '.png');
+        return response()->download(public_path('images/certificate-generated' . $user->id . '.png'))->deleteFileAfterSend(true);
     }
     public function email_membership_certificate(Request $request)
     {
