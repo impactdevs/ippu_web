@@ -179,7 +179,7 @@ class ProfileController extends Controller
         //save the image to the public folder
         $image->save(public_path('images/certificate-generated' . $user->id . '.png'));
 
-        return public_path('images/certificate-generated' . $user->id . '.png');
+        return response()->file(public_path('images/certificate-generated' . $user->id . '.png'));
     }
 
     public function generate_membership_certificate()
