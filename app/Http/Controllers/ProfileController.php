@@ -187,8 +187,7 @@ class ProfileController extends Controller
     {
         $user = User::find(\Auth::user()->id);
         $certificate = $this->generate_certificate_helper($user);
-        // return response()->download($certificate)->deleteFileAfterSend(true);
-        return response()->file($certificate);
+        return response()->download($certificate)->deleteFileAfterSend(true);
     }
     public function email_membership_certificate(Request $request)
     {
