@@ -117,7 +117,6 @@ class ProfileController extends Controller
     //create a generate certificate helper function
     public function generate_certificate_helper(User $user = null)
     {
-        try{
         $manager = new ImageManager(new Driver());
 
         $image = $manager->read(public_path('images/membership_template.jpeg'));
@@ -183,16 +182,75 @@ class ProfileController extends Controller
         $image->save(public_path('images/certificate-generated' . $user->id . '.png'));
 
         return public_path('images/certificate-generated' . $user->id . '.png');
-        } catch (\Exception $exception) {
-            return redirect()->back()->with('error', 'Failed to generate certificate! Please try again later.');
-        }
     }
 
     public function generate_membership_certificate()
     {
         $user = User::find(\Auth::user()->id);
-        $certificate = $this->generate_certificate_helper($user);
-        return response()->download($certificate)->deleteFileAfterSend(true);
+        $manager = new ImageManager(new Driver());
+
+        $image = $manager->read(public_path('images/membership_template.jpeg'));
+        //get this year's 01/01
+        $yearStart = Carbon::now()->startOfYear()->format('dS F, Y');
+
+        //get this year's 31/12
+        $yearEnd = Carbon::now()->endOfYear()->format('dS F, Y');
+
+        $membershipProcessingDate = $yearStart;
+
+        //add 12 months to the processing date to get expiry date
+        $expiryDate = $yearEnd;
+
+        $image->text(strtoupper($user->name), 890, 1150, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#405189');
+            $font->size(50);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
+
+        $image->text($user->membership_number ?? "N/A", 1230, 1268, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#405189');
+            $font->size(50);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
+
+        $image->text(strtoupper($user->account_type->name), 900, 1490, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#405189');
+            $font->size(50);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
+
+        $image->text($membershipProcessingDate, 1050, 1812, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#405189');
+            $font->size(50);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
+
+        $image->text($expiryDate, 1050, 1932, function ($font) {
+            $font->filename(public_path('fonts/Roboto-Bold.ttf'));
+            $font->color('#405189');
+            $font->size(50);
+            $font->align('center');
+            $font->valign('middle');
+            $font->lineHeight(1.6);
+        });
+
+        $image->toPng();
+
+        //save the image to the public folder
+        $image->save(public_path('images/certificate-generated' . $user->id . '.png'));
+        return response()->download(public_path('images/certificate-generated' . $user->id . '.png'));
     }
     public function email_membership_certificate(Request $request)
     {
