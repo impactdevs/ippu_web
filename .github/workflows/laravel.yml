@@ -1,4 +1,4 @@
-name: Deploy IPPU  to production
+name: Deploy IPPU  to production environment
 
 on:
   push:
