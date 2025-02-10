@@ -117,7 +117,7 @@ class ProfileController extends Controller
     //create a generate certificate helper function
     public function generate_certificate_helper(User $user = null)
     {
-        ob_clean(); // Clear any previous output
+        try{
         $manager = new ImageManager(new Driver());
 
         $image = $manager->read(public_path('images/membership_template.jpeg'));
@@ -183,6 +183,9 @@ class ProfileController extends Controller
         $image->save(public_path('images/certificate-generated' . $user->id . '.png'));
 
         return public_path('images/certificate-generated' . $user->id . '.png');
+        } catch (\Exception $exception) {
+            return redirect()->back()->with('error', 'Failed to generate certificate! Please try again later.');
+        }
     }
 
     public function generate_membership_certificate()
