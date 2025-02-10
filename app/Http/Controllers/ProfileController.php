@@ -176,11 +176,10 @@ class ProfileController extends Controller
             $font->lineHeight(1.6);
         });
 
-        // Save the image with explicit format
-        $imagePath = public_path('images/certificate-generated' . $user->id . '.png');
-        $image->save($imagePath, 'png'); // Explicitly set format
+        //save the image to the public folder
+        $image->save(public_path('images/certificate-generated' . $user->id . '.png'));
 
-        return response()->file($imagePath);
+        return public_path('images/certificate-generated' . $user->id . '.png');
     }
 
     public function generate_membership_certificate()
