@@ -81,11 +81,7 @@ class EventsController extends Controller
             $event = Event::find($id);
 
             $amount = request()->input('amount') ?? $event->rate;
-
-
-
-            // dd(url('redirect_url_events') . '?event_id=' . $event->id);
-
+            
             $options = [
                 'headers' => [
                     'Authorization' => 'Bearer ' . env('FLW_SECRET_KEY'),
@@ -94,7 +90,7 @@ class EventsController extends Controller
                     'tx_ref' => Str::uuid(),
                     'amount' => $amount,
                     'currency' => 'UGX',
-                    'redirect_url' => 'https://ippu.org/login',
+                    'redirect_url' => url('redirect_url_events') . '?event_id=' . $event->id,
                     'meta' => [
                         'consumer_id' => auth()->user()->id,
                         "full_name" => auth()->user()->name,
@@ -128,11 +124,8 @@ class EventsController extends Controller
                 return redirect()->back()->with('error', 'Payment request failed!');
             }
         } catch (RequestException  $e) {
-            dd($e->getMessage());
             if ($e->hasResponse()) {
-                $responseBody = json_decode($e->getResponse()->getBody(), true);
-                dd($responseBody);
-                //return redirect()->back()->with('error', $responseBody['message']);
+                return redirect()->back()->with('error', $responseBody['message']);
             } else {
                 return redirect()->back()->with('error', 'Payment request failed!');
             }
