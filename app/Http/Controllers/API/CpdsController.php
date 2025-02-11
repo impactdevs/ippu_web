@@ -37,6 +37,8 @@ class CpdsController extends Controller
                 } else {
                     $cpd->balance = null;
                 }
+            } else {
+                $cpd->balance = null;
             }
 
             $cpd->attendance_request = $attendanceRequest;
