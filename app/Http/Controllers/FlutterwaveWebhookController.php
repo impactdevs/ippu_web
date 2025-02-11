@@ -68,7 +68,6 @@ class FlutterwaveWebhookController extends Controller
                 'metadata' => $data['meta'] ?? null,
             ]);
 
-            Log::info('Charge Completed:', $data);
         }
     }
 }

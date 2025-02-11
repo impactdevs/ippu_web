@@ -60,14 +60,17 @@ class EventsController extends Controller
     public function redirect_url()
     {
         $payment_details = request()->all();
+        $event_id = request()->input('event_id');
+        $amount = request()->input('amount') ?? 0;
 
         try {
-                $register_attendance = $this->confirm_attendence(request());
-                if ($register_attendance) {
-                    return view('members.dashboard')->with('success', 'registration successful!');
-                } else {
-                    return view('members.dashboard')->with('error', 'registration failed!');
-                }
+            $register_attendance = $this->confirm_attendence(request());
+            if ($register_attendance) {
+                //redirect to event details page
+                return redirect()->route('event_details', $event_id)->with('success', 'booking successful!');
+            } else {
+                return view('members.dashboard')->with('error', 'registration failed!');
+            }
 
         } catch (TransportException $exception) {
             return view('members.dashboard')->with('error', $exception->getMessage());
@@ -81,7 +84,11 @@ class EventsController extends Controller
             $event = Event::find($id);
 
             $amount = request()->input('amount') ?? $event->rate;
-            
+
+
+
+            // dd(url('redirect_url_events') . '?event_id=' . $event->id . '&amount=' . $amount);
+
             $options = [
                 'headers' => [
                     'Authorization' => 'Bearer ' . env('FLW_SECRET_KEY'),
@@ -90,7 +97,14 @@ class EventsController extends Controller
                     'tx_ref' => Str::uuid(),
                     'amount' => $amount,
                     'currency' => 'UGX',
-                    'redirect_url' => url('redirect_url_events') . '?event_id=' . $event->id,
+                    /*
+                    *To properly render checkout on your local environment, you'd
+                    need to route your app to localhost:<preferred-port> e.g. localhost:3000.
+                    Pointing your app to an IP address e.g. 127.0.0.1:3000 would result in errors.
+                    *
+                    */
+                    // 'redirect_url' => 'http://localhost:8000/redirect_url_events?event_id=' . $event->id . '&amount=' . $amount,
+                    'redirect_url' => url('redirect_url_events') . '?event_id=' . $event->id . '&amount=' . $amount,
                     'meta' => [
                         'consumer_id' => auth()->user()->id,
                         "full_name" => auth()->user()->name,
@@ -123,9 +137,10 @@ class EventsController extends Controller
             } else {
                 return redirect()->back()->with('error', 'Payment request failed!');
             }
-        } catch (RequestException  $e) {
+        } catch (RequestException $e) {
             if ($e->hasResponse()) {
-                return redirect()->back()->with('error', $responseBody['message']);
+                $responseBody = json_decode($e->getResponse()->getBody(), true);
+                //return redirect()->back()->with('error', $responseBody['message']);
             } else {
                 return redirect()->back()->with('error', 'Payment request failed!');
             }
@@ -135,14 +150,30 @@ class EventsController extends Controller
     public function confirm_attendence(Request $request)
     {
         try {
-            $attendence = new Attendence;
-            $attendence->user_id = \Auth::user()->id;
-            $attendence->event_id = $request->event_id;
-            $attendence->type = "Event";
-            $attendence->status = "Pending";
-            $attendence->save();
+            // Check if the attendance record already exists for the current user and event
+            $attendance = Attendence::where('user_id', \Auth::user()->id)
+                ->where('event_id', $request->event_id)
+                ->first();
 
-            return redirect()->back()->with('success', 'Attendence has been recorded!');
+            if ($attendance) {
+                // If record exists, update the booking fee by adding the new amount to the existing one
+                $attendance->booking_fee += $request->amount; // Add the new booking fee to the existing one
+                $attendance->save();
+
+                return redirect()->back()->with('success', 'Attendance booking fee updated!');
+            } else {
+                // If record doesn't exist, create a new attendance entry
+                $attendance = new Attendence;
+                $attendance->user_id = \Auth::user()->id;
+                $attendance->event_id = $request->event_id;
+                $attendance->type = "Event";
+                $attendance->status = "Pending";
+                $attendance->booking_fee = $request->amount; // Set the initial booking fee
+                $attendance->save();
+
+                return redirect()->back()->with('success', 'Attendance has been recorded!');
+            }
+
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -318,7 +349,7 @@ class EventsController extends Controller
             'name' => 'required',
             'email' => 'required|email',
             'phone_no' => 'required',
-            'organisation'=>'required'
+            'organisation' => 'required'
         ]);
 
 
@@ -352,23 +383,23 @@ class EventsController extends Controller
         $attendence->membership_number = $request->membership_number;
         $attendence->save();
 
-    if ($request->type == "event") {
-        //get the logged in user
-        $event = Event::find($request->id);
-        if ($event != null) {
-            return $this->direct_event_attendance_certificate_parser($user, $event, "event");
+        if ($request->type == "event") {
+            //get the logged in user
+            $event = Event::find($request->id);
+            if ($event != null) {
+                return $this->direct_event_attendance_certificate_parser($user, $event, "event");
+            } else {
+                return redirect()->back()->with('error', 'Event not found');
+            }
         } else {
-            return redirect()->back()->with('error', 'Event not found');
-        }
-    } else {
-        $event = Cpd::find($request->id);
+            $event = Cpd::find($request->id);
 
-        if ($event != null) {
-            return $this->direct_cpd_attendance_certificate_parser($user, $event, "cpd");
-        } else {
-            return redirect()->back()->with('error', 'CPD not found');
+            if ($event != null) {
+                return $this->direct_cpd_attendance_certificate_parser($user, $event, "cpd");
+            } else {
+                return redirect()->back()->with('error', 'CPD not found');
+            }
         }
-    }
     }
 
 
@@ -579,7 +610,7 @@ class EventsController extends Controller
                     "success" => true,
                     "message" => "Certificate generated successfully.",
                     "url" => url('images/' . $file_name),
-                    "name"=>$name
+                    "name" => $name
                 ]);
             } else {
                 return redirect()->back()->with('error', 'An error occurred while downloading the certificate.');

@@ -25,6 +25,20 @@ class CpdsController extends Controller
                 ->where('user_id', $userId)
                 ->exists() : false;
 
+            if ($attendanceRequest) {
+                // Use first() to get a single instance instead of a collection
+                $attendance = Attendence::where('cpd_id', $cpd->id)
+                    ->where('user_id', $userId)
+                    ->first();
+
+                if ($attendance) {
+                    // Now you can access the booking_fee property
+                    $cpd->balance = ($cpd->normal_rate) - ($attendance->booking_fee);
+                } else {
+                    $cpd->balance = null;
+                }
+            }
+
             $cpd->attendance_request = $attendanceRequest;
 
             array_push($cpdsWithAttendance, $cpd);
@@ -131,12 +145,25 @@ class CpdsController extends Controller
     public function confirm_attendence(Request $request)
     {
         try {
-            $attendence = new Attendence;
-            $attendence->user_id = $request->user_id;
-            $attendence->cpd_id = $request->cpd_id;
-            $attendence->type = "CPD";
-            $attendence->status = "Pending";
-            $attendence->save();
+            // Check if the attendance record already exists for the current user and event
+            $attendance = Attendence::where('user_id', \Auth::user()->id)
+                ->where('cpd_id', $request->cpd_id)
+                ->first();
+
+            if ($attendance) {
+                // If record exists, update the booking fee by adding the new amount to the existing one
+                $attendance->booking_fee += $request->amount; // Add the new booking fee to the existing one
+                $attendance->save();
+
+                return redirect()->back()->with('success', 'Attendance booking fee updated!');
+            } else {
+                $attendence = new Attendence;
+                $attendence->user_id = $request->user_id;
+                $attendence->cpd_id = $request->cpd_id;
+                $attendence->type = "CPD";
+                $attendence->status = "Pending";
+                $attendence->save();
+            }
 
             return response()->json([
                 'success' => true,

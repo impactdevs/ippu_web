@@ -9,7 +9,7 @@ class Attendence extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['event_id', 'user_id', 'cpd_id', 'status', 'membership_number'];
+    protected $fillable = ['event_id', 'user_id', 'cpd_id', 'status', 'membership_number', 'booking_fee'];
 
     public static $status = [
         'Pending',
@@ -92,5 +92,17 @@ class Attendence extends Model
     public function scopeEvents($query)
     {
         return $query->whereNotNull('event_id');
+    }
+
+    //get the balance of the user
+    public function getBalanceAttribute()
+    {
+        $balance = 0;
+        if ($this->cpd_id) {
+            $balance = $this->cpd->normal_rate - $this->booking_fee;
+        } elseif ($this->event_id) {
+            $balance = $this->event->rate - $this->booking_fee;
+        }
+        return $balance;
     }
 }

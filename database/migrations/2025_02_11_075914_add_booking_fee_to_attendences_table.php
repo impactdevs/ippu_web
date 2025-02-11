@@ -12,16 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('attendences', function (Blueprint $table) {
-            //
-            $table->string('email')->nullable();
+            $table->decimal('booking_fee', 8, 2)->nullable(); // Adds the booking_fee column (8 digits, 2 decimal points)
         });
     }
-
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('add_email_to_attendences');
+        Schema::table('attendences', function (Blueprint $table) {
+            $table->dropColumn('booking_fee'); // Drops the booking_fee column if the migration is rolled back
+        });
     }
 };

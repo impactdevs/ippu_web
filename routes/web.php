@@ -94,7 +94,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('education', EducationBackgroundController::class);
     Route::resource('experiences', WorkBackgroundController::class);
     Route::get('all_events', [mEventsController::class, 'index']);
-    Route::get('event_details/{id}', [mEventsController::class, 'details']);
+    Route::get('event_details/{id}', [mEventsController::class, 'details'])->name('event_details');
     Route::get('upcoming_events', [mEventsController::class, 'upcoming']);
     Route::get('attend_event/{id}', [mEventsController::class, 'attend']);
     Route::get('attend_event/{id}', [mEventsController::class, 'pay']);
@@ -109,7 +109,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('redirect_url', [DashboardController::class, 'redirect_url']);
     Route::any('redirect_url_events', [mEventsController::class, 'redirect_url'])->name('redirect_url_events');
     Route::any('redirect_url_cpds', [mCpdsController::class, 'redirect_url'])->name('redirect_url_cpds');
-    Route::get('cpd_details/{id}', [mCpdsController::class, 'details']);
+    Route::get('cpd_details/{id}', [mCpdsController::class, 'details'])->name('cpd_details');
     Route::resource('jobs', mJobsController::class);
     Route::get('who-we-are', function () {
         return view('members.general.who_we_are');

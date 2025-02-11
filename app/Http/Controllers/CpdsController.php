@@ -62,16 +62,20 @@ class CpdsController extends Controller
 
     public function redirect_url()
     {
-        $payment_details = request()->all();
-        try {
+        $cpd_id = request()->input('cpd_id');
 
-                return $this->confirm_attendence(request());
+        try {
+            $register_attendance = $this->confirm_attendence(request());
+            if ($register_attendance) {
+                //redirect to event details page
+                return redirect()->route('cpd_details', $cpd_id)->with('success', 'booking successful!');
+            } else {
+                return view('members.dashboard')->with('error', 'registration failed!');
+            }
 
         } catch (TransportException $exception) {
-            return view('members.dashboard')->with('error', 'Email could not be sent!');
+            return view('members.dashboard')->with('error', $exception->getMessage());
         }
-
-        return view('members.dashboard')->with('success', 'Payment was not successful!');
     }
 
     public function pay($id = '')
@@ -80,7 +84,8 @@ class CpdsController extends Controller
         try {
             $client = new Client();
             $cpd = Cpd::find($id);
-            $amount = request()->input('amount') ??$cpd->normal_rate;
+            $amount = request()->input('amount') ?? $cpd->normal_rate;
+            //url('redirect_url_cpds') . '?cpd_id=' . $cpd->id
 
             $response = $client->post('https://api.flutterwave.com/v3/payments', [
                 'headers' => [
@@ -90,7 +95,8 @@ class CpdsController extends Controller
                     'tx_ref' => Str::uuid(),
                     'amount' => $amount,
                     'currency' => 'UGX',
-                    'redirect_url' => url('redirect_url_cpds') . '?cpd_id=' . $cpd->id,
+                    // 'redirect_url' => 'http://localhost:8000/redirect_url_cpds?cpd_id=' . $cpd->id . '&amount=' . $amount,
+                    'redirect_url' => url('redirect_url_cpds') . '?cpd_id=' . $cpd->id.'&amount='.$amount,
                     'meta' => [
                         'consumer_id' => auth()->user()->id,
                         "full_name" => auth()->user()->name,
@@ -136,32 +142,27 @@ class CpdsController extends Controller
     public function confirm_attendence(Request $request)
     {
         try {
-            $attendence = new Attendence;
-            $attendence->user_id = \Auth::user()->id;
-            $attendence->cpd_id = $request->cpd_id;
-            $attendence->type = "CPD";
-            $attendence->status = "Pending";
+            // Check if the attendance record already exists for the current user and event
+            $attendance = Attendence::where('user_id', \Auth::user()->id)
+                ->where('cpd_id', $request->cpd_id)
+                ->first();
 
-            if ($request->hasFile('payment_proof')) {
-                $file = $request->file('payment_proof');
-                $extension = $file->getClientOriginalExtension();
+            if ($attendance) {
+                // If record exists, update the booking fee by adding the new amount to the existing one
+                $attendance->booking_fee += $request->amount; // Add the new booking fee to the existing one
+                $attendance->save();
 
-                $filename = time() . rand(100, 1000) . '.' . $extension;
+                return redirect()->back()->with('success', 'Attendance booking fee updated!');
+            } else {
+                $attendence = new Attendence;
+                $attendence->user_id = \Auth::user()->id;
+                $attendence->cpd_id = $request->cpd_id;
+                $attendence->type = "CPD";
+                $attendence->status = "Pending";
+                $attendence->booking_fee = $request->amount;
 
-                $storage = \Storage::disk('public')->putFileAs(
-                    'images/',
-                    $file,
-                    $filename
-                );
-
-                if (!$storage) {
-                    return response()->json(['message' => 'Unable to upload payment proof!']);
-                } else {
-                    $attendence->payment_proof = $filename;
-                }
+                $attendence->save();
             }
-
-            $attendence->save();
 
             return redirect()->back()->with('success', 'CPD has been recorded!');
         } catch (\Throwable $e) {
@@ -356,13 +357,13 @@ class CpdsController extends Controller
             $path = public_path('certificates/' . $user->id . '_certificate.png');
             $image->save($path);
 
-              //check if the file exists and is readable and send the file
-              if (file_exists($path) && is_readable($path)) {
+            //check if the file exists and is readable and send the file
+            if (file_exists($path) && is_readable($path)) {
                 return response([
                     "success" => true,
                     "message" => "Certificate generated successfully.",
                     "url" => url('certificates/' . $user->id . '_certificate.png'),
-                    "name"=>$user->name
+                    "name" => $user->name
                 ]);
             } else {
                 return redirect()->back()->with('error', 'An error occurred while downloading the certificate.');
@@ -452,14 +453,14 @@ class CpdsController extends Controller
     }
 
     public function bulkEmail(Request $request)
-{
-    $cpdId = $request->input('cpd_id');
+    {
+        $cpdId = $request->input('cpd_id');
 
-    // Dispatch the job to handle sending emails asynchronously
-    SendBulkCpdEmailJob::dispatch($cpdId);
+        // Dispatch the job to handle sending emails asynchronously
+        SendBulkCpdEmailJob::dispatch($cpdId);
 
-    return redirect()->back()->with('success', 'Certificates are being processed and will be emailed shortly.');
-}
+        return redirect()->back()->with('success', 'Certificates are being processed and will be emailed shortly.');
+    }
 
 
     public function downloadBulkCertificates(Request $request)
@@ -473,26 +474,26 @@ class CpdsController extends Controller
     }
 
     public function updateEmail(Request $request)
-{
-    $request->validate([
-        'attendence_id' => 'required|exists:attendences,id',
-        'email' => 'required|email',
-        'name'=>'required'
-    ]);
+    {
+        $request->validate([
+            'attendence_id' => 'required|exists:attendences,id',
+            'email' => 'required|email',
+            'name' => 'required'
+        ]);
 
-    $user_details =  Attendence::find($request->attendence_id);
-    $user = User::find($user_details->user_id);
+        $user_details = Attendence::find($request->attendence_id);
+        $user = User::find($user_details->user_id);
 
-    if ($user) {
-        $user->email = $request->email;
-        $user->name = $request->name;
-        $user->save();
+        if ($user) {
+            $user->email = $request->email;
+            $user->name = $request->name;
+            $user->save();
 
-        return response()->json(['success' => true]);
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'User not found.']);
     }
-
-    return response()->json(['success' => false, 'message' => 'User not found.']);
-}
 
 
 }

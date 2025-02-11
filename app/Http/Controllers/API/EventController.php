@@ -27,6 +27,23 @@ class EventController extends Controller
                 ->where('user_id', $userId)
                 ->exists() : false;
 
+                if ($attendanceRequest) {
+                    // Use first() to get a single instance instead of a collection
+                    $attendance = Attendence::where('event_id', $event->id)
+                        ->where('user_id', $userId)
+                        ->first();
+
+                    if ($attendance) {
+                        // Now you can access the booking_fee property
+                        $event->balance = ($event->rate) - ($attendance->booking_fee);
+                    } else {
+                        $event->balance = null;
+                    }
+                } else {
+                    $event->balance = null;
+                }
+
+
             $event->attendance_request = $attendanceRequest;
 
             array_push($eventsWithAttendance, $event);
@@ -136,16 +153,30 @@ class EventController extends Controller
     public function confirm_attendence(Request $request)
     {
         try {
-            $attendence = new Attendence;
-            $attendence->user_id = $request->user_id;
-            $attendence->event_id = $request->event_id;
-            $attendence->type = "Event";
-            $attendence->status = "Pending";
-            $attendence->save();
 
-            return response()->json([
-                'message' => 'Attendence Confirmed',
-            ]);
+            // Check if the attendance record already exists for the current user and event
+            $attendance = Attendence::where('user_id', \Auth::user()->id)
+                ->where('event_id', $request->event_id)
+                ->first();
+
+            if ($attendance) {
+                // If record exists, update the booking fee by adding the new amount to the existing one
+                $attendance->booking_fee += $request->amount; // Add the new booking fee to the existing one
+                $attendance->save();
+
+                return redirect()->back()->with('success', 'Attendance booking fee updated!');
+            } else {
+                $attendence = new Attendence;
+                $attendence->user_id = $request->user_id;
+                $attendence->event_id = $request->event_id;
+                $attendence->type = "Event";
+                $attendence->status = "Pending";
+                $attendence->save();
+
+                return response()->json([
+                    'message' => 'Attendence Confirmed',
+                ]);
+            }
 
         } catch (\Throwable $e) {
             return response()->json([
@@ -153,103 +184,6 @@ class EventController extends Controller
             ], 500);
         }
     }
-
-    // public function generate_certificate($event)
-    // {
-    //     $manager = new ImageManager(new Driver());
-    //     //read the image from the public folder
-    //     $image = $manager->read(public_path('images/certificate-template.jpeg'));
-
-    //     $event = Event::find($event);
-    //     $user = auth()->user();
-
-
-    //     $image->text('PRESENTED TO', 420, 250, function ($font) {
-    //         $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-    //         $font->color('#405189');
-    //         $font->size(12);
-    //         $font->align('center');
-    //         $font->valign('middle');
-    //     });
-
-    //     $image->text($user->name, 420, 300, function ($font) {
-    //         $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-    //         $font->color('#b01735');
-    //         $font->size(20);
-    //         $font->align('center');
-    //         $font->valign('middle');
-    //         $font->lineHeight(1.6);
-    //     });
-
-    //     $image->text('FOR ATTENDING THE', 420, 340, function ($font) {
-    //         $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-    //         $font->color('#405189');
-    //         $font->size(12);
-    //         $font->align('center');
-    //         $font->valign('middle');
-    //         $font->lineHeight(1.6);
-    //     });
-
-    //     //add event name
-    //     $image->text($event->name, 420, 370, function ($font) {
-    //         $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-    //         $font->color('#008000');
-    //         $font->size(22);
-    //         $font->align('center');
-    //         $font->valign('middle');
-    //         $font->lineHeight(1.6);
-    //     });
-
-
-    //     $startDate = Carbon::parse($event->start_date);
-    //     $endDate = Carbon::parse($event->end_date);
-
-    //     if ($startDate->month === $endDate->month) {
-    //         $x = 420;
-    //         // Dates are in the same month
-    //         $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
-    //     } else {
-    //         $x = 480;
-    //         // Dates are in different months
-    //         $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
-    //     }
-
-
-    //     $image->text('Organized by the Institute of Procurement Professionals of Uganda on ' . $formattedRange, $x, 400, function ($font) {
-    //         $font->filename(public_path('fonts/Roboto-Regular.ttf'));
-    //         $font->color('#405189');
-    //         $font->size(12);
-    //         $font->align('center');
-    //         $font->valign('middle');
-    //         $font->lineHeight(1.6);
-    //     });
-
-    //     //add membership number
-    //     $image->text('MembershipNumber: ' . $user->membership_number ?? "N/A", 450, 483, function ($font) {
-    //         $font->filename(public_path('fonts/Roboto-Bold.ttf'));
-    //         $font->color('#405189');
-    //         $font->size(12);
-    //         $font->align('center');
-    //         $font->valign('middle');
-    //         $font->lineHeight(1.6);
-    //     });
-
-    //     $image->toPng();
-
-    //     $filePath = public_path('images/certificate-generated' . $user->id . '.png');
-
-    //     //get the image url
-    //     $imageUrl = url('images/certificate-generated' . $user->id . '.png');
-    //     //save the image to the public folder
-    //     $image->save($filePath);
-
-    //     return response([
-    //         'message' => 'Certificate generated successfully',
-    //         'data' => [
-    //             'certificate' => $imageUrl,
-    //         ]
-    //     ]);
-    // }
 
     public function generate_certificate($event_id)
     {
