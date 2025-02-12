@@ -174,6 +174,7 @@ class CpdsController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'CPD has been recorded!',
+                'balance' => Cpd::find($request->cpd_id)->attended->balance,
             ]);
         } catch (\Throwable $e) {
             return response()->json([
