@@ -174,6 +174,8 @@ class CpdsController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'error' => $e->getMessage(),
+                //response code be 500
+                400
             ]);
         }
     }
