@@ -148,7 +148,7 @@ class CpdsController extends Controller
     {
         try {
             // Check if the attendance record already exists for the current user and event
-            $attendance = Attendence::where('user_id', \Auth::user()->id)
+            $attendance = Attendence::where('user_id', $request->user_id)
                 ->where('cpd_id', $request->cpd_id)
                 ->first();
 
