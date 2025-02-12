@@ -160,7 +160,7 @@ class CpdsController extends Controller
                 return  response()->json([
                     'success' => true,
                     'message' => 'CPD has been recorded!',
-                    'balance' => Cpd::find($request->cpd_id)->attended->balance,
+                    'balance' => (Cpd::find($request->cpd_id)->normal_rate) - ($attendance->booking_fee),
                 ]);
             } else {
                 $attendence = new Attendence;
@@ -175,7 +175,7 @@ class CpdsController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'CPD has been recorded!',
-                'balance' => Cpd::find($request->cpd_id)->attended->balance,
+                'balance' => (Cpd::find($request->cpd_id)->normal_rate) - ($attendence->booking_fee),
             ]);
         } catch (\Throwable $e) {
             return response()->json([
