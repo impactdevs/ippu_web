@@ -167,7 +167,7 @@ class CpdsController extends Controller
                 $attendence->cpd_id = $request->cpd_id;
                 $attendence->type = "CPD";
                 $attendence->status = "Pending";
-                $attendance->booking_fee = $request->amount;
+                $attendence->booking_fee = $request->amount;
                 $attendence->save();
             }
 
