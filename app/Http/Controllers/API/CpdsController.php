@@ -157,14 +157,17 @@ class CpdsController extends Controller
                 $attendance->booking_fee += $request->amount; // Add the new booking fee to the existing one
                 $attendance->save();
 
-                return redirect()->back()->with('success', 'Attendance booking fee updated!');
+                return  response()->json([
+                    'success' => true,
+                    'message' => 'CPD has been recorded!',
+                ]);
             } else {
                 $attendence = new Attendence;
                 $attendence->user_id = $request->user_id;
                 $attendence->cpd_id = $request->cpd_id;
                 $attendence->type = "CPD";
                 $attendence->status = "Pending";
-                $attendence->booking_fee = $request->amount;
+                $attendance->booking_fee = $request->amount;
                 $attendence->save();
             }
 
