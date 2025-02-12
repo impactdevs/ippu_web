@@ -31,7 +31,7 @@ class CpdsController extends Controller
                     ->where('user_id', $userId)
                     ->first();
 
-                if ($attendance) {
+                if (!is_null($attendance)) {
                     // Now you can access the booking_fee property
                     $cpd->balance = ($cpd->normal_rate) - ($attendance->booking_fee);
                 } else {
