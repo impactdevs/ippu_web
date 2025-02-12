@@ -160,6 +160,7 @@ class CpdsController extends Controller
                 return  response()->json([
                     'success' => true,
                     'message' => 'CPD has been recorded!',
+                    'balance' => Cpd::find($request->cpd_id)->attended->balance,
                 ]);
             } else {
                 $attendence = new Attendence;
