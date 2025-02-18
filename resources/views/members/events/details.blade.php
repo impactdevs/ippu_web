@@ -33,38 +33,62 @@
                 <img class="card-img-top img-fluid image" src="{{ asset('storage/banners/' . $event->banner_name) }}"
                     alt="{{ $event->name }}"
                     onerror="this.onerror=null;this.src='https://ippu.or.ug/wp-content/uploads/2020/08/ppulogo.png';">
-                <div class="card-body">
-                    <div class="mt-2 text-end">
-                        @if ($event->start_date >= date('Y-m-d') || $event->end_date <= date('Y-m-d'))
-                            @if (is_null($event->attended))
-                                {{-- <a href="{{ url('attend_event/'.$event->id) }}" class="btn btn-primary">Attend</a> --}}
-                                <a data-id="{{ $event->id }}" data-rate="{{ $event->member_rate ?? 0 }}"
-                                    href="javascript:void(0)" title="{{ __('Book attendance') }}"
-                                    class="btn btn-primary book-btn">Book</a>
-                            @elseif ($event->attended->status == 'Confirmed' || $event->attended->status == 'Pending')
-                                @if ($event->attended->balance == 0)
-                                    <p class="text-success">You booked to attend this Event</p>
-                                @else
-                                    <p class="text-success">You booked to attend this event.</p>
-                                    <a data-id="{{ $event->id }}" data-rate="{{ $event->attended->balance }}""
+                    <div class="card-body">
+                        <div class="mt-2 text-end">
+                            @php
+                                $today = date('Y-m-d');
+                            @endphp
+
+                            @if ($event->start_date > $today)
+                                {{-- Event is upcoming --}}
+                                @if (is_null($event->attended))
+                                    <a data-id="{{ $event->id }}" data-rate="{{ $event->member_rate ?? 0 }}"
                                         href="javascript:void(0)" title="{{ __('Book attendance') }}"
-                                        class="btn btn-primary book-btn"> Complete
-                                        Balance({{ Number::currency($event->attended->balance, in: 'UGX') }})</a>
+                                        class="btn btn-primary book-btn">Book</a>
+                                @elseif (in_array($event->attended->status, ['Confirmed', 'Pending']))
+                                    @if ($event->attended->balance == 0)
+                                        <p class="text-success">You booked to attend this event.</p>
+                                    @else
+                                        <p class="text-success">You booked to attend this event.</p>
+                                        <a data-id="{{ $event->id }}" data-rate="{{ $event->attended->balance }}"
+                                            href="javascript:void(0)" title="{{ __('Complete Payment') }}"
+                                            class="btn btn-primary book-btn">Complete Balance ({{ Number::currency($event->attended->balance, in: 'UGX') }})</a>
+                                    @endif
+                                @endif
+
+                            @elseif ($event->end_date < $today)
+                                {{-- Event has ended --}}
+                                @if (!is_null($event->attended) && $event->attended->status == 'Attended')
+                                    <a href="{{ url('event_certificate/' . $event->id) }}" class="btn btn-primary btn-sm"
+                                        target="_blank">Certificate</a>
+                                    @if (!empty($event->attachment_name))
+                                        <a href="{{ asset('storage/attachments/' . $event->attachment_name) }}"
+                                            class="btn btn-warning btn-sm" download>Download Resource</a>
+                                    @endif
+                                @else
+                                    <p class="text-muted">This event has ended.</p>
+                                @endif
+
+                            @else
+                                {{-- Event is ongoing --}}
+                                @if (is_null($event->attended))
+                                    <a data-id="{{ $event->id }}" data-rate="{{ $event->member_rate ?? 0 }}"
+                                        href="javascript:void(0)" title="{{ __('Book attendance') }}"
+                                        class="btn btn-primary book-btn">Book</a>
+                                @elseif (in_array($event->attended->status, ['Confirmed', 'Pending']))
+                                    @if ($event->attended->balance == 0)
+                                        <p class="text-success">You booked to attend this event.</p>
+                                    @else
+                                        <p class="text-success">You booked to attend this event.</p>
+                                        <a data-id="{{ $event->id }}" data-rate="{{ $event->attended->balance }}"
+                                            href="javascript:void(0)" title="{{ __('Complete Payment') }}"
+                                            class="btn btn-primary book-btn">Complete Balance ({{ Number::currency($event->attended->balance, in: 'UGX') }})</a>
+                                    @endif
                                 @endif
                             @endif
-                        @elseif(!is_null($event->attended))
-                            {{-- <span href="javascript:void(0)" class="btn btn-light btn-sm">
-					Attended
-				</span> --}}
-                            @if ($event->attended->status == 'Attended')
-                                <a href="{{ url('event_certificate/' . $event->id) }}" class="btn btn-primary btn-sm"
-                                    target="_blank">Certificate</a>
-                                <a href="{{ asset('storage/attachments/' . $event->attachment_name) }}"
-                                    class="btn btn-warning btn-sm" download>Download Resource</a>
-                            @endif
-                        @endif
+                        </div>
                     </div>
-                </div>
+
             </div><!-- end card -->
         </div>
     </div>

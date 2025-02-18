@@ -113,37 +113,17 @@ class EventsController extends Controller
     }
 
 
-    /**
-     * Display the specified resource.
-     *
-     * @param \App\Models\Event $event
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function show(Event $event,) {
 
         return view('admin.events.show', compact('event'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param \App\Models\Event $event
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Event $event,) {
 
         return view('admin.events.edit', compact('event'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function update(Request $request, Event $event,) {
 
         $request->validate([]);
@@ -214,13 +194,6 @@ class EventsController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param \App\Models\Event $event
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Event $event,) {
 
         try {
