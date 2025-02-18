@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\IpUtils;
+use Illuminate\Support\Facades\Http;
+
 
 class RegisteredUserController extends Controller
 {
@@ -20,8 +23,8 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        $accountTypes = \App\Models\AccountType::where('is_active',1)->get();
-        return view('auth.register',compact('accountTypes'));
+        $accountTypes = \App\Models\AccountType::where('is_active', 1)->get();
+        return view('auth.register', compact('accountTypes'));
     }
 
     /**
@@ -33,11 +36,33 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'account_type' => ['required'],
             'g-recaptcha-response' => 'required',
         ]);
+
+        $recaptcha = $request->input('g-recaptcha-response');
+
+        $url = "https://www.google.com/recaptcha/api/siteverify";
+
+        $params = [
+            'secret' => config('services.recaptcha.secret'),
+            'response' => $recaptcha,
+            'remoteip' => IpUtils::anonymize($request->ip())
+        ];
+
+        // Make the HTTP request
+        $response = Http::asForm()->post($url, $params);
+
+        // Decode response
+        $result = $response->json(); // Instead of json_decode($response)
+
+        // Check if reCAPTCHA verification failed
+        if (!($response->successful() && ($result['success'] ?? false) == true)) {
+            $request->session()->flash('message', "Please complete the reCAPTCHA again to proceed.");
+            return redirect()->back();
+        }
 
 
         $user = User::create([
