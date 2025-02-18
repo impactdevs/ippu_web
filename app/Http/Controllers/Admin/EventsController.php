@@ -31,84 +31,11 @@ class EventsController extends Controller
         return view('admin.events.index', compact('events'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create() {
 
         return view('admin.events.create', []);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Http\Response
-     */
-    // public function store(Request $request, ) {
-
-    //     $request->validate([]);
-
-    //     try {
-
-    //         $event = new Event();
-
-    //         if ($request->hasFile('attachment_name')) {
-    //             $file =  $request->file('attachment_name');
-    //             $extension = $file->extension();
-
-    //             $filename = time().rand(100,1000).'.'.$extension;
-
-    //             $storage = \Storage::disk('public')->putFileAs(
-    //                 'attachments/',
-    //                 $file,
-    //                 $filename
-    //             );
-
-    //             if (!$storage) {
-    //                 return redirect()->back()->with('error','Unable to upload Attachment');
-    //             }
-
-    //             $event->attachment_name = $filename;
-    //         }
-
-    //         if ($request->hasFile('banner_name')) {
-    //             $file =  $request->file('banner_name');
-    //             $extension = $file->extension();
-
-    //             $filename = time().rand(100,1000).'.'.$extension;
-
-    //             $storage = \Storage::disk('public')->putFileAs(
-    //                 'banners/',
-    //                 $file,
-    //                 $filename
-    //             );
-
-    //             if (!$storage) {
-    //                 return redirect()->back()->with('error','Unable to upload Attachment');
-    //             }
-
-    //             $event->banner_name = $filename;
-    //         }
-    //         $event->name = $request->name;
-    //         $event->start_date = $request->start_date;
-    //         $event->end_date = $request->end_date;
-    //         $event->details = $request->details;
-    //         $event->points = $request->points;
-    //         $event->rate = str_replace(',', '', $request->rate);
-    //         $event->member_rate = str_replace(',', '', $request->member_rate);
-    //         $event->save();
-
-    //         activity()->performedOn($event)->log('created event:'.$event->name);
-
-    //         return redirect()->route('events.index', [])->with('success', __('Event created successfully.'));
-    //     } catch (\Throwable $e) {
-    //         return redirect()->route('events.create', [])->withInput($request->input())->withErrors(['error' => $e->getMessage()]);
-    //     }
-    // }
 
     public function store(Request $request) {
         // Validate the incoming request data
@@ -116,8 +43,8 @@ class EventsController extends Controller
             'name' => 'required|string|max:255',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'rate' => 'required',
-            'member_rate' => 'required',
+            // 'rate' => 'required',
+            // 'member_rate' => 'required',
             'points' => 'required|integer',
             'event_type' => 'required|string|in:Normal,Annual', // Ensuring event_type is either 'Normal' or 'Annual'
             'theme' => 'nullable|string|max:255', // Only required if event_type is 'Annual'
@@ -127,62 +54,64 @@ class EventsController extends Controller
             'attachment_name' => 'nullable|file|mimes:jpeg,png,jpg,pdf,doc,docx', // File validation
             'banner_name' => 'nullable|file|mimes:jpeg,png,jpg'
         ]);
-    
+
+
+
         try {
             $event = new Event();
-    
+
             // Handle attachment upload
             if ($request->hasFile('attachment_name')) {
                 $file = $request->file('attachment_name');
                 $extension = $file->extension();
                 $filename = time().rand(100, 1000).'.'.$extension;
                 $storage = \Storage::disk('public')->putFileAs('attachments/', $file, $filename);
-    
+
                 if (!$storage) {
                     return redirect()->back()->with('error', 'Unable to upload Attachment');
                 }
-    
+
                 $event->attachment_name = $filename;
             }
-    
+
             // Handle banner upload
             if ($request->hasFile('banner_name')) {
                 $file = $request->file('banner_name');
                 $extension = $file->extension();
                 $filename = time().rand(100, 1000).'.'.$extension;
                 $storage = \Storage::disk('public')->putFileAs('banners/', $file, $filename);
-    
+
                 if (!$storage) {
                     return redirect()->back()->with('error', 'Unable to upload Banner');
                 }
-    
+
                 $event->banner_name = $filename;
             }
-    
+
             // Assign event details
             $event->name = $request->name;
             $event->start_date = $request->start_date;
             $event->end_date = $request->end_date;
             $event->details = $request->details;
             $event->points = $request->points;
-            $event->rate = str_replace(',', '', $request->rate);
-            $event->member_rate = str_replace(',', '', $request->member_rate);
+            $event->rate = is_null($request->rate)?"0":str_replace(',', '', $request->rate);
+            $event->member_rate = is_null($request->member_rate)?"0":str_replace(',', '', $request->member_rate);
             $event->event_type = $request->event_type;
             $event->theme = $request->event_type === 'Annual' ? $request->theme : null; // Only set theme for Annual events
             $event->organizing_committee = $request->organizing_committee;
             $event->annual_event_date = $request->event_type === 'Annual' ? $request->annual_event_date : null; // Only set date for Annual events
             $event->place = $request->place;
-    
+
             $event->save();
-    
+
             activity()->performedOn($event)->log('created event:'.$event->name);
-    
+
             return redirect()->route('events.index')->with('success', __('Event created successfully.'));
         } catch (\Throwable $e) {
             return redirect()->route('events.create')->withInput($request->input())->withErrors(['error' => $e->getMessage()]);
         }
     }
-    
+
 
     /**
      * Display the specified resource.
@@ -401,6 +330,6 @@ public function storeAttendance(Request $request)
         return response()->json(['success' => true, 'message' => 'Attendee registered successfully.']);
 
     }
-    
+
 }
 }
