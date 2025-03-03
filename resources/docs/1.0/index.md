@@ -1,0 +1,7 @@
+- ## Get Started
+    - [Overview](/{{route}}/{{version}}/overview)
+    - [Create an Account](/{{route}}/{{version}}/authentication)
+    - [Login](/{{route}}/{{version}}/login)
+    - [Reset Password](/{{route}}/{{version}}/reset-password)
+    - [Events](/{{route}}/{{version}}/events)
+    - [CPDs](/{{route}}/{{version}}/cpds)
