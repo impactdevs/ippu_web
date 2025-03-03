@@ -13,9 +13,9 @@
    - 1.2 [System Requirements](#system-requirements)
 
 2. [🚀 Getting Started](#getting-started)  
-   - 2.1 [Account Creation](#account-creation)  
-   - 2.2 [First Login](#first-login)  
-   - 2.3 [Dashboard Tour](#dashboard-tour)
+   - 2.1 [Create an Account](#account-creation)  
+   - 2.2 [Login](#first-login)  
+   - 2.3 [Reset Password](#dashboard-tour)
 
 3. [🌟 Key Features](#key-features)  
    - 3.1 [📱 Mobile Features](#mobile-features)  
