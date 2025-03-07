@@ -1,5 +1,4 @@
-# 📚 IPPU User Manual Navigator
-
+# 📚 IPPU User Manual
 🌐 **Quick Jump**  
 [✨ Overview](#overview) • [🚀 Getting Started](#getting-started) • [📱 Mobile Guide](#mobile-guide) • [💻 Web Guide](#web-guide) • [🔧 Troubleshooting](#troubleshooting)
 
