@@ -13,5 +13,5 @@ This comprehensive guide is your companion to mastering the IPPU Membership Appl
 
 ---
 **Happy Learning!** 🌱  
-*The IPPU Documentation Team*  
+*The IPPU Team*  
 ---
