@@ -1,8 +1,5 @@
 # 🚀 Welcome to IPPU Membership Application Documentation  
 
-![Documentation Banner](https://via.placeholder.com/800x200.png?text=IPPU+Membership+Application+Documentation)  
-*(Note: Add actual banner image URL here)*  
-
 ---
 
 ## 📖 About This Documentation  
@@ -17,5 +14,4 @@ This comprehensive guide is your companion to mastering the IPPU Membership Appl
 ---
 **Happy Learning!** 🌱  
 *The IPPU Documentation Team*  
-
 ---
