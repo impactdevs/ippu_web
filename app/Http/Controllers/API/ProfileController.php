@@ -20,33 +20,39 @@ class ProfileController extends Controller
     {
         // Retrieve the authenticated user
         $user = Auth::user();
-
+    
         // Check if the user exists
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
-
-        $user->membership_amount = AccountType::find($user->account_type_id)->rate;
-
+    
+        // Get the account type, fallback to ID 3 if null
+        $accountType = AccountType::find($user->account_type_id) ?? AccountType::find(3);
+    
+        // Ensure we don't try to access `rate` on null
+        $user->membership_amount = $accountType ? $accountType->rate : 0;
+    
         // Check if the user has a latest membership
         $latestMembership = $user->latestMembership;
-
-            $subscriptionStatus = \DB::table('memberships')
+    
+        $subscriptionStatus = \DB::table('memberships')
             ->where('expiry_date', '>', Carbon::now())
-            ->where('user_id', $user->id)->orderBy('created_at', 'desc')->first()->status??false;
-
-
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->first()->status ?? false;
+    
         // Update the user's subscription_status field
         $user->subscription_status = $subscriptionStatus;
-
-        //set profile photo url in profile_pic field
+    
+        // Set profile photo URL in profile_pic field
         $user->profile_pic = url('storage/profiles/' . $user->profile_pic);
-
+    
         return response()->json([
             'message' => 'User retrieved successfully',
             'data' => $user
         ]);
     }
+    
 
 
     /**
