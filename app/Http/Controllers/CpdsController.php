@@ -466,6 +466,7 @@ class CpdsController extends Controller
     public function downloadBulkCertificates(Request $request)
     {
         $cpd_id = $request->input('cpd_id');
+        \Log::info('Bulk download request received for CPD ID: ' . $cpd_id);
 
         // Queue the job for downloading bulk CPD certificates
         DownloadBulkCPDCertificatesJob::dispatch($cpd_id);

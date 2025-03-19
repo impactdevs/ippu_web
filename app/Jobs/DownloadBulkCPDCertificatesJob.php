@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 use ZipArchive;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
+use App\Mail\BulkDownloadComplete;
 
 class DownloadBulkCPDCertificatesJob implements ShouldQueue
 {
@@ -40,6 +41,7 @@ class DownloadBulkCPDCertificatesJob implements ShouldQueue
      */
     public function handle()
     {
+        \Log::info('Bulk CPD certificates download job started for CPD ID: ' . $this->cpdId);
         $cpd = Cpd::find($this->cpdId);
         if (!$cpd) {
             Log::error('CPD event not found with ID: ' . $this->cpdId);
@@ -52,7 +54,7 @@ class DownloadBulkCPDCertificatesJob implements ShouldQueue
             ->pluck('user_id')->toArray();
 
         // Create a unique name for the ZIP file
-        $zipFileName = 'bulk_certificates_' . $cpd->code . '.zip';
+        $zipFileName = 'bulk_certificates_' . $this->cpdId . '.zip';
         $zipFilePath = public_path('certificates/' . $zipFileName);
 
         // Ensure the directory for storing certificates exists
@@ -61,8 +63,8 @@ class DownloadBulkCPDCertificatesJob implements ShouldQueue
         }
 
         // Create a new ZIP file
-        $zip = new ZipArchive;
-        if ($zip->open($zipFilePath, ZipArchive::CREATE) !== true) {
+        $zip = new ZipArchive();
+        if ($zip->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
             Log::error('Could not create ZIP file: ' . $zipFilePath);
             return;
         }
@@ -102,8 +104,11 @@ class DownloadBulkCPDCertificatesJob implements ShouldQueue
             }
         }
 
+        \Mail::to($user->email)->send(new BulkDownloadComplete($this->cpdId, $user, $zipFilePath));
+
+
         // Log successful completion
-        Log::info('Bulk CPD certificates download job completed for CPD ID: ' . $this->cpdId);
+        // Log::info('Bulk CPD certificates download job completed for CPD ID: ' . $this->cpdId);
     }
 
     public function downloadCertificate($cpd_id, $user_id)
