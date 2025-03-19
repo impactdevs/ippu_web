@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 use ZipArchive;
+use App\Mail\BulkDownloadComplete;
 
 class DownloadBulkCertificatesJob implements ShouldQueue
 {
@@ -47,7 +48,7 @@ class DownloadBulkCertificatesJob implements ShouldQueue
             File::makeDirectory(public_path('certificates'), 0777, true, true);
         }
 
-        $zip = new ZipArchive;
+        $zip = new ZipArchive();
         if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
             Log::error('Could not create ZIP file: ' . $zipFilePath);
             return;
@@ -83,7 +84,7 @@ class DownloadBulkCertificatesJob implements ShouldQueue
                 unlink($path);
             }
         }
-
+        \Mail::to($user->email)->send(new BulkDownloadComplete($this->eventId, $user, $zipFilePath));
         Log::info('Bulk certificates download job completed for event ID: ' . $this->eventId);
     }
 
