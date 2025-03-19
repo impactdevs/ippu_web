@@ -472,7 +472,7 @@ class CpdsController extends Controller
         // Queue the job for downloading bulk CPD certificates
         DownloadBulkCPDCertificatesJob::dispatch($cpd_id, $loggedInUser);
 
-        return redirect()->back()->with('success', 'The bulk download process for CPD certificates has been queued. You will be notified when it is ready.');
+        return redirect()->back()->with('success', 'The bulk download process for CPD certificates has been queued. Check your email later for the zip file.');
     }
 
     public function updateEmail(Request $request)

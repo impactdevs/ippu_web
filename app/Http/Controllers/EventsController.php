@@ -804,7 +804,7 @@ class EventsController extends Controller
         // Queue the job for downloading bulk certificates
         DownloadBulkCertificatesJob::dispatch($event_id, $loggedInUser);
 
-        return redirect()->back()->with('success', 'The bulk download process has been queued. You will be notified when it is ready.');
+        return redirect()->back()->with('success', 'The bulk download process has been queued. Check your email later for the zip.');
     }
 
     public function updateEmail(Request $request)
