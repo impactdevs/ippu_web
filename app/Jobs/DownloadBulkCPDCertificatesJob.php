@@ -23,15 +23,17 @@ class DownloadBulkCPDCertificatesJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $cpdId;
+    protected $loggedInUser;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($cpdId)
+    public function __construct($cpdId, $loggedInUser)
     {
         $this->cpdId = $cpdId;
+        $this->loggedInUser = $loggedInUser;
     }
 
     /**
@@ -104,7 +106,7 @@ class DownloadBulkCPDCertificatesJob implements ShouldQueue
             }
         }
 
-        \Mail::to(auth()->user()->email)->send(new BulkDownloadComplete($this->cpdId, auth()->user(), $zipFilePath));
+        \Mail::to($this->loggedInUser->email)->send(new BulkDownloadComplete($this->cpdId, $this->loggedInUser, $zipFilePath));
 
 
         // Log successful completion

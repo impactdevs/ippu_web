@@ -23,10 +23,12 @@ class DownloadBulkCertificatesJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $eventId;
+    protected $loggedInUser;
 
-    public function __construct($eventId)
+    public function __construct($eventId, $loggedInUser)
     {
         $this->eventId = $eventId;
+        $this->loggedInUser = $loggedInUser;
     }
 
     public function handle()
@@ -84,7 +86,7 @@ class DownloadBulkCertificatesJob implements ShouldQueue
                 unlink($path);
             }
         }
-        \Mail::to(auth()->user()->email)->send(new BulkDownloadComplete($this->eventId, auth()->user(), $zipFilePath));
+        \Mail::to($this->loggedInUser->email)->send(new BulkDownloadComplete($this->eventId, $this->loggedInUser, $zipFilePath));
         Log::info('Bulk certificates download job completed for event ID: ' . $this->eventId);
     }
 

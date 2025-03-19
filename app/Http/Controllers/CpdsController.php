@@ -466,10 +466,11 @@ class CpdsController extends Controller
     public function downloadBulkCertificates(Request $request)
     {
         $cpd_id = $request->input('cpd_id');
+        $loggedInUser = Auth::user();
         \Log::info('Bulk download request received for CPD ID: ' . $cpd_id);
 
         // Queue the job for downloading bulk CPD certificates
-        DownloadBulkCPDCertificatesJob::dispatch($cpd_id);
+        DownloadBulkCPDCertificatesJob::dispatch($cpd_id, $loggedInUser);
 
         return redirect()->back()->with('success', 'The bulk download process for CPD certificates has been queued. You will be notified when it is ready.');
     }

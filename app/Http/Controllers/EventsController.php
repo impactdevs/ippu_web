@@ -799,9 +799,10 @@ class EventsController extends Controller
     public function downloadBulkCertificates(Request $request)
     {
         $event_id = $request->input('event_id');
+        $loggedInUser = Auth::user();
 
         // Queue the job for downloading bulk certificates
-        DownloadBulkCertificatesJob::dispatch($event_id);
+        DownloadBulkCertificatesJob::dispatch($event_id, $loggedInUser);
 
         return redirect()->back()->with('success', 'The bulk download process has been queued. You will be notified when it is ready.');
     }
