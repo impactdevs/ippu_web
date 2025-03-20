@@ -831,6 +831,14 @@ class EventsController extends Controller
 
 
 
-    //new
+    //download from $zipFilePath = public_path('certificates/' . $zipFileName);
+    public function downloadZip($zipFilePath )
+    {
+        if (file_exists($zipFilePath)) {
+            return response()->download($zipFilePath);
+        } else {
+            return redirect()->back()->with('error', 'The ZIP file does not exist.');
+        }
+    }
 
 }

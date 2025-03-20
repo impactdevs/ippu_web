@@ -43,12 +43,10 @@ class BulkDownloadComplete extends Mailable
                                 <h1>Hello, ' . $this->user->name . '!</h1>
                                 <p>Your bulk CPD certificates for CPD ID: ' . $this->cpd_id . ' have been successfully generated and are now ready for download.</p>
                                 <p>The zip file containing all the certificates is attached to this email. You can download it directly from there.</p>
+                                <a href="' . route($this->zipFilePath) . '">Download the zip file</a>
                                 <p>Thank you for using our service!</p>
                             </body>
-                            </html>')
-                    ->attach($this->zipFilePath, [
-                        'as' => 'bulk_certificates_' . $this->cpd_id . '.zip',
-                        'mime' => 'application/zip',
-                    ]);
+                            </html>');
+                   
     }
 }

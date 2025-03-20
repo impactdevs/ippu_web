@@ -113,6 +113,7 @@ class DownloadBulkCertificatesJob implements ShouldQueue
             }
 
             $image->save($filePath);
+
         } catch (\Exception $e) {
             Log::error('Error generating certificate: ' . $e->getMessage());
             throw $e;

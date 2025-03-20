@@ -54,12 +54,9 @@ Route::get('/', function () {
     return redirect('dashboard');
 });
 
-Route::get('upload_members_list', function () {
-    return view('members.upload');
-});
-
 Route::post('upload_members', [MembersController::class, 'upload_members']);
 Route::get('invite_members', [MembersController::class, 'send_invitation']);
+Route::get('/downloadZip', [mEventsController::class, 'downloadZip'])->name('downloadZip');
 
 Route::get('direct_attendence/{type}/{id}', [mEventsController::class, 'direct_attendence']);
 
@@ -88,7 +85,6 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::resource('communications', CommunicationsController::class)->middleware(['auth', 'verified']);
-
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('education', EducationBackgroundController::class);
@@ -132,9 +128,6 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
 Route::get('users/all', [MembersController::class, 'getAllUsers']);
 Route::post("events/attendence/store", [EventsController::class, 'storeAttendance'])->name('events.attendence.store');
 Route::post("cpds/attendence/store", [CpdsController::class, 'storeAttendance'])->name('cpds.attendence.store');
-
-
-
     //cpds
     Route::post('cpds/attendence/update-email', [mCpdsController::class, 'updateEmail'])->name('cpds.attendence.updateEmail');
     Route::get('cpds/attendence-email/{id}/{user_id}', [mCpdsController::class, 'emailCertificate']);
