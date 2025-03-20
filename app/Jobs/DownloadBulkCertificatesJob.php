@@ -99,7 +99,7 @@ class DownloadBulkCertificatesJob implements ShouldQueue
             $name = $user->name;
             $membership_number = $user->membership_number;
 
-            $templatePath = $event->event_type == 'Annual' ? public_path('images/event_annual_certificate.jpeg') : public_path('images/certificate-template.jpeg');
+            $templatePath = public_path('images/event_annual_certificate.jpeg');
             if (!file_exists($templatePath)) {
                 throw new \Exception('Certificate template not found.');
             }
