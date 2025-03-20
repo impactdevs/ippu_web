@@ -832,10 +832,13 @@ class EventsController extends Controller
 
 
     //download from $zipFilePath = public_path('certificates/' . $zipFileName);
-    public function downloadZip($zipFilePath )
+    public function downloadZip($zipFileName)
     {
+        dd($zipFileName);
+        $zipFilePath = public_path('certificates/' . $zipFileName);
+
         if (file_exists($zipFilePath)) {
-            return response()->download($zipFilePath);
+            return response()->download($zipFilePath)->deleteFileAfterSend(true);
         } else {
             return redirect()->back()->with('error', 'The ZIP file does not exist.');
         }

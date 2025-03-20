@@ -86,7 +86,7 @@ class DownloadBulkCertificatesJob implements ShouldQueue
                 unlink($path);
             }
         }
-        \Mail::to($this->loggedInUser->email)->send(new BulkDownloadComplete($this->eventId, $this->loggedInUser, $zipFilePath));
+        \Mail::to($this->loggedInUser->email)->send(new BulkDownloadComplete($this->eventId, $this->loggedInUser, $zipFileName));
         Log::info('Bulk certificates download job completed for event ID: ' . $this->eventId);
     }
 
