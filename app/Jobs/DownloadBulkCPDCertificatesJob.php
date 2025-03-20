@@ -106,7 +106,7 @@ class DownloadBulkCPDCertificatesJob implements ShouldQueue
             }
         }
 
-        \Mail::to($this->loggedInUser->email)->send(new BulkDownloadComplete($this->cpdId, $this->loggedInUser, $zipFilePath));
+        \Mail::to($this->loggedInUser->email)->send(new BulkDownloadComplete($this->cpdId, $this->loggedInUser, $zipFileName));
 
 
         // Log successful completion

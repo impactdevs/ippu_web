@@ -37,12 +37,12 @@ class BulkDownloadComplete extends Mailable
      */
     public function build()
     {
-        return $this->subject('Bulk CPD Certificates Download Completed')
+        return $this->subject('Bulk Certificates from IPPU')
                     ->html('<html>
                             <body>
                                 <h1>Hello, ' . $this->user->name . '!</h1>
-                                <p>Your bulk CPD certificates for CPD ID: ' . $this->cpd_id . ' have been successfully generated and are now ready for download.</p>
-                                <p>The zip file containing all the certificates is attached to this email. You can download it directly from there.</p>
+                                <p>Your bulk certificates for ID: ' . $this->cpd_id . ' have been successfully generated and are now ready for download.</p>
+                                <p>Click the link below to download the zipped file. You can download it directly from there.</p>
                                 <a href="' . url('downloadZip',$this->zipFilePath) . '">Download the zip file</a>
                                 <p>Thank you for using our service!</p>
                             </body>
