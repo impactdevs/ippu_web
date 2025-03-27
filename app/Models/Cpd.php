@@ -54,9 +54,11 @@ class Cpd extends Model
 
     public function attended_event()
     {
-        // hasMany(RelatedModel, foreignKeyOnRelatedModel = event_id, localKey = id)
-        return $this->hasMany(Attendence::class)->where('status','Attended');
+        return $this->hasMany(Attendence::class)
+            ->where('status', 'Attended')
+            ->whereHas('user'); // Ensures only attendances with existing users are included
     }
+    
 
         protected static function boot()
     {
