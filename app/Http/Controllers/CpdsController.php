@@ -292,7 +292,6 @@ class CpdsController extends Controller
 
     public function downloadCertificate($cpd_id, $user_id)
     {
-        //dd("am here");
         try {
             $manager = new ImageManager(new Driver());
 
@@ -300,7 +299,7 @@ class CpdsController extends Controller
             $user = \App\Models\User::find($user_id);
 
             // Load the certificate template
-            $image = $manager->read(public_path('images/cpd_template.jpeg'));
+            $image = $manager->read(public_path('images/final-cpd-template.jpeg'));
 
             // Add details to the certificate
             $image->text($event->code, 180, 85, function ($font) {
@@ -317,7 +316,7 @@ class CpdsController extends Controller
                 $font->align('center');
             });
 
-            $image->text($event->topic, 850, 770, function ($font) {
+            $image->text($event->topic, 880, 770, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
                 $font->size(25);
                 $font->color('#000000');
@@ -331,13 +330,6 @@ class CpdsController extends Controller
             $formattedRange = ($startDate->month === $endDate->month)
                 ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
                 : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
-
-            // $image->text('on ', 600, 760, function ($font) {
-            //     $font->file(public_path('fonts/Roboto-Regular.ttf'));
-            //     $font->size(20);
-            //     $font->color('#000000');
-            //     $font->align('center');
-            // });
 
             $image->text($formattedRange, $x, 825, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
@@ -385,7 +377,7 @@ class CpdsController extends Controller
             $user = \App\Models\User::find($user_id);
 
             // Load the certificate template
-            $image = $manager->read(public_path('images/cpd_template.jpeg'));
+            $image = $manager->read(public_path('images/final-cpd-template.jpeg'));
 
             // Add details to the certificate
             $image->text($event->code, 180, 85, function ($font) {

@@ -191,7 +191,7 @@ class CpdsController extends Controller
         $manager = new ImageManager(new Driver());
         //read the image from the public folder
         // Load the certificate template
-        $image = $manager->read(public_path('images/cpd_template.jpeg'));
+        $image = $manager->read(public_path('images/final-cpd-template.jpeg'));
         $event = Cpd::find($event);
         $user = auth()->user();
 
