@@ -133,7 +133,7 @@ class DownloadBulkCPDCertificatesJob implements ShouldQueue
                 $font->align('center');
             });
 
-            $image->text($user->name, 780, 550, function ($font) {
+            $image->text(Str::title(Str::lower($user->name)), 780, 550, function ($font) {
                 $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
                 $font->size(45);
                 $font->color('#1F45FC');

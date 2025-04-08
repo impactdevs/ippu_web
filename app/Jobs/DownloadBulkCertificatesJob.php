@@ -17,6 +17,7 @@ use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 use ZipArchive;
 use App\Mail\BulkDownloadComplete;
+use Illuminate\Support\Str;
 
 class DownloadBulkCertificatesJob implements ShouldQueue
 {
@@ -142,7 +143,7 @@ class DownloadBulkCertificatesJob implements ShouldQueue
 
 
         // Event Name Placement
-        $image->text($event->name, 800, 620, function ($font) {
+        $image->text(Str::title(Str::lower($event->name)), 800, 620, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#008000'); // Green color
             $font->size(30); // Increased size
@@ -215,7 +216,7 @@ class DownloadBulkCertificatesJob implements ShouldQueue
 
 
         // Event Name Placement
-        $image->text($event->name, 800, 620, function ($font) {
+        $image->text(Str::title(Str::lower($event->name)), 800, 620, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#008000'); // Green color
             $font->size(30); // Increased size
