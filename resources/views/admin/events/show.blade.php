@@ -196,26 +196,12 @@
                                                         </li>
                                                         <li>
 
-                                                            <a class="mb-2 btn btn-sm btn-warning download-event-certificate"
-                                                                href="#"
+                                                            <button
+                                                                class="mb-2 btn btn-sm btn-warning download-event-certificate"
                                                                 data-url="{{ url('admin/events/download_certificate/' . $event->id . '/' . $attendence->user->id) }}">
                                                                 Download Certificate
-                                                            </a>
+                                                            </button>
 
-                                                            <script>
-                                                                document.querySelectorAll('.download-event-certificate').forEach(function(el) {
-                                                                    el.addEventListener('click', function(e) {
-                                                                        e.preventDefault(); // prevents navigation
-                                                                        const url = this.dataset.url;
-
-                                                                        // Do your AJAX call or custom logic here
-                                                                        console.log("Downloading from:", url);
-
-                                                                        // Example AJAX (optional)
-                                                                        // fetch(url).then(...);
-                                                                    });
-                                                                });
-                                                            </script>
 
                                                         </li>
                                                         <li>

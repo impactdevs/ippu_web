@@ -1243,12 +1243,12 @@
                     'csv',
                     'pdf'
                 ],
-                "pageLength":100
+                pageLength: 25,
+                serverSide: false,
+                deferRender: true
             });
 
-            //download event Certificate
-            $('.download-event-certificate').on('click', function (e) {
-                e.preventDefault(); // Prevent the default navigation
+            $(document).on('click', '.download-event-certificate', function() {
 
                 var url = $(this).attr('data-url');
 
@@ -1268,8 +1268,7 @@
                         console.log(data);
                     }
                 });
-            });
-
+            })
 
             $(".datatable").DataTable({
                 dom: 'Bfrltip', // 'B' for buttons, 'f' for filtering, 'r' for processing, 't' for table, 'i' for info, 'p' for pagination
