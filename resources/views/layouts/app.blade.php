@@ -1246,7 +1246,9 @@
             });
 
             //download event Certificate
-            $(".download-event-certificate").click(function() {
+            $('.download-event-certificate').on('click', function (e) {
+                e.preventDefault(); // Prevent the default navigation
+
                 var url = $(this).attr('data-url');
 
                 $.ajax({
