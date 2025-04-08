@@ -1255,14 +1255,11 @@
                 $.ajax({
                     url: url,
                     success: function(data) {
+                        console.log(data)
                         console.log(data);
-
-                        // Sanitize the file name
-                        var sanitizedFileName = sanitizeFileName(data.name);
-
                         var a = document.createElement('a');
                         a.href = data.url;
-                        a.download = sanitizedFileName;
+                        a.download = data.name.replace(".", " ");;
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
@@ -1272,14 +1269,7 @@
                         console.log(data);
                     }
                 });
-            });
-
-            // Function to sanitize the filename
-            function sanitizeFileName(fileName) {
-                // Replace spaces with underscores, remove special characters, and ensure no leading/trailing spaces
-                return fileName.replace(/[\/\\?%*:|"<>]/g, '-').replace(/\s+/g, '_').trim();
-            }
-
+            })
 
             $(".datatable").DataTable({
                 dom: 'Bfrltip', // 'B' for buttons, 'f' for filtering, 'r' for processing, 't' for table, 'i' for info, 'p' for pagination
