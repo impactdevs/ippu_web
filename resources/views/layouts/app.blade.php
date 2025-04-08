@@ -1242,7 +1242,8 @@
                     'excel',
                     'csv',
                     'pdf'
-                ]
+                ],
+                "pageLength":100
             });
 
             //download event Certificate
