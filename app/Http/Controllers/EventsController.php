@@ -575,7 +575,7 @@ class EventsController extends Controller
             $manager = new ImageManager(new Driver());
             $event = Event::find($event_id);
             $user = User::find($user_id);
-            $name = $user->name;
+            $name = Str::title($user->name);
             $membership_number = $user->membership_number;
             $id = $user->id;
 
@@ -646,7 +646,7 @@ class EventsController extends Controller
         $organizing_committee = $event->organizing_committee ?? 'Institute of Procurement Professionals of Uganda (IPPU)';
 
         // Name Placement
-        $image->text($name, 800, 500, function ($font) {
+        $image->text(Str::title($name), 800, 500, function ($font) {
             // $font->file(public_path('fonts/Roboto-Bold.ttf'));
             $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
             $font->color('#b01735'); // Dark red color
@@ -658,7 +658,7 @@ class EventsController extends Controller
 
 
         // Event Name Placement
-        $image->text(Str::title(Str::lower($event->name)), 800, 620, function ($font) {
+        $image->text($event->name, 800, 620, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#008000'); // Green color
             $font->size(30); // Increased size
@@ -721,7 +721,7 @@ class EventsController extends Controller
         $organizing_committee = $event->organizing_committee ?? 'Institute of Procurement Professionals of Uganda (IPPU)';
 
         // Name Placement
-        $image->text($name, 800, 500, function ($font) {
+        $image->text(Str::title($name), 800, 500, function ($font) {
             // $font->file(public_path('fonts/Roboto-Bold.ttf'));
             $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
             $font->color('#b01735'); // Dark red color
@@ -733,7 +733,7 @@ class EventsController extends Controller
 
 
         // Event Name Placement
-        $image->text(Str::title(Str::lower($event->name)), 800, 620, function ($font) {
+        $image->text($event->name, 800, 620, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#008000'); // Green color
             $font->size(30); // Increased size

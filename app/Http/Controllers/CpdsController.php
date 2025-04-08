@@ -309,7 +309,7 @@ class CpdsController extends Controller
                 $font->align('center');
             });
 
-            $image->text(Str::title(Str::lower($user->name)), 780, 625, function ($font) {
+            $image->text(Str::title($user->name), 780, 625, function ($font) {
                 $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
                 $font->size(45);
                 $font->color('#1F45FC');

@@ -19,6 +19,7 @@ use ZipArchive;
 use App\Mail\BulkDownloadComplete;
 use Illuminate\Support\Str;
 
+
 class DownloadBulkCertificatesJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -131,7 +132,7 @@ class DownloadBulkCertificatesJob implements ShouldQueue
         $organizing_committee = $event->organizing_committee ?? 'Institute of Procurement Professionals of Uganda (IPPU)';
 
         // Name Placement
-        $image->text($name, 800, 500, function ($font) {
+        $image->text(Str::title($name), 800, 500, function ($font) {
             // $font->file(public_path('fonts/Roboto-Bold.ttf'));
             $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
             $font->color('#b01735'); // Dark red color
@@ -143,7 +144,7 @@ class DownloadBulkCertificatesJob implements ShouldQueue
 
 
         // Event Name Placement
-        $image->text(Str::title(Str::lower($event->name)), 800, 620, function ($font) {
+        $image->text($event->name, 800, 620, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#008000'); // Green color
             $font->size(30); // Increased size
@@ -204,7 +205,7 @@ class DownloadBulkCertificatesJob implements ShouldQueue
         $organizing_committee = $event->organizing_committee ?? 'Institute of Procurement Professionals of Uganda (IPPU)';
 
         // Name Placement
-        $image->text($name, 800, 500, function ($font) {
+        $image->text(Str::title($name), 800, 500, function ($font) {
             // $font->file(public_path('fonts/Roboto-Bold.ttf'));
             $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
             $font->color('#b01735'); // Dark red color
@@ -216,7 +217,7 @@ class DownloadBulkCertificatesJob implements ShouldQueue
 
 
         // Event Name Placement
-        $image->text(Str::title(Str::lower($event->name)), 800, 620, function ($font) {
+        $image->text($event->name, 800, 620, function ($font) {
             $font->filename(public_path('fonts/Roboto-Bold.ttf'));
             $font->color('#008000'); // Green color
             $font->size(30); // Increased size
