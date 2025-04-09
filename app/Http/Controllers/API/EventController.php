@@ -27,21 +27,21 @@ class EventController extends Controller
                 ->where('user_id', $userId)
                 ->exists() : false;
 
-                if ($attendanceRequest) {
-                    // Use first() to get a single instance instead of a collection
-                    $attendance = Attendence::where('event_id', $event->id)
-                        ->where('user_id', $userId)
-                        ->first();
+            if ($attendanceRequest) {
+                // Use first() to get a single instance instead of a collection
+                $attendance = Attendence::where('event_id', $event->id)
+                    ->where('user_id', $userId)
+                    ->first();
 
-                    if ($attendance) {
-                        // Now you can access the booking_fee property
-                        $event->balance = ($event->rate) - ($attendance->booking_fee);
-                    } else {
-                        $event->balance = null;
-                    }
+                if ($attendance) {
+                    // Now you can access the booking_fee property
+                    $event->balance = ($event->rate) - ($attendance->booking_fee);
                 } else {
                     $event->balance = null;
                 }
+            } else {
+                $event->balance = null;
+            }
 
 
             $event->attendance_request = $attendanceRequest;
@@ -164,7 +164,7 @@ class EventController extends Controller
                 $attendance->booking_fee += $request->amount; // Add the new booking fee to the existing one
                 $attendance->save();
 
-                return  response()->json([
+                return response()->json([
                     'success' => true,
                     'message' => 'event has been recorded!',
                 ]);
@@ -246,7 +246,7 @@ class EventController extends Controller
         // Name Placement
         $image->text($name, 800, 500, function ($font) {
             // $font->file(public_path('fonts/Roboto-Bold.ttf'));
-            $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
+            $font->filename(public_path('fonts/POPPINS-BOLD.TTF'));
             $font->color('#b01735'); // Dark red color
             $font->size(50); // Increased size for better visibility
             $font->align('center');
@@ -321,7 +321,7 @@ class EventController extends Controller
         // Name Placement
         $image->text($name, 800, 500, function ($font) {
             // $font->file(public_path('fonts/Roboto-Bold.ttf'));
-            $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
+            $font->filename(public_path('fonts/POPPINS-BOLD.TTF'));
             $font->color('#b01735'); // Dark red color
             $font->size(50); // Increased size for better visibility
             $font->align('center');

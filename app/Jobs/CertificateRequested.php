@@ -59,7 +59,7 @@ class CertificateRequested implements ShouldQueue
 
             // Name Placement
             $image->text($this->name, 800, 500, function ($font) {
-                $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
+                $font->filename(public_path('fonts/POPPINS-BOLD.TTF'));
                 $font->color('#b01735');
                 $font->size(50);
                 $font->align('center');

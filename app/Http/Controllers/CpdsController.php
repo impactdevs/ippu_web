@@ -96,7 +96,7 @@ class CpdsController extends Controller
                     'amount' => $amount,
                     'currency' => 'UGX',
                     // 'redirect_url' => 'http://localhost:8000/redirect_url_cpds?cpd_id=' . $cpd->id . '&amount=' . $amount,
-                    'redirect_url' => url('redirect_url_cpds') . '?cpd_id=' . $cpd->id.'&amount='.$amount,
+                    'redirect_url' => url('redirect_url_cpds') . '?cpd_id=' . $cpd->id . '&amount=' . $amount,
                     'meta' => [
                         'consumer_id' => auth()->user()->id,
                         "full_name" => auth()->user()->name,
@@ -211,7 +211,7 @@ class CpdsController extends Controller
         });
 
         $image->text($user->name, 780, 550, function ($font) {
-            $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
+            $font->filename(public_path('fonts/POPPINS-BOLD.TTF'));
             $font->color('#1F45FC');
             $font->size(45);
             $font->align('center');
@@ -310,7 +310,7 @@ class CpdsController extends Controller
             });
 
             $image->text(Str::title($user->name), 780, 625, function ($font) {
-                $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
+                $font->file(public_path('fonts/POPPINS-BOLD.TTF'));
                 $font->size(45);
                 $font->color('#1F45FC');
                 $font->align('center');
@@ -388,7 +388,7 @@ class CpdsController extends Controller
             });
 
             $image->text(Str::title(Str::lower($user->name)), 780, 625, function ($font) {
-                $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
+                $font->file(public_path('fonts/POPPINS-BOLD.TTF'));
                 $font->size(45);
                 $font->color('#1F45FC');
                 $font->align('center');

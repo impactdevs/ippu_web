@@ -157,7 +157,7 @@ class CpdsController extends Controller
                 $attendance->booking_fee += $request->amount; // Add the new booking fee to the existing one
                 $attendance->save();
 
-                return  response()->json([
+                return response()->json([
                     'success' => true,
                     'message' => 'CPD has been recorded!',
                     'balance' => (Cpd::find($request->cpd_id)->normal_rate) - ($attendance->booking_fee),
@@ -206,7 +206,7 @@ class CpdsController extends Controller
         });
 
         $image->text($user->name, 780, 625, function ($font) {
-            $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
+            $font->file(public_path('fonts/POPPINS-BOLD.TTF'));
             $font->size(45);
             $font->color('#1F45FC');
             $font->align('center');

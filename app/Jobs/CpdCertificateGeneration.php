@@ -26,7 +26,8 @@ class CpdCertificateGeneration implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        $event, $user
+        $event,
+        $user
     ) {
         $this->event = $event;
         $this->user = $user;
@@ -54,7 +55,7 @@ class CpdCertificateGeneration implements ShouldQueue
         });
 
         $image->text($this->user->name, 780, 550, function ($font) {
-            $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
+            $font->filename(public_path('fonts/POPPINS-BOLD.TTF'));
             $font->color('#1F45FC');
             $font->size(45);
             $font->align('center');
