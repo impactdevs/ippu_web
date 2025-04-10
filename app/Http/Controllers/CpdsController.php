@@ -292,7 +292,7 @@ class CpdsController extends Controller
 
     public function downloadCertificate($cpd_id, $user_id)
     {
-       
+       try{
             $manager = new ImageManager(new Driver());
 
             $event = Cpd::find($cpd_id);
@@ -356,10 +356,6 @@ class CpdsController extends Controller
             $path = public_path('certificates/' . $user->id . '_certificate.png');
             $image->save($path);
 
-            $imgR = file_get_contents(public_path('certificates/' . $user->id . '_certificate.png'));
-
-            return response($imgR)->header('Content-Type', 'image/png');
-
             //check if the file exists and is readable and send the file
             if (file_exists($path) && is_readable($path)) {
                 return response([
@@ -371,6 +367,9 @@ class CpdsController extends Controller
             } else {
                 return redirect()->back()->with('error', 'An error occurred while downloading the certificate.');
             }
+        }catch(Exception $e){
+            return response()->json(["success"=>false, "error"=>$e->getMessage()]);
+        }
  
     }
 
