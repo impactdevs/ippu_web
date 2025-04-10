@@ -209,7 +209,7 @@ class CpdsController extends Controller
 
                 if (!$storage) {
                     //return redirect()->back()->with('error','Unable to upload banners');
-                    dd('Unable to upload banner: ' . $e->getMessage());
+                    // dd('Unable to upload banner: ' . $e->getMessage());
 
                 }
 
@@ -409,28 +409,26 @@ class CpdsController extends Controller
             // Load the certificate template
             $image = $manager->make(public_path('images/cpd-certificate-template.jpg'));
 
-            // Add details to the certificate
-            $image->text($event->code, 173, 27, function ($font) {
+              // Add details to the certificate
+              $image->text($event->code, 180, 85, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
                 $font->size(20);
                 $font->color('#000000');
                 $font->align('center');
             });
-
-            $image->text($user->name, 780, 550, function ($font) {
+            $image->text(Str::title($user->name), 780, 625, function ($font) {
                 $font->file(public_path('fonts/POPPINS-BOLD.TTF'));
                 $font->size(45);
                 $font->color('#1F45FC');
                 $font->align('center');
             });
 
-            $image->text($event->topic, 730, 690, function ($font) {
-                $font->file(public_path('fonts/Roboto-Bold.ttf'));
-                $font->size(20);
-                $font->color('#000000');
+            $image->text(Str::title(Str::lower($user->name)), 780, 625, function ($font) {
+                $font->file(public_path('fonts/POPPINS-BOLD.TTF'));
+                $font->size(45);
+                $font->color('#1F45FC');
                 $font->align('center');
             });
-
             $startDate = Carbon::parse($event->start_date);
             $endDate = Carbon::parse($event->end_date);
 
@@ -439,21 +437,14 @@ class CpdsController extends Controller
                 ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
                 : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
 
-            $image->text('on ', 600, 760, function ($font) {
-                $font->file(public_path('fonts/Roboto-Regular.ttf'));
-                $font->size(20);
-                $font->color('#000000');
-                $font->align('center');
-            });
-
-            $image->text($formattedRange, $x, 760, function ($font) {
+            $image->text($formattedRange, $x, 825, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
                 $font->size(20);
                 $font->color('#000000');
                 $font->align('center');
             });
 
-            $image->text($event->hours . " CPD HOURS", 1400, 945, function ($font) {
+            $image->text($event->hours . " CPD HOURS", 1400, 1020, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
                 $font->size(17);
                 $font->color('#000000');

@@ -292,7 +292,7 @@ class CpdsController extends Controller
 
     public function downloadCertificate($cpd_id, $user_id)
     {
-        try {
+       
             $manager = new ImageManager(new Driver());
 
             $event = Cpd::find($cpd_id);
@@ -315,21 +315,28 @@ class CpdsController extends Controller
                 $font->color('#1F45FC');
                 $font->align('center');
             });
-
-            $image->text($event->topic, 880, 770, function ($font) {
+            $image->text(Str::title($event->topic), 550, 770, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
                 $font->size(25);
                 $font->color('#000000');
-                $font->align('center');
+                $font->align('left');
+                $font->valign('middle');
+                $font->lineHeight(2.0);
+                $font->wrap(1000);
             });
 
             $startDate = Carbon::parse($event->start_date);
             $endDate = Carbon::parse($event->end_date);
 
             $x = ($startDate->month === $endDate->month) ? 720 : 780;
-            $formattedRange = ($startDate->month === $endDate->month)
-                ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
-                : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+            if ($startDate->isSameDay($endDate)) {
+                $formattedRange = $startDate->format('jS F Y');
+            } elseif ($startDate->month === $endDate->month && $startDate->year === $endDate->year) {
+                $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
+            } else {
+                $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+            }
+            
 
             $image->text($formattedRange, $x, 825, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
@@ -349,6 +356,10 @@ class CpdsController extends Controller
             $path = public_path('certificates/' . $user->id . '_certificate.png');
             $image->save($path);
 
+            $imgR = file_get_contents(public_path('certificates/' . $user->id . '_certificate.png'));
+
+            return response($imgR)->header('Content-Type', 'image/png');
+
             //check if the file exists and is readable and send the file
             if (file_exists($path) && is_readable($path)) {
                 return response([
@@ -360,10 +371,7 @@ class CpdsController extends Controller
             } else {
                 return redirect()->back()->with('error', 'An error occurred while downloading the certificate.');
             }
-        } catch (\Exception $e) {
-            // Handle any errors that occur during the certificate generation
-            return redirect()->back()->with('error', 'An error occurred while generating the certificate: ' . $e->getMessage());
-        }
+ 
     }
 
     public function emailCertificate($cpd_id, $user_id)
@@ -394,20 +402,27 @@ class CpdsController extends Controller
                 $font->align('center');
             });
 
-            $image->text($event->topic, 850, 770, function ($font) {
+            $image->text(Str::title($event->topic), 550, 770, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
                 $font->size(25);
                 $font->color('#000000');
-                $font->align('center');
+                $font->align('left');
+                $font->valign('middle');
+                $font->lineHeight(2.0);
+                $font->wrap(1000);
             });
 
             $startDate = Carbon::parse($event->start_date);
             $endDate = Carbon::parse($event->end_date);
 
             $x = ($startDate->month === $endDate->month) ? 720 : 780;
-            $formattedRange = ($startDate->month === $endDate->month)
-                ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
-                : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+            if ($startDate->isSameDay($endDate)) {
+                $formattedRange = $startDate->format('jS F Y');
+            } elseif ($startDate->month === $endDate->month && $startDate->year === $endDate->year) {
+                $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
+            } else {
+                $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+            }
 
             $image->text($formattedRange, $x, 825, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));

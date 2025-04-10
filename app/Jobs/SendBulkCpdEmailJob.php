@@ -84,57 +84,54 @@ class SendBulkCpdEmailJob implements ShouldQueue
             $image = $manager->read(public_path('images/cpd-certificate-template.jpg'));
 
             // Add details to the certificate
-            $image->text($event->code, 173, 27, function ($font) {
+            $image->text($event->code, 180, 85, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
                 $font->size(20);
                 $font->color('#000000');
                 $font->align('center');
             });
 
-            $image->text($user->name, 780, 550, function ($font) {
-                $font->file(public_path('fonts/GreatVibes-Regular.ttf'));
+            $image->text(Str::title(Str::lower($user->name)), 780, 625, function ($font) {
+                $font->file(public_path('fonts/POPPINS-BOLD.TTF'));
                 $font->size(45);
                 $font->color('#1F45FC');
                 $font->align('center');
             });
 
-            $image->text($event->topic, 730, 690, function ($font) {
+            $image->text(Str::title($event->topic), 550, 770, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
-                $font->size(20);
+                $font->size(25);
                 $font->color('#000000');
-                $font->align('center');
+                $font->align('left');
+                $font->valign('middle');
+                $font->lineHeight(2.0);
+                $font->wrap(1000);
             });
 
             $startDate = Carbon::parse($event->start_date);
             $endDate = Carbon::parse($event->end_date);
 
             $x = ($startDate->month === $endDate->month) ? 720 : 780;
-            $formattedRange = ($startDate->month === $endDate->month)
-                ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
-                : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
-
-            $image->text('on ', 600, 760, function ($font) {
-                $font->file(public_path('fonts/Roboto-Regular.ttf'));
-                $font->size(20);
-                $font->color('#000000');
-                $font->align('center');
-            });
-
-            $image->text($formattedRange, $x, 760, function ($font) {
+            if ($startDate->isSameDay($endDate)) {
+                $formattedRange = $startDate->format('jS F Y');
+            } elseif ($startDate->month === $endDate->month && $startDate->year === $endDate->year) {
+                $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
+            } else {
+                $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+            }
+            $image->text($formattedRange, $x, 825, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
                 $font->size(20);
                 $font->color('#000000');
                 $font->align('center');
             });
 
-            $image->text($event->hours . " CPD HOURS", 1400, 945, function ($font) {
+            $image->text($event->hours . " CPD HOURS", 1400, 1020, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
                 $font->size(17);
                 $font->color('#000000');
                 $font->align('center');
             });
-
-
 
             // Save the certificate to a temporary file
             $path = public_path('certificates/' . $user->id . '_certificate.png');

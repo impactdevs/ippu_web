@@ -134,7 +134,7 @@ class DownloadBulkCertificatesJob implements ShouldQueue
         // Name Placement
         $image->text(Str::title($name), 800, 500, function ($font) {
             // $font->file(public_path('fonts/Roboto-Bold.ttf'));
-            $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
+            $font->filename(public_path('fonts/POPPINS-BOLD.TTF'));
             $font->color('#b01735'); // Dark red color
             $font->size(50); // Increased size for better visibility
             $font->align('center');
@@ -207,7 +207,7 @@ class DownloadBulkCertificatesJob implements ShouldQueue
         // Name Placement
         $image->text(Str::title($name), 800, 500, function ($font) {
             // $font->file(public_path('fonts/Roboto-Bold.ttf'));
-            $font->filename(public_path('fonts/GreatVibes-Regular.ttf'));
+            $font->filename(public_path('fonts/POPPINS-BOLD.TTF'));
             $font->color('#b01735'); // Dark red color
             $font->size(50); // Increased size for better visibility
             $font->align('center');
