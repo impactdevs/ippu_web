@@ -13,10 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # - name: Install dependencies
-      #   run: |
-      #     composer install --no-dev --prefer-dist --optimize-autoloader
-
+      # upload files to digital ocean
       - name: Upload files to DigitalOcean
         uses: appleboy/scp-action@master
         with:
