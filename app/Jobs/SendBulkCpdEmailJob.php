@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
+use Illuminate\Support\Str;
 
 class SendBulkCpdEmailJob implements ShouldQueue
 {
@@ -96,6 +97,16 @@ class SendBulkCpdEmailJob implements ShouldQueue
                 $font->size(45);
                 $font->color('#1F45FC');
                 $font->align('center');
+            });
+
+            $image->text(Str::title($event->topic), 550, 770, function ($font) {
+                $font->file(public_path('fonts/Roboto-Bold.ttf'));
+                $font->size(25);
+                $font->color('#000000');
+                $font->align('left');
+                $font->valign('middle');
+                $font->lineHeight(2.0);
+                $font->wrap(1000);
             });
 
             $image->text(Str::title($event->topic), 550, 770, function ($font) {

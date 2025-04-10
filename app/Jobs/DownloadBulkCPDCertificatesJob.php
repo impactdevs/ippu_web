@@ -17,6 +17,7 @@ use ZipArchive;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 use App\Mail\BulkDownloadComplete;
+use Illuminate\Support\Str;
 
 class DownloadBulkCPDCertificatesJob implements ShouldQueue
 {
@@ -139,10 +140,20 @@ class DownloadBulkCPDCertificatesJob implements ShouldQueue
                 $font->align('center');
             });
 
-            $image->text($event->topic, 880, 770, function ($font) {
+            $image->text(Str::title($event->topic), 550, 770, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
                 $font->size(25);
                 $font->color('#000000');
+                $font->align('left');
+                $font->valign('middle');
+                $font->lineHeight(2.0);
+                $font->wrap(1000);
+            });
+
+            $image->text(Str::title(Str::lower($user->name)), 780, 625, function ($font) {
+                $font->file(public_path('fonts/POPPINS-BOLD.TTF'));
+                $font->size(45);
+                $font->color('#1F45FC');
                 $font->align('center');
             });
 
@@ -150,10 +161,14 @@ class DownloadBulkCPDCertificatesJob implements ShouldQueue
             $endDate = Carbon::parse($event->end_date);
 
             $x = ($startDate->month === $endDate->month) ? 720 : 780;
-            $formattedRange = ($startDate->month === $endDate->month)
-                ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
-                : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
-
+            if ($startDate->isSameDay($endDate)) {
+                $formattedRange = $startDate->format('jS F Y');
+            } elseif ($startDate->month === $endDate->month && $startDate->year === $endDate->year) {
+                $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
+            } else {
+                $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+            }
+            
             $image->text($formattedRange, $x, 825, function ($font) {
                 $font->file(public_path('fonts/Roboto-Bold.ttf'));
                 $font->size(20);

@@ -739,6 +739,7 @@ class EventsController extends Controller
             $font->size(30); // Increased size
             $font->align('center');
             $font->valign('middle');
+            $font->wrap(1500);
         });
 
         // Theme Text Placement
@@ -765,13 +766,18 @@ class EventsController extends Controller
 
         $startDate = Carbon::parse($event->start_date);
         $endDate = Carbon::parse($event->end_date);
-
-        $x = ($startDate->month === $endDate->month) ? 720 : 780;
-        $formattedRange = ($startDate->month === $endDate->month)
-            ? $startDate->format('jS') . ' - ' . $endDate->format('jS F Y')
-            : $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
-
-
+        
+        if ($startDate->isSameDay($endDate)) {
+            $x = 700;
+            $formattedRange = $startDate->format('jS F Y');
+        } elseif ($startDate->month === $endDate->month) {
+            $x = 720;
+            $formattedRange = $startDate->format('jS') . ' - ' . $endDate->format('jS F Y');
+        } else {
+            $x = 780;
+            $formattedRange = $startDate->format('jS F Y') . ' - ' . $endDate->format('jS F Y');
+        }
+        
         // Date and Place Text Placement
         $image->text('on ' . $formattedRange, 800, 780, function ($font) {
             $font->filename(public_path('fonts/Roboto-Regular.ttf'));
