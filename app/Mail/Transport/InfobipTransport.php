@@ -43,12 +43,24 @@ class InfobipTransport extends AbstractTransport
             $multipart[] = ['name' => 'html', 'contents' => $email->getHtmlBody()];
         }
     
-        // Attachments
+        // Handle Attachments
         foreach ($email->getAttachments() as $attachment) {
+            // Skip inline attachments (CID-based)
+            if ($attachment->getDisposition() !== 'attachment') {
+                continue;
+            }
+    
+            $body = $attachment->getBody();
+            $body->rewind(); // Rewind the stream to read from the beginning
+            $contents = $body->getContents();
+    
             $multipart[] = [
                 'name' => 'attachments',
-                'contents' => $attachment->getBody(),
+                'contents' => $contents,
                 'filename' => $attachment->getFilename(),
+                'headers' => [
+                    'Content-Type' => $attachment->getContentType(),
+                ],
             ];
         }
     
