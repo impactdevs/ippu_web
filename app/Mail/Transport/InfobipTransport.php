@@ -43,26 +43,39 @@ class InfobipTransport extends AbstractTransport
             $multipart[] = ['name' => 'html', 'contents' => $email->getHtmlBody()];
         }
     
-        // Handle Attachments
-        foreach ($email->getAttachments() as $attachment) {
-            // Skip inline attachments (CID-based)
-            if ($attachment->getDisposition() !== 'attachment') {
-                continue;
-            }
-    
-            $body = $attachment->getBody();
-            $body->rewind(); // Rewind the stream to read from the beginning
-            $contents = $body->getContents();
-    
-            $multipart[] = [
-                'name' => 'attachments',
-                'contents' => $contents,
-                'filename' => $attachment->getFilename(),
-                'headers' => [
-                    'Content-Type' => $attachment->getContentType(),
-                ],
-            ];
+    // Handle Attachments
+    foreach ($email->getAttachments() as $attachment) {
+        if ($attachment->getDisposition() !== 'attachment') {
+            continue;
         }
+
+        $body = $attachment->getBody();
+        $filename = $attachment->getFilename();
+        $contentType = $attachment->getContentType();
+
+        // Get raw content
+        if (is_object($body) && method_exists($body, 'rewind')) {
+            $body->rewind();
+            $contents = $body->getContents();
+        } else {
+            $contents = $body;
+        }
+
+        // Decode if content is base64
+        $decoded = base64_decode($contents, true);
+        if ($decoded !== false) {
+            $contents = $decoded;
+        }
+
+        $multipart[] = [
+            'name' => 'attachments',
+            'contents' => $contents,
+            'filename' => $filename,
+            'headers' => [
+                'Content-Type' => $contentType,
+            ]
+        ];
+    }
     
         $response = Http::withHeaders([
             'Authorization' => 'App ' . $this->apiKey,
