@@ -57,6 +57,13 @@ return [
             // ],
         ],
 
+        'infobip' => [
+            'transport' => 'infobip',
+            // 'client' => [
+            //     'timeout' => 5,
+            // ],
+        ],
+
         'postmark' => [
             'transport' => 'postmark',
             // 'client' => [
@@ -99,7 +106,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'info@ippu.org'),
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 

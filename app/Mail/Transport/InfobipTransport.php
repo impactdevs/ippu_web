@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Mail\Transport;
+
+use Symfony\Component\Mailer\SentMessage;
+use Symfony\Component\Mailer\Transport\AbstractTransport;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Part\DataPart;
+use Illuminate\Support\Facades\Http;
+
+class InfobipTransport extends AbstractTransport
+{
+    protected $baseUrl;
+    protected $apiKey;
+    protected $emailFrom;
+
+    public function __construct(string $baseUrl, string $apiKey, string $emailFrom)
+    {
+        $this->baseUrl = $baseUrl;
+        $this->apiKey = $apiKey;
+        $this->emailFrom = $emailFrom;
+
+        parent::__construct();
+    }
+
+    protected function doSend(SentMessage $message): void
+    {
+        /** @var Email $email */
+        $email = $message->getOriginalMessage();
+    
+        $multipart = [
+            ['name' => 'from', 'contents' => $this->emailFrom],
+            ['name' => 'to', 'contents' => implode(',', array_map(fn($a) => $a->getAddress(), $email->getTo()))],
+            ['name' => 'subject', 'contents' => $email->getSubject()],
+        ];
+    
+        if ($email->getTextBody()) {
+            $multipart[] = ['name' => 'text', 'contents' => $email->getTextBody()];
+        }
+    
+        if ($email->getHtmlBody()) {
+            $multipart[] = ['name' => 'html', 'contents' => $email->getHtmlBody()];
+        }
+    
+        // Attachments
+        foreach ($email->getAttachments() as $attachment) {
+            $multipart[] = [
+                'name' => 'attachments',
+                'contents' => $attachment->getBody(),
+                'filename' => $attachment->getFilename(),
+            ];
+        }
+    
+        $response = Http::withHeaders([
+            'Authorization' => 'App ' . $this->apiKey,
+            'Accept' => 'application/json',
+        ])
+        ->asMultipart()
+        ->post("{$this->baseUrl}/email/2/send", $multipart);
+    
+        if ($response->failed()) {
+            throw new \RuntimeException("Infobip API Error: " . $response->body());
+        }
+    }
+    
+
+    private function formatAddresses(array $addresses): array
+    {
+        return array_map(function ($address) {
+            return ['to' => $address->getAddress()];
+        }, $addresses);
+    }
+
+    private function formatAttachments(array $attachments): array
+    {
+        return array_map(function (DataPart $attachment) {
+            return [
+                'filename' => $attachment->getFilename(),
+                'data' => base64_encode($attachment->getBody()),
+            ];
+        }, $attachments);
+    }
+
+    public function __toString(): string
+    {
+        return 'infobip';
+    }
+}
