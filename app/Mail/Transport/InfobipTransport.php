@@ -7,6 +7,7 @@ use Symfony\Component\Mailer\Transport\AbstractTransport;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Part\DataPart;
 use Illuminate\Support\Facades\Http;
+use Symfony\Component\Mime\MessageConverter;
 
 class InfobipTransport extends AbstractTransport
 {
@@ -26,7 +27,7 @@ class InfobipTransport extends AbstractTransport
     protected function doSend(SentMessage $message): void
     {
         /** @var Email $email */
-        $email = $message->getOriginalMessage();
+        $email = MessageConverter::toEmail($message->getOriginalMessage());
     
         $multipart = [
             ['name' => 'from', 'contents' => $this->emailFrom],
