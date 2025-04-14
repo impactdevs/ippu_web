@@ -61,28 +61,23 @@ class InfobipTransport extends AbstractTransport
             $contents = $body;
         }
 
-        // Decode if content is base64
-        $decoded = base64_decode($contents, true);
-        if ($decoded !== false) {
-            $contents = $decoded;
-        }
-
         $multipart[] = [
-            'name' => 'attachments',
+            'name' => 'attachment',
             'contents' => $contents,
             'filename' => $filename,
             'headers' => [
                 'Content-Type' => $contentType,
             ]
         ];
-    }
-    
+
+    } 
+
         $response = Http::withHeaders([
             'Authorization' => 'App ' . $this->apiKey,
             'Accept' => 'application/json',
         ])
         ->asMultipart()
-        ->post("{$this->baseUrl}/email/2/send", $multipart);
+        ->post("{$this->baseUrl}/email/3/send", $multipart);
     
         if ($response->failed()) {
             throw new \RuntimeException("Infobip API Error: " . $response->body());
